@@ -1,0 +1,39 @@
+name: bluetooth_app
+description: "A new Flutter project."
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  bluetooth_print: ^4.3.0
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+  image_picker: ^1.1.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  esc_pos_utils: ^1.1.0
+  flutter_blue_plus: ^1.32.11
+  flutter_printer: ^2.0.3
+  blue_thermal_printer: ^1.2.3
+  flutter_datetime_picker_plus: ^2.2.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.11
+
+
+flutter:
+  uses-material-design: true
+
+assets:
+  - images/ggg.jpeg
+
