@@ -17,16 +17,22 @@ class NomenclatureAdapter extends TypeAdapter<Nomenclature> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Nomenclature(
-      name: fields[0] as String,
+      id: fields[0] as String?,
+      name: fields[1] as String,
+      isHide: fields[2] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Nomenclature obj) {
     writer
-      ..writeByte(1)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.name);
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.isHide);
   }
 
   @override

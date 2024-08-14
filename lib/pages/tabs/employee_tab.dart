@@ -1,5 +1,6 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/models/employee.dart';
+import 'package:bluetooth_app/widgets/text_feild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,13 +13,20 @@ class EmployeeTab extends StatefulWidget {
 
 class _EmployeeTabState extends State<EmployeeTab> {
   late GenericBloc<Employee> bloc;
+  TextEditingController firstNameController = TextEditingController();
 
   @override
   void initState() {
-    bloc = context.read<GenericBloc<Employee>>()
-      ..add(LoadItems<Employee>());
+    bloc = context.read<GenericBloc<Employee>>()..add(LoadItems<Employee>());
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -49,7 +57,7 @@ class _EmployeeTabState extends State<EmployeeTab> {
                               child: const Text('Удалить'),
                               onTap: () {
                                 bloc.add(DeleteItem<Employee>(
-                                    state.items[index].lastName));
+                                    state.items[index].id));
                               },
                             ),
                           ];
@@ -78,14 +86,6 @@ class _EmployeeTabState extends State<EmployeeTab> {
               return BottomSheet(
                 onClosing: () {},
                 builder: (context) {
-                  TextEditingController firstNameController =
-                      TextEditingController();
-                  TextEditingController lastNameController =
-                      TextEditingController();
-
-                  bool validFirstName = false;
-                  bool validLastName = false;
-
                   return StatefulBuilder(
                     builder: (context, setState) {
                       return Scaffold(
@@ -99,49 +99,23 @@ class _EmployeeTabState extends State<EmployeeTab> {
                                 automaticallyImplyLeading: false,
                               ),
                               SliverToBoxAdapter(
-                                child: TextField(
-                                  controller: firstNameController,
-                                  decoration: InputDecoration(
-                                      hintText: 'Иван',
-                                      labelText: 'Имя сотрудника',
-                                      errorText: validFirstName
-                                          ? 'Необходимо заполнить это поле'
-                                          : null),
-                                ),
-                              ),
-                              SliverToBoxAdapter(
-                                child: TextField(
-                                  controller: lastNameController,
-                                  decoration: InputDecoration(
-                                      hintText: 'Иванов',
-                                      labelText: 'Фамилия сотрудника',
-                                      errorText: validLastName
-                                          ? 'Необходимо заполнить это поле'
-                                          : null),
-                                ),
-                              ),
+                                  child: TextInput(
+                                      controller: firstNameController,
+                                      hintText: 'Иванов Иван',
+                                      labelText: 'Фамилия и имя сотрудника')),
                               const SliverToBoxAdapter(
-                                child: SizedBox(height: 30,),
+                                child: SizedBox(
+                                  height: 30,
+                                ),
                               ),
                               SliverToBoxAdapter(
                                 child: ElevatedButton(
                                     onPressed: () {
-                                      if (firstNameController.text.isEmpty) {
-                                        setState(() {
-                                          validFirstName = true;
-                                        });
-                                        return;
-                                      }
-                        
-                                      if (lastNameController.text.isEmpty) {
-                                        setState(() {
-                                          validLastName = true;
-                                        });
-                                        return;
-                                      }
                                       bloc.add(AddItem<Employee>(Employee(
-                                          firstName: firstNameController.text,
-                                          lastName: lastNameController.text)));
+                                          firstName: firstNameController.text.split(' ')[0],
+                                          lastName: '')));
+                                              Navigator.pop(context);
+
                                     },
                                     child: const Text('Добавить')),
                               )

@@ -27,15 +27,20 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   Future<void> add(Nomenclature item) async {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-      nomenclatureBox.put(item.name, item);
+      nomenclatureBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }
   }
 
   @override
-  Future<void> update(Nomenclature item) async {
-    // Реализация обновления сотрудника
+  Future<bool> update(Nomenclature item) async {
+    try {
+      await Hive.box<Nomenclature>('nomenclature_box').put(item.id, item);
+      return true;
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   @override

@@ -15,7 +15,7 @@ class ProductRepository implements Repository<Product> {
   Future<void> add(Product item) async {
     try {
       var productBox = Hive.box<Product>('products_box');
-      productBox.put("${item.category}|${item.title}", item);
+      productBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }
@@ -43,8 +43,12 @@ class ProductRepository implements Repository<Product> {
   }
 
   @override
-  Future<void> update(Product item) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<bool> update(Product item) async {
+    try {
+      await Hive.box<Product>('products_box').put(item.id, item);
+      return true;
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 }

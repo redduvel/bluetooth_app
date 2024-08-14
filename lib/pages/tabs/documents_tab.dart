@@ -1,5 +1,6 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
+import 'package:bluetooth_app/widgets/text_feild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,6 +13,9 @@ class DocumentsTab extends StatefulWidget {
 
 class _DocumentsTabState extends State<DocumentsTab> {
   late GenericBloc<Nomenclature> bloc;
+  TextEditingController nameController = TextEditingController();
+
+  bool valid = false;
 
   @override
   void initState() {
@@ -19,6 +23,13 @@ class _DocumentsTabState extends State<DocumentsTab> {
       ..add(LoadItems<Nomenclature>());
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -47,7 +58,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
                               child: const Text('Удалить'),
                               onTap: () {
                                 bloc.add(DeleteItem<Nomenclature>(
-                                    state.items[index].name));
+                                    state.items[index].id));
                               },
                             ),
                           ];
@@ -77,11 +88,6 @@ class _DocumentsTabState extends State<DocumentsTab> {
               return BottomSheet(
                 onClosing: () {},
                 builder: (context) {
-                  TextEditingController nameController =
-                      TextEditingController();
-
-                  bool valid = false;
-
                   return StatefulBuilder(
                     builder: (context, setState) {
                       return Scaffold(
@@ -95,18 +101,14 @@ class _DocumentsTabState extends State<DocumentsTab> {
                                 automaticallyImplyLeading: false,
                               ),
                               SliverToBoxAdapter(
-                                child: TextField(
-                                  controller: nameController,
-                                  decoration: InputDecoration(
+                                  child: TextInput(
+                                      controller: nameController,
                                       hintText: 'Специи',
-                                      labelText: 'Название',
-                                      errorText: valid
-                                          ? 'Необходимо заполнить это поле'
-                                          : null),
-                                ),
-                              ),
+                                      labelText: 'Название')),
                               const SliverToBoxAdapter(
-                                child: SizedBox(height: 30,),
+                                child: SizedBox(
+                                  height: 30,
+                                ),
                               ),
                               SliverToBoxAdapter(
                                 child: ElevatedButton(
@@ -117,8 +119,11 @@ class _DocumentsTabState extends State<DocumentsTab> {
                                         });
                                         return;
                                       }
-                                      bloc.add(AddItem<Nomenclature>(Nomenclature(
-                                          name: nameController.text)));
+                                      bloc.add(AddItem<Nomenclature>(
+                                          Nomenclature(
+                                              name: nameController.text, isHide: false)));
+                                                  Navigator.pop(context);
+
                                     },
                                     child: const Text('Добавить')),
                               )

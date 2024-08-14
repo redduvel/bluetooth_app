@@ -14,7 +14,14 @@ class _ManagePageState extends State<ManagePage> {
   int _currentIndex = 2;
 
   final List<Widget> _children = [
-    const ProductsTab(),
+    const ProductsTab(
+      showProductTools: true,
+      showFloatingActionButton: true,
+      showHideProducts: true,
+      isSetting: true,
+      gridCrossAxisCount: 1,
+      gridChilAspectRatio: 2 / 1,
+    ),
     const EmployeeTab(),
     const DocumentsTab(),
   ];

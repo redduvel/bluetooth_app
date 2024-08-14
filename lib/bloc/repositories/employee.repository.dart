@@ -28,15 +28,20 @@ class EmployeeRepository implements Repository<Employee> {
   Future<void> add(Employee item) async {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
-      employeeBox.put(item.lastName, item);
+      employeeBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }
   }
 
   @override
-  Future<void> update(Employee item) async {
-    // Реализация обновления сотрудника
+  Future<bool> update(Employee item) async {
+    try {
+      await Hive.box<Employee>('employee_box').put(item.id, item);
+      return true;
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/pages/connection_page2.dart';
+import 'package:bluetooth_app/pages/label_page.dart';
 import 'package:bluetooth_app/pages/manage_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,10 +17,18 @@ class _HomePageState extends State<HomePage> {
   late GenericBloc<Employee> bloc;
   TextEditingController passwordController = TextEditingController();
   bool valid = true;
+
+
   @override
   void initState() {
     bloc = context.read<GenericBloc<Employee>>()..add(LoadItems<Employee>());
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -28,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.orange,
         title: const Text(
-          'DoDo',
+          '',
           style: TextStyle(color: Colors.white),
         ),
         actions: [
@@ -73,6 +82,8 @@ class _HomePageState extends State<HomePage> {
                                                   });
                                                   return;
                                                 }
+
+                                                Navigator.pop(context);
                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
@@ -96,6 +107,7 @@ class _HomePageState extends State<HomePage> {
                                                     });
                                                     return;
                                                   }
+                                                  Navigator.pop(context);
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
@@ -160,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                                 onTap: () {
                                   bloc.repository.currentItem =
                                       employees[index];
-                                  print(bloc.repository.currentItem.lastName);
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => LabelPage()));
                                 },
                               );
                             }, childCount: employees.length)),
