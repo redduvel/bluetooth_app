@@ -14,6 +14,7 @@ class EmployeeTab extends StatefulWidget {
 class _EmployeeTabState extends State<EmployeeTab> {
   late GenericBloc<Employee> bloc;
   TextEditingController firstNameController = TextEditingController();
+  TextEditingController editNameController = TextEditingController();
 
   @override
   void initState() {
@@ -48,11 +49,49 @@ class _EmployeeTabState extends State<EmployeeTab> {
                           childCount: state.items.length, (context, index) {
                     return ListTile(
                       leading: const Icon(Icons.person),
-                      title: Text(
-                          "${state.items[index].firstName} ${state.items[index].lastName}"),
+                      title: Text(state.items[index].fullName),
                       trailing: PopupMenuButton(
                         itemBuilder: (context) {
                           return [
+                            PopupMenuItem(
+                              child: const Text('Изменить'),
+                              onTap: () {
+                                editNameController.text =
+                                    state.items[index].fullName;
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return Dialog(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              TextInput(
+                                                  controller: editNameController,
+                                                  hintText:
+                                                      state.items[index].fullName,
+                                                  labelText: "Фамилия и имя"),
+                                              const SizedBox(
+                                                height: 20,
+                                              ),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    bloc.add(UpdateItem<Employee>(
+                                                        state.items[index].copyWith(
+                                                          fullName: editNameController.text
+                                                        )));
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text(
+                                                      'Сохранить изменения'))
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              },
+                            ),
                             PopupMenuItem(
                               child: const Text('Удалить'),
                               onTap: () {
@@ -112,10 +151,9 @@ class _EmployeeTabState extends State<EmployeeTab> {
                                 child: ElevatedButton(
                                     onPressed: () {
                                       bloc.add(AddItem<Employee>(Employee(
-                                          firstName: firstNameController.text.split(' ')[0],
-                                          lastName: '')));
-                                              Navigator.pop(context);
-
+                                        fullName: firstNameController.text,
+                                      )));
+                                      Navigator.pop(context);
                                     },
                                     child: const Text('Добавить')),
                               )

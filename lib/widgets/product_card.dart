@@ -161,7 +161,7 @@ class _ProductCardState extends State<ProductCard> {
                                       closedTime: int.parse(closedTimeController.text), 
                                       openedTime: int.parse(openedTimeController.text), 
                                       category: categoryController.text,
-                                      isHide: false
+                                      isHide: widget.product.isHide
                                     );
 
                                     widget.bloc.add(UpdateItem<Product>(newProduct));
@@ -177,9 +177,9 @@ class _ProductCardState extends State<ProductCard> {
                     );
                   },);
                 },),
-                PopupMenuItem(child: const Text('Скрыть'), onTap: () {
+                PopupMenuItem(child:  Text(widget.product.isHide ? 'Убрать из скрытых' : 'Скрыть'), onTap: () {
                   widget.bloc.add(UpdateItem<Product>(widget.product.copyWith(
-                    isHide: true
+                    isHide: !widget.product.isHide
                   )));
                 },),
                 PopupMenuItem(child: const Text('Удалить'), onTap: () {

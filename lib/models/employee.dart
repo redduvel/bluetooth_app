@@ -8,13 +8,21 @@ class Employee extends HiveObject {
   final String id;
   
   @HiveField(1)
-  final String firstName;
-
-  @HiveField(2)
-  final String lastName;
+  final String fullName;
 
   Employee({
     String? id,
-    required this.firstName, 
-    required this.lastName}): id = id ?? IdGenerator.generate(); 
+    required this.fullName}): id = id ?? IdGenerator.generate(); 
+
+
+  Employee copyWith({
+    String? id,
+    String? fullName,
+  }) {
+    return Employee(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+
+    );
+  }
 }

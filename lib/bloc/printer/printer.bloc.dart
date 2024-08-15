@@ -1,14 +1,21 @@
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:translit/translit.dart';
+
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/printer/printer.state.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
-  final BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
+  FlutterBlue flutterBlue = FlutterBlue.instance;
+  List<BluetoothDevice> devicesList = [];
+  BluetoothDevice? connectedDevice;
+  BluetoothCharacteristic? characteristic;
 
   PrinterBloc() : super(PrinterInitial()) {
     on<InitializePrinter>(_onInitializePrinter);
-    on<ScanForDevices>(_onScanForDevices);
     on<ConnectToDevice>(_onConnectToDevice);
     on<DisconnectFromDevice>(_onDisconnectFromDevice);
     on<UpdateTsplCode>(_onUpdateTsplCode);
@@ -19,50 +26,43 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       InitializePrinter event, Emitter<PrinterState> emit) async {
     emit(PrinterLoading());
     try {
-      bool isConnected = await bluetooth.isConnected ?? false;
-      if (isConnected) {
-        await bluetooth.getBondedDevices().then((value) {
-          emit(PrinterConnected(value.first));
-        });
-        
-      } else {
-        emit(PrinterDisconnected());
-      }
+      flutterBlue.startScan(timeout: const Duration(seconds: 4));
+
+      flutterBlue.scanResults.listen((results) {
+        for (ScanResult r in results) {
+          if (!devicesList.contains(r.device)) {
+            devicesList.add(r.device);
+          }
+        }
+      });
+
+      flutterBlue.stopScan();
+      emit(DevicesLoaded(devicesList));
     } catch (e) {
       emit(PrinterDisconnected());
     }
   }
 
-Future<void> _onScanForDevices(
-    ScanForDevices event, Emitter<PrinterState> emit) async {
-  emit(PrinterLoading());
-  try {
-    final devices = await bluetooth.getBondedDevices();
-    BluetoothDevice? connectedDevice;
-
-    // Проверяем подключение для каждого устройства
-    for (BluetoothDevice device in devices) {
-      bool isConnected = await bluetooth.isConnected ?? false;
-      if (isConnected) {
-        connectedDevice = device;
-        break;
-      }
-    }
-
-    emit(DevicesLoaded(devices, connectedDevice));
-  } catch (e) {
-    emit(PrinterDisconnected());
-  }
-}
-
-
-
   Future<void> _onConnectToDevice(
       ConnectToDevice event, Emitter<PrinterState> emit) async {
     emit(PrinterLoading());
     try {
-      await bluetooth.connect(event.device);
-      emit(PrinterConnected(event.device));
+      await event.device.connect();
+      connectedDevice = event.device;
+
+      if (connectedDevice == null) return;
+
+      List<BluetoothService> services =
+          await connectedDevice!.discoverServices();
+      for (var service in services) {
+        for (var char in service.characteristics) {
+          if (char.properties.write) {
+            characteristic = char;
+          }
+        }
+      }
+
+      emit(PrinterConnected(event.device, characteristic!));
     } catch (e) {
       emit(PrinterDisconnected());
     }
@@ -72,7 +72,9 @@ Future<void> _onScanForDevices(
       DisconnectFromDevice event, Emitter<PrinterState> emit) async {
     emit(PrinterLoading());
     try {
-      await bluetooth.disconnect();
+      await event.device.disconnect();
+      connectedDevice = null;
+      characteristic = null;
       emit(PrinterDisconnected());
     } catch (e) {
       emit(PrinterDisconnected());
@@ -84,9 +86,48 @@ Future<void> _onScanForDevices(
   }
 
   void _onPrintLabel(PrintLabel event, Emitter<PrinterState> emit) {
-    if (state is TsplUpdated && state is PrinterConnected) {
-      final tsplCode = (state as TsplUpdated).tsplCode;
-      bluetooth.write(tsplCode);
+    if (state is PrinterConnected) {
+      if (characteristic != null) {
+        final translit = Translit();
+        String product = translit.toTranslit(source: event.product.subtitle);
+        String name = translit.toTranslit(source: event.employee.fullName);
+        DateTime endDate = DateTime.now();
+
+        switch (event.adjustmentType) {
+          case AdjustmentType.defrosting:
+            endDate.add(Duration(hours: event.product.defrosting));
+            break;
+          case AdjustmentType.closed:
+            endDate.add(Duration(hours: event.product.closedTime));
+            break;
+          case AdjustmentType.opened:
+            endDate.add(Duration(hours: event.product.openedTime));
+            break;
+        }
+
+        String tsplCommand = '''
+          CLS
+          SIZE 30 mm, 20 mm
+          GAP 2 mm, 0 mm
+          DIRECTION 1
+          TEXT 30,15,"2",0,1,1, "$product"
+          TEXT 10,55,"2",0,1,1, "${DateFormat('yyyy-MM-dd HH:mm').format(event.startDate)}"
+          TEXT 15,95,"2",0,1,1, "${DateFormat('yyyy-MM-dd HH:mm').format(endDate)}"
+          TEXT 30,135,"2",0,1,1, "$name"
+          PRINT 1,1
+        ''';
+
+        print(tsplCommand);
+
+        List<int> bytes = utf8.encode(tsplCommand);
+        characteristic!.write(Uint8List.fromList(bytes), withoutResponse: true);
+      }
     }
   }
+}
+
+enum AdjustmentType {
+  defrosting,
+  closed,
+  opened
 }

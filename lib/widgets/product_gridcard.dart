@@ -1,6 +1,11 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
+import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
+import 'package:bluetooth_app/bloc/printer/printer.event.dart';
+import 'package:bluetooth_app/bloc/tspl/tspl.bloc.dart';
+import 'package:bluetooth_app/bloc/tspl/tspl.event.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/product.dart';
+import 'package:bluetooth_app/tools/tspl.dart';
 import 'package:bluetooth_app/widgets/text_feild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,20 +22,43 @@ class ProductGridItem extends StatefulWidget {
 
 class _ProductGridItemState extends State<ProductGridItem> {
   TextEditingController customPrintController = TextEditingController();
+  late TsplBloc blocTspl;
+
+  bool selectedDefrosting = true;
+  bool selectedClosed = false;
+  bool selectedOpened = false;
+
+  @override
+  void initState() {
+    blocTspl = context.read<TsplBloc>();
+    super.initState();
+  }
 
   void startPrint(String count) {
-    String tsplTemplate = '''
-    ${widget.bloc.repository.currentItem.title}
-    2024-08-08 15:00
-    2024-09-08 20:00
-    ${context.read<GenericBloc<Employee>>().repository.currentItem.firstName}
-    ''';
-    print(
-      tsplTemplate
-    );
+    print(TsplTools.generateTsplCode(
+        context.read<GenericBloc<Employee>>().repository.currentItem,
+        widget.bloc.repository.currentItem,
+        count));
+
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$count копий отправленно на печать')));
     Navigator.pop(context);
+  }
+
+  AdjustmentType getAdjustmentType() {
+    if (selectedDefrosting) {
+      return AdjustmentType.defrosting;
+    }
+
+    if (selectedClosed) {
+      return AdjustmentType.closed;
+    }
+
+    if (selectedOpened) {
+      return AdjustmentType.opened;
+    }
+
+    throw Exception();
   }
 
   @override
@@ -75,119 +103,147 @@ class _ProductGridItemState extends State<ProductGridItem> {
               IconButton(
                 onPressed: () {
                   widget.bloc.repository.currentItem = widget.product;
-
+                  context
+                      .read<TsplBloc>()
+                      .add(SetCurrentProduct(widget.product));
                   showModalBottomSheet(
                     context: context,
                     builder: (context) {
                       return BottomSheet(
                         onClosing: () {},
                         builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CustomScrollView(
-                              slivers: [
-                                SliverToBoxAdapter(
-                                  child: Text(
-                                    'Печать этикетки: ${widget.product.title}',
-                                    style: const TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w500),
+                          return StatefulBuilder(
+                            builder: (context, setState) => Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CustomScrollView(
+                                slivers: [
+                                  SliverToBoxAdapter(
+                                    child: Text(
+                                      'Печать этикетки: ${widget.product.title}',
+                                      style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w500),
+                                    ),
                                   ),
-                                ),
-                                const SliverToBoxAdapter(
-                                  child: Divider(),
-                                ),
-                                SliverToBoxAdapter(
-                                  child: ElevatedButton(
-                                      onPressed: () {},
-                                      child:
-                                          const Text('Редактировать шаблон')),
-                                ),
-                                const SliverToBoxAdapter(
-                                  child: Divider(),
-                                ),
-                                SliverToBoxAdapter(
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        startPrint('1');
-                                      },
-                                      child: const Text('1 копия')),
-                                ),
-                                SliverToBoxAdapter(
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        startPrint('3');
-                                      },
-                                      child: const Text('3 копии')),
-                                ),
-                                SliverToBoxAdapter(
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        startPrint('5');
-                                      },
-                                      child: const Text('5 копий')),
-                                ),
-                                SliverToBoxAdapter(
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        startPrint('5');
-                                      },
-                                      child: const Text('10 копий')),
-                                ),
-                                SliverToBoxAdapter(
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return Dialog(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    const Text(
-                                                      'Введите количество копий',
-                                                      style: TextStyle(
-                                                          fontSize: 20,
-                                                          fontWeight:
-                                                              FontWeight.w400),
-                                                    ),
-                                                    const Divider(),
-                                                    TextInput(
-                                                      controller:
-                                                          customPrintController,
-                                                      hintText: '20',
-                                                      labelText:
-                                                          'Количество этикеток',
-                                                      type:
-                                                          TextInputType.number,
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 50,
-                                                    ),
-                                                    ElevatedButton(
-                                                        onPressed: () {
-                                                          startPrint(
-                                                              customPrintController
-                                                                  .text);
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: const Text(
-                                                            'Подтвердить'))
-                                                  ],
-                                                ),
-                                              ),
-                                            );
+                                  const SliverToBoxAdapter(
+                                    child: Divider(),
+                                  ),
+                                  SliverToBoxAdapter(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        ChoiceChip(
+                                          label: const Text('Разморозка'),
+                                          selected: selectedDefrosting,
+                                          onSelected: (value) {
+                                            setState(() {
+                                              selectedDefrosting = value;
+                                              selectedOpened = false;
+                                              selectedClosed = false;
+                                            });
+                                            blocTspl.add(
+                                                const SetTimeAdjustment(
+                                                    'defrosting'));
                                           },
-                                        );
-                                      },
-                                      child: const Text('Свое количество')),
-                                )
-                              ],
+                                        ),
+                                        ChoiceChip(
+                                          label: const Text('Открытое'),
+                                          selected: selectedOpened,
+                                          onSelected: (value) {
+                                            setState(() {
+                                              selectedOpened = value;
+                                              selectedDefrosting = false;
+                                              selectedClosed = false;
+                                            });
+                                            blocTspl.add(
+                                                const SetTimeAdjustment(
+                                                    'openedTime'));
+                                          },
+                                        ),
+                                        ChoiceChip(
+                                          label: const Text('Закрытое'),
+                                          selected: selectedClosed,
+                                          onSelected: (value) {
+                                            setState(() {
+                                              selectedDefrosting = false;
+                                              selectedOpened = false;
+                                              selectedClosed = value;
+                                            });
+                                            blocTspl.add(
+                                                const SetTimeAdjustment(
+                                                    'closedTime'));
+                                          },
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  const SliverToBoxAdapter(
+                                    child: Divider(),
+                                  ),
+                                  SliverToBoxAdapter(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return Dialog(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const Text(
+                                                        'Введите количество копий',
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w400),
+                                                      ),
+                                                      const Divider(),
+                                                      TextInput(
+                                                        controller:
+                                                            customPrintController,
+                                                        hintText: '1',
+                                                        labelText:
+                                                            'Количество этикеток',
+                                                        type: TextInputType
+                                                            .number,
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 50,
+                                                      ),
+                                                      ElevatedButton(
+                                                          onPressed: () {
+                                                            context
+                                                                .read<
+                                                                    PrinterBloc>()
+                                                                .add(
+                                                                    PrintLabel(
+                                                                      product: widget.product,
+                                                                      employee: context.read<GenericBloc<Employee>>().repository.currentItem,
+                                                                      startDate: DateTime.now(),
+                                                                      adjustmentType: getAdjustmentType()
+                                                                    ));
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: const Text(
+                                                              'Подтвердить'))
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: const Text('Ввести количество')),
+                                  )
+                                ],
+                              ),
                             ),
                           );
                         },

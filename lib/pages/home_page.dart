@@ -1,4 +1,6 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
+import 'package:bluetooth_app/bloc/tspl/tspl.bloc.dart';
+import 'package:bluetooth_app/bloc/tspl/tspl.event.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/pages/connection_page2.dart';
 import 'package:bluetooth_app/pages/label_page.dart';
@@ -46,7 +48,7 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context) {
               return [
                 PopupMenuItem(child: const Text('Проверить печать'), onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ConnectionPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => BluetoothScreen()));
                 },),
                 PopupMenuItem(
                   child: const Text('Настройки'),
@@ -166,12 +168,13 @@ class _HomePageState extends State<HomePage> {
                                     (context, index) {
                               return ListTile(
                                 title: Text(
-                                    '${employees[index].lastName} ${employees[index].firstName}'),
+                                    '${employees[index].fullName}'),
                                 trailing: const Icon(Icons.arrow_forward),
                                 leading: const Icon(Icons.person),
                                 onTap: () {
                                   bloc.repository.currentItem =
                                       employees[index];
+                                  context.read<TsplBloc>().add(SetCurrentEmployee(employees[index]));
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => LabelPage()));
                                 },
                               );

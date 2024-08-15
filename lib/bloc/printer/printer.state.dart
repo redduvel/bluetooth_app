@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 abstract class PrinterState extends Equatable {
   const PrinterState();
@@ -14,11 +14,12 @@ class PrinterLoading extends PrinterState {}
 
 class PrinterConnected extends PrinterState {
   final BluetoothDevice device;
+  final BluetoothCharacteristic characteristic;
 
-  const PrinterConnected(this.device);
+  const PrinterConnected(this.device, this.characteristic);
 
   @override
-  List<Object> get props => [device];
+  List<Object> get props => [device, characteristic];
 }
 
 class PrinterDisconnected extends PrinterState {}

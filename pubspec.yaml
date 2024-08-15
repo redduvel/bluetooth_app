@@ -10,18 +10,20 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  bluetooth_print: ^4.3.0
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
   image_picker: ^1.1.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  esc_pos_utils: ^1.1.0
-  flutter_blue_plus: ^1.32.11
-  flutter_printer: ^2.0.3
-  blue_thermal_printer: ^1.2.3
   flutter_datetime_picker_plus: ^2.2.0
   uuid: ^4.4.2
+  intl: ^0.19.0
+  blue_thermal_printer: ^1.2.3
+  flutter_blue: ^0.8.0
+  charset_converter: ^2.2.1
+  image: ^4.2.0
+  translit: ^2.0.1
+
 
 
 dev_dependencies:

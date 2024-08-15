@@ -18,21 +18,18 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
     };
     return Employee(
       id: fields[0] as String?,
-      firstName: fields[1] as String,
-      lastName: fields[2] as String,
+      fullName: fields[1] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Employee obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(2)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.firstName)
-      ..writeByte(2)
-      ..write(obj.lastName);
+      ..write(obj.fullName);
   }
 
   @override

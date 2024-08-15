@@ -1,115 +1,132 @@
-import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
-import 'package:bluetooth_app/bloc/printer/printer.event.dart';
-import 'package:bluetooth_app/bloc/printer/printer.state.dart';
-import 'package:bluetooth_app/pages/tspl_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
-class ConnectionPage extends StatefulWidget {
-  const ConnectionPage({super.key});
-
+class BluetoothScreen extends StatefulWidget {
   @override
-  State<ConnectionPage> createState() => _ConnectionPageState();
+  _BluetoothScreenState createState() => _BluetoothScreenState();
 }
 
-class _ConnectionPageState extends State<ConnectionPage> {
-  late PrinterBloc bloc;
+class _BluetoothScreenState extends State<BluetoothScreen> {
+  FlutterBlue flutterBlue = FlutterBlue.instance;
+  List<BluetoothDevice> devicesList = [];
+  BluetoothDevice? connectedDevice;
+  BluetoothCharacteristic? characteristic;
 
   @override
   void initState() {
-    bloc = context.read<PrinterBloc>()..add(InitializePrinter());
     super.initState();
+    startScan();
+  }
+
+  void startScan() {
+    flutterBlue.startScan(timeout: const Duration(seconds: 4));
+
+    flutterBlue.scanResults.listen((results) {
+      for (ScanResult r in results) {
+        if (!devicesList.contains(r.device)) {
+          setState(() {
+            devicesList.add(r.device);
+          });
+        }
+      }
+    });
+
+    flutterBlue.stopScan();
+  }
+
+  void connectToDevice(BluetoothDevice device) async {
+    await device.connect();
+    setState(() {
+      connectedDevice = device;
+    });
+
+    discoverServices();
+  }
+
+  void discoverServices() async {
+    if (connectedDevice == null) return;
+
+    List<BluetoothService> services = await connectedDevice!.discoverServices();
+    for (var service in services) {
+      for (var char in service.characteristics) {
+        if (char.properties.write) {
+          setState(() {
+            characteristic = char;
+          });
+        }
+      }
+    }
+  }
+
+  void disconnectFromDevice() async {
+    await connectedDevice?.disconnect();
+    setState(() {
+      connectedDevice = null;
+      characteristic = null;
+    });
+  }
+
+  void printLabel() {
+    if (characteristic != null) {
+      String tsplCommand = '''
+      CLS
+      SIZE 30 mm, 20 mm
+      GAP 2 mm, 0 mm
+      DIRECTION 1
+      TEXT 30,15,"2",0,1,1,"Banana"
+      TEXT 10,55,"2",0,1,1,"2024-08-15 16:16"
+      TEXT 15,95,"2",0,1,1,"2024-08-16 13:16"
+      TEXT 30,135,"2",0,1,1,"Ivan Иванов"
+      PRINT 1,1
+      ''';
+
+      List<int> bytes = utf8.encode(tsplCommand);
+      characteristic!.write(Uint8List.fromList(bytes), withoutResponse: true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ТЕСТ ПОДКЛЮЧЕНИЯ И ПЕЧАТИ'),
+        title: const Text('Bluetooth Devices'),
       ),
-      body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: CustomScrollView(slivers: [
-            SliverToBoxAdapter(
-              child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const TsplEditorPage()));
-                  },
-                  child: const Text('Редактор этикетки')),
+      body: Column(
+        children: [
+          ElevatedButton(
+            onPressed: startScan,
+            child: const Text('Scan for Devices'),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: devicesList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(devicesList[index].name),
+                  subtitle: Text(devicesList[index].id.toString()),
+                  onTap: () => connectToDevice(devicesList[index]),
+                  trailing: connectedDevice == devicesList[index]
+                      ? const Text('Connected',
+                          style: TextStyle(color: Colors.green))
+                      : null,
+                );
+              },
             ),
-            SliverToBoxAdapter(
-              child: BlocBuilder<PrinterBloc, PrinterState>(
-                builder: (context, state) {
-                  if (state is PrinterLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is DevicesLoaded) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            bloc.add(ScanForDevices());
-                          },
-                          child: const Text('Сканировать'),
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Устройства:',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: state.devices.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(state.devices[index].name ?? ''),
-                                subtitle:
-                                    Text(state.devices[index].address ?? ''),
-                                trailing: (state.connectedDevice != null &&
-                                        state.connectedDevice ==
-                                            state.devices[index])
-                                    ? const Text('Подключено',
-                                        style: TextStyle(color: Colors.green))
-                                    : null,
-                                onTap: () {
-                                  bloc.add(
-                                      ConnectToDevice(state.devices[index]));
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  } else if (state is PrinterConnected) {
-                    return Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            bloc.add(DisconnectFromDevice());
-                          },
-                          child: const Text('Отключиться'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            bloc.add(PrintLabel());
-                          },
-                          child: const Text('Печатать этикетку'),
-                        ),
-                      ],
-                    );
-                  } else {
-                    return const Center(
-                        child: Text('Нет подключенных устройств.'));
-                  }
-                },
-              ),
+          ),
+          if (connectedDevice != null) ...[
+            ElevatedButton(
+              onPressed: disconnectFromDevice,
+              child: const Text('Disconnect'),
             ),
-          ])),
+            ElevatedButton(
+              onPressed: printLabel,
+              child: const Text('Print Label'),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

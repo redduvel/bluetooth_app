@@ -4,6 +4,7 @@ import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/repositories/employee.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/nomenclature.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/product.repository.dart';
+import 'package:bluetooth_app/bloc/tspl/tspl.bloc.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
@@ -45,7 +46,10 @@ class App extends StatelessWidget {
           return GenericBloc<Product>(ProductRepository());
         }),
         BlocProvider(create: (context) {
-          return PrinterBloc()..add(InitializePrinter());
+          return PrinterBloc();
+        }),
+        BlocProvider(create: (context) {
+          return TsplBloc();
         })
       ],
       child: MaterialApp(

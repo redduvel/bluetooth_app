@@ -14,12 +14,15 @@ class ProductsTab extends StatefulWidget {
   final bool isSetting;
   final double gridChilAspectRatio;
   final int gridCrossAxisCount;
-  
+
   const ProductsTab(
       {super.key,
       required this.showProductTools,
       required this.showFloatingActionButton,
-      required this.showHideProducts, required this.gridChilAspectRatio, required this.gridCrossAxisCount, required this.isSetting});
+      required this.showHideProducts,
+      required this.gridChilAspectRatio,
+      required this.gridCrossAxisCount,
+      required this.isSetting});
 
   @override
   State<ProductsTab> createState() => _ProductsTabState();
@@ -126,9 +129,13 @@ class _ProductsTabState extends State<ProductsTab> {
                       if (state is ItemsLoaded<Product>) {
                         List<Product> products = state.items;
                         List<Product> filteredProducts = products
-                            .where((product) => product.category ==
-                                        selectedCategoryController.text &&
-                                    widget.showHideProducts
+                            .where((product) =>
+                                product.category ==
+                                selectedCategoryController.text)
+                            .toList();
+
+                        filteredProducts = filteredProducts
+                            .where((product) => widget.showHideProducts
                                 ? true
                                 : product.isHide == false)
                             .toList();
@@ -145,21 +152,24 @@ class _ProductsTabState extends State<ProductsTab> {
                             delegate: SliverChildBuilderDelegate(
                                 childCount: filteredProducts.length,
                                 (context, index) {
-                                  if (widget.isSetting) {
-                                    return ProductCard(
-                                product: filteredProducts[index],
-                                bloc: bloc,
-                                showTools: widget.showProductTools,
-                              );
-                                  } else {
-                                    return ProductGridItem(product: filteredProducts[index], bloc: bloc,);
-                                  }
-                              
+                              if (widget.isSetting) {
+                                return ProductCard(
+                                  product: filteredProducts[index],
+                                  bloc: bloc,
+                                  showTools: widget.showProductTools,
+                                );
+                              } else {
+                                return ProductGridItem(
+                                  product: filteredProducts[index],
+                                  bloc: bloc,
+                                );
+                              }
                             }),
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: widget.gridCrossAxisCount,
-                                    childAspectRatio: widget.gridChilAspectRatio));
+                                    childAspectRatio:
+                                        widget.gridChilAspectRatio));
                       }
 
                       return const SliverToBoxAdapter(child: SizedBox.shrink());
