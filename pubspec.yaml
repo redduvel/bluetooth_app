@@ -25,6 +25,7 @@ dependencies:
   blue_thermal_printer: ^1.2.3
   esc_pos_utils: ^1.1.0
   permission_handler: ^11.3.1
+  google_fonts: ^6.2.1
 
 
 
@@ -45,3 +46,6 @@ flutter:
     - assets/fonts/roboto.ttf
     - assets/fonts/roboto.zip
     - assets/fonts/roboto.ttf.zip
+    - assets/fonts/opensans.zip
+    - assets/fonts/opensans.ttf.zip
+

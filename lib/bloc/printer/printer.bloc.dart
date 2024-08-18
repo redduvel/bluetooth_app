@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:bluetooth_app/services/image_utils.dart';
-import 'package:charset_converter/charset_converter.dart';
 import 'package:intl/intl.dart';
 import 'package:translit/translit.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
@@ -114,12 +113,11 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           default:
         }
 
-        final data = await ImageUtils().createAndPrintLabel('IVAN');
+        final data = await ImageUtils().createLabelWithText(product);
         image = data['image'];
         List<List<int>> list = data['data'];
-        final widthInBytes = list.length;
+        final widthInBytes = list[0].length;
         final heightInDots = list.length;
-
 
         String tsplCommand = '''
           CLS

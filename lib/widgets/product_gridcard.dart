@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
@@ -138,7 +139,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
             
 
             return Center(
-              child: CircularProgressIndicator(),
+              child: Text('sdv'),
             );
               
           } 
