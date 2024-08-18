@@ -1,5 +1,6 @@
 import 'package:bluetooth_app/bloc/repository.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
+import 'package:bluetooth_app/models/product.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class NomenclatureRepository implements Repository<Nomenclature> {
@@ -33,15 +34,27 @@ class NomenclatureRepository implements Repository<Nomenclature> {
     }
   }
 
-  @override
-  Future<bool> update(Nomenclature item) async {
-    try {
-      await Hive.box<Nomenclature>('nomenclature_box').put(item.id, item);
-      return true;
-    } catch (e) {
-      throw Exception(e);
+@override
+Future<bool> update(Nomenclature item) async {
+  try {
+    await Hive.box<Nomenclature>('nomenclature_box').put(item.id, item);
+
+    var productsBox = Hive.box<Product>('products_box');
+    var allProducts = productsBox.values.toList();
+
+    for (var product in allProducts) {
+      if (product.category.id == item.id) {
+        var updatedProduct = product.copyWith(category: item);
+        await productsBox.put(product.id, updatedProduct);
+      }
     }
+
+    return true;
+  } catch (e) {
+    throw Exception('Ошибка при обновлении категории: $e');
   }
+}
+
 
   @override
   Future<void> delete(String id) async {

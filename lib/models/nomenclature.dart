@@ -15,5 +15,15 @@ class Nomenclature extends HiveObject {
 
   Nomenclature({String? id, required this.name, required this.isHide}) : id = id ?? IdGenerator.generate();
 
-  
+  Nomenclature copyWith({
+    String? id,
+    String? name,
+    bool? isHide
+  }) {
+    return Nomenclature(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isHide: isHide ?? this.isHide
+    );
+  }
 }

@@ -23,7 +23,7 @@ class ProductAdapter extends TypeAdapter<Product> {
       defrosting: fields[3] as int,
       closedTime: fields[4] as int,
       openedTime: fields[5] as int,
-      category: fields[6] as String,
+      category: fields[6] as Nomenclature,
       isHide: fields[7] as bool,
     );
   }

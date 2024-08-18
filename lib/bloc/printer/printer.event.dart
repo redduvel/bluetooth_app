@@ -47,12 +47,14 @@ class PrintLabel extends PrinterEvent {
   final Employee employee;
   final DateTime startDate;
   final AdjustmentType adjustmentType;
+  final String count;
 
   const PrintLabel({
     required this.product,
     required this. employee,
     required this.startDate,
-    required this.adjustmentType
+    required this.adjustmentType,
+    required this.count,
   });
 
   @override

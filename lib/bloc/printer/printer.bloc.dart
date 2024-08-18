@@ -1,18 +1,23 @@
 import 'dart:convert';
+import 'package:bluetooth_app/services/image_utils.dart';
+import 'package:charset_converter/charset_converter.dart';
 import 'package:intl/intl.dart';
 import 'package:translit/translit.dart';
-
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/printer/printer.state.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:image/image.dart' as img;
+
 
 class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   List<BluetoothDevice> devicesList = [];
   BluetoothDevice? connectedDevice;
   BluetoothCharacteristic? characteristic;
+  final translit = Translit();
+  img.Image? image = null;
 
   PrinterBloc() : super(PrinterInitial()) {
     on<InitializePrinter>(_onInitializePrinter);
@@ -85,49 +90,51 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
     emit(TsplUpdated(event.tsplCode));
   }
 
-  void _onPrintLabel(PrintLabel event, Emitter<PrinterState> emit) {
+  void _onPrintLabel(PrintLabel event, Emitter<PrinterState> emit) async {
     if (state is PrinterConnected) {
       if (characteristic != null) {
-        final translit = Translit();
-        String product = translit.toTranslit(source: event.product.subtitle);
         String name = translit.toTranslit(source: event.employee.fullName);
-        DateTime endDate = DateTime.now();
-
+        String product = translit.toTranslit(source: event.product.subtitle);
+        String startTime =
+            DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
+        String endTime = '';
         switch (event.adjustmentType) {
           case AdjustmentType.defrosting:
-            endDate.add(Duration(hours: event.product.defrosting));
+            endTime = DateFormat('yyyy-MM-dd HH:mm').format(
+                event.startDate.add(Duration(hours: event.product.defrosting)));
             break;
           case AdjustmentType.closed:
-            endDate.add(Duration(hours: event.product.closedTime));
+            endTime = DateFormat('yyyy-MM-dd HH:mm').format(
+                event.startDate.add(Duration(hours: event.product.closedTime)));
             break;
           case AdjustmentType.opened:
-            endDate.add(Duration(hours: event.product.openedTime));
+            endTime = DateFormat('yyyy-MM-dd HH:mm').format(
+                event.startDate.add(Duration(hours: event.product.openedTime)));
             break;
+          default:
         }
+
+        final data = await ImageUtils().createAndPrintLabel('IVAN');
+        image = data['image'];
+        List<List<int>> list = data['data'];
+        final widthInBytes = list.length;
+        final heightInDots = list.length;
+
 
         String tsplCommand = '''
           CLS
           SIZE 30 mm, 20 mm
           GAP 2 mm, 0 mm
-          DIRECTION 1
-          TEXT 30,15,"2",0,1,1, "$product"
-          TEXT 10,55,"2",0,1,1, "${DateFormat('yyyy-MM-dd HH:mm').format(event.startDate)}"
-          TEXT 15,95,"2",0,1,1, "${DateFormat('yyyy-MM-dd HH:mm').format(endDate)}"
-          TEXT 30,135,"2",0,1,1, "$name"
-          PRINT 1,1
+          BITMAP 0,0,$widthInBytes,$heightInDots,0, "${list.expand((row) => row).toList()}"
+          PRINT ${event.count},1
         ''';
 
-        print(tsplCommand);
-
         List<int> bytes = utf8.encode(tsplCommand);
-        characteristic!.write(Uint8List.fromList(bytes), withoutResponse: true);
+        characteristic!
+            .write(Uint8List.fromList(bytes), withoutResponse: true);
       }
     }
   }
 }
 
-enum AdjustmentType {
-  defrosting,
-  closed,
-  opened
-}
+enum AdjustmentType { defrosting, closed, opened }

@@ -1,3 +1,4 @@
+import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/tools/id_generator.dart';
 import 'package:hive/hive.dart';
 part 'product.g.dart';
@@ -23,7 +24,7 @@ class Product extends HiveObject {
   final int openedTime;
 
   @HiveField(6)
-  final String category;
+  final Nomenclature category;
 
   @HiveField(7)
   final bool isHide;
@@ -47,7 +48,7 @@ class Product extends HiveObject {
     int? defrosting,
     int? closedTime,
     int? openedTime,
-    String? category,
+    Nomenclature? category,
     bool? isHide,
   }) {
     return Product(

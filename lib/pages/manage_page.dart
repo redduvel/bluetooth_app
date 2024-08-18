@@ -1,3 +1,4 @@
+import 'package:bluetooth_app/pages/tabs/admin_tab.dart';
 import 'package:bluetooth_app/pages/tabs/documents_tab.dart';
 import 'package:bluetooth_app/pages/tabs/employee_tab.dart';
 import 'package:bluetooth_app/pages/tabs/products_tab.dart';
@@ -37,6 +38,11 @@ class _ManagePageState extends State<ManagePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Настройки'),
+        actions: [
+          IconButton(onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => AdminTab()));
+          }, icon: Icon(Icons.settings))
+        ],
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

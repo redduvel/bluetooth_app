@@ -9,33 +9,21 @@ class ProductCard extends StatefulWidget {
   final Product product;
   final GenericBloc<Product> bloc;
   final bool showTools;
-  
-  const ProductCard({super.key, required this.product, required this.bloc, this.showTools = false});
+
+  const ProductCard({
+    super.key,
+    required this.product,
+    required this.bloc,
+    this.showTools = false,
+  });
 
   @override
   State<ProductCard> createState() => _ProductCardState();
 }
 
 class _ProductCardState extends State<ProductCard> {
-  late TextEditingController nameController;
-  late TextEditingController subnameController;
-  late TextEditingController categoryController;
-  late TextEditingController defrostingController;
-  late TextEditingController closedTimeController;
-  late TextEditingController openedTimeController;
-  
   bool validCategory = true;
-
-  @override
-  void initState() {
-    nameController = TextEditingController(text: widget.product.title);
-    subnameController = TextEditingController(text: widget.product.subtitle);
-    categoryController = TextEditingController(text: widget.product.category);
-    defrostingController = TextEditingController(text: widget.product.defrosting.toString());
-    closedTimeController = TextEditingController(text: widget.product.closedTime.toString());
-    openedTimeController = TextEditingController(text: widget.product.openedTime.toString());
-    super.initState();
-  }
+  Nomenclature? selectedCategory; // Добавляем переменную для хранения выбранной категории
 
   @override
   Widget build(BuildContext context) {
@@ -45,165 +33,262 @@ class _ProductCardState extends State<ProductCard> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          //Text(widget.product.id),
-          ListTile(
-            leading: widget.product.isHide ? const Icon(Icons.visibility_off, size: 24,) : null,
-            title: Text(widget.product.title),
-            subtitle: Text(widget.product.subtitle),
-            trailing: widget.showTools ? PopupMenuButton(itemBuilder: (context) {
-              return [
-                PopupMenuItem(child: const Text('Изменить'), onTap: () {
-                  showDialog(context: context, builder:(context) {
-                    return Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        margin: const EdgeInsets.all(15),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(12))
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(widget.product.id),
-                              Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      TextInput(
-                                          controller: nameController,
-                                          hintText: 'Морковь',
-                                          labelText: 'Название'),
-                                      TextInput(
-                                          controller: subnameController,
-                                          hintText: 'Морковь очищеная',
-                                          labelText: 'Короткое название'),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: BlocBuilder<GenericBloc<Nomenclature>,
-                                          GenericState<Nomenclature>>(
-                                      builder: (context, state) {
-                                    if (state is ItemsLoaded<Nomenclature>) {
-                                      return DropdownMenu(
-                                          controller: categoryController,
-                                          onSelected: (value) => setState(() {
-                                                validCategory = true;
-                                              }),
-                                          hintText: 'Выберете категорию',
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              70,
-                                          leadingIcon:
-                                              const Icon(Icons.category),
-                                          dropdownMenuEntries: List.generate(
-                                              state.items.length, (index) {
-                                            return DropdownMenuEntry(
-                                                value: index,
-                                                label: state.items[index].name);
-                                          }));
-                                    }
-                              
-                                    return const SizedBox.shrink();
-                                  }),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      const Text('Сроки указываются в часах'),
-                                      TextInput(
-                                          controller: defrostingController,
-                                          hintText: '100',
-                                          labelText: 'Разморозка',
-                                          type: TextInputType.number,
-                                          icon: Icons.ac_unit),
-                                      TextInput(
-                                          controller: closedTimeController,
-                                          hintText: '100',
-                                          labelText: 'Срок закрытого хранения',
-                                          type: TextInputType.number,
-                                          icon: Icons.close_fullscreen),
-                                      TextInput(
-                                          controller: openedTimeController,
-                                          hintText: '100',
-                                          labelText: 'Срок открытого хранения',
-                                          type: TextInputType.number,
-                                          icon: Icons.open_with),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    Product newProduct = Product(
-                                      id: widget.product.id,
-                                      title: nameController.text, 
-                                      subtitle: subnameController.text, 
-                                      defrosting: int.parse(defrostingController.text), 
-                                      closedTime: int.parse(closedTimeController.text), 
-                                      openedTime: int.parse(openedTimeController.text), 
-                                      category: categoryController.text,
-                                      isHide: widget.product.isHide
-                                    );
-
-                                    widget.bloc.add(UpdateItem<Product>(newProduct));
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Данные обновлены.')));
-                                    
-                                    Navigator.pop(context);
-                                    dispose();
-                                  },
-                                  child: const Text('Сохранить изменения'))
-                            ],
-                          ),
-                      ),
-                    );
-                  },);
-                },),
-                PopupMenuItem(child:  Text(widget.product.isHide ? 'Убрать из скрытых' : 'Скрыть'), onTap: () {
-                  widget.bloc.add(UpdateItem<Product>(widget.product.copyWith(
-                    isHide: !widget.product.isHide
-                  )));
-                },),
-                PopupMenuItem(child: const Text('Удалить'), onTap: () {
-                  widget.bloc.add(DeleteItem<Product>(widget.product.id));  
-                },)
-              ];
-            }) : null,
-          ),
-          ListTile(
-            title: Text(widget.product.category),
-            trailing:
-                IconButton(onPressed: () {}, icon: const Icon(Icons.print)),
-            subtitle: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Разморозка: ${widget.product.defrosting}ч."),
-                Text('Хранение (о): ${widget.product.openedTime}ч.'),
-                Text('Хранение (з): ${widget.product.closedTime}ч.'),
-              ],
-            ),
-          ),
+          _buildProductInfoTile(),
+          _buildProductDetailsTile(),
         ],
       ),
+    );
+  }
+
+  Widget _buildProductInfoTile() {
+    return ListTile(
+      leading: widget.product.isHide
+          ? const Icon(Icons.visibility_off, size: 24)
+          : null,
+      title: Text(widget.product.title),
+      subtitle: Text(widget.product.subtitle),
+      trailing: widget.showTools ? _buildPopupMenu() : null,
+    );
+  }
+
+  Widget _buildProductDetailsTile() {
+    return ListTile(
+      title: Text(widget.product.category.name),
+      trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.print)),
+      subtitle: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Разморозка: ${widget.product.defrosting}ч."),
+          Text('Хранение (о): ${widget.product.openedTime}ч.'),
+          Text('Хранение (з): ${widget.product.closedTime}ч.'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPopupMenu() {
+    return PopupMenuButton(
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          child: const Text('Изменить'),
+          onTap: () => _showEditDialog(context),
+        ),
+        PopupMenuItem(
+          child: Text(widget.product.isHide ? 'Убрать из скрытых' : 'Скрыть'),
+          onTap: () {
+            widget.bloc.add(UpdateItem<Product>(
+              widget.product.copyWith(isHide: !widget.product.isHide),
+            ));
+          },
+        ),
+        PopupMenuItem(
+          child: const Text('Удалить'),
+          onTap: () => widget.bloc.add(DeleteItem<Product>(widget.product.id)),
+        ),
+      ],
+    );
+  }
+
+  void _showEditDialog(BuildContext context) {
+    TextEditingController nameController =
+        TextEditingController(text: widget.product.title);
+    TextEditingController subnameController =
+        TextEditingController(text: widget.product.subtitle);
+    TextEditingController defrostingController =
+        TextEditingController(text: widget.product.defrosting.toString());
+    TextEditingController closedTimeController =
+        TextEditingController(text: widget.product.closedTime.toString());
+    TextEditingController openedTimeController =
+        TextEditingController(text: widget.product.openedTime.toString());
+
+    // Инициализируем выбранную категорию текущей категорией продукта
+    selectedCategory = widget.product.category;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return _buildEditDialog(
+            context,
+            nameController,
+            subnameController,
+            defrostingController,
+            closedTimeController,
+            openedTimeController,
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildEditDialog(
+    BuildContext context,
+    TextEditingController nameController,
+    TextEditingController subnameController,
+    TextEditingController defrostingController,
+    TextEditingController closedTimeController,
+    TextEditingController openedTimeController,
+  ) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.all(15),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildTextInputCard(nameController, subnameController),
+            const SizedBox(height: 10),
+            _buildCategoryDropdown(context),
+            const SizedBox(height: 10),
+            _buildStorageInputCard(defrostingController, closedTimeController,
+                openedTimeController),
+            const SizedBox(height: 10),
+            _buildSaveButton(
+              context,
+              nameController,
+              subnameController,
+              defrostingController,
+              closedTimeController,
+              openedTimeController,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextInputCard(TextEditingController nameController,
+      TextEditingController subnameController) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            TextInput(
+              controller: nameController,
+              hintText: 'Морковь',
+              labelText: 'Название',
+            ),
+            TextInput(
+              controller: subnameController,
+              hintText: 'Морковь очищенная',
+              labelText: 'Короткое название',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryDropdown(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:
+            BlocBuilder<GenericBloc<Nomenclature>, GenericState<Nomenclature>>(
+          builder: (context, state) {
+            if (state is ItemsLoaded<Nomenclature>) {
+              return DropdownMenu<Nomenclature>(
+                hintText: selectedCategory?.name ?? 'Выберите категорию',
+                width: MediaQuery.of(context).size.width - 70,
+                leadingIcon: const Icon(Icons.category),
+                onSelected: (value) => setState(() {
+                  selectedCategory = value; // Сохраняем выбранную категорию
+                  validCategory = true;
+                }),
+                dropdownMenuEntries: state.items.map((nomenclature) {
+                  return DropdownMenuEntry(
+                    value: nomenclature,
+                    label: nomenclature.name,
+                  );
+                }).toList(),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStorageInputCard(
+      TextEditingController defrostingController,
+      TextEditingController closedTimeController,
+      TextEditingController openedTimeController) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            const Text('Сроки указываются в часах'),
+            TextInput(
+              controller: defrostingController,
+              hintText: '100',
+              labelText: 'Разморозка',
+              type: TextInputType.number,
+              icon: Icons.ac_unit,
+            ),
+            TextInput(
+              controller: closedTimeController,
+              hintText: '100',
+              labelText: 'Срок закрытого хранения',
+              type: TextInputType.number,
+              icon: Icons.close_fullscreen,
+            ),
+            TextInput(
+              controller: openedTimeController,
+              hintText: '100',
+              labelText: 'Срок открытого хранения',
+              type: TextInputType.number,
+              icon: Icons.open_with,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(
+    BuildContext context,
+    TextEditingController nameController,
+    TextEditingController subnameController,
+    TextEditingController defrostingController,
+    TextEditingController closedTimeController,
+    TextEditingController openedTimeController,
+  ) {
+    return ElevatedButton(
+      onPressed: () {
+        if (selectedCategory == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Выберите категорию')),
+          );
+          return;
+        }
+
+        Product updatedProduct = Product(
+          id: widget.product.id,
+          title: nameController.text,
+          subtitle: subnameController.text,
+          defrosting: int.parse(defrostingController.text),
+          closedTime: int.parse(closedTimeController.text),
+          openedTime: int.parse(openedTimeController.text),
+          category: selectedCategory!, // Используем выбранную категорию
+          isHide: widget.product.isHide,
+        );
+
+        widget.bloc.add(UpdateItem<Product>(updatedProduct));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Данные обновлены.')),
+        );
+
+        Navigator.pop(context);
+      },
+      child: const Text('Сохранить изменения'),
     );
   }
 }

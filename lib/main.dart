@@ -1,10 +1,8 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
-import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/repositories/employee.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/nomenclature.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/product.repository.dart';
-import 'package:bluetooth_app/bloc/tspl/tspl.bloc.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
@@ -12,6 +10,7 @@ import 'package:bluetooth_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +24,11 @@ void main() async {
   await Hive.openBox<Employee>('employee_box');
   await Hive.openBox<Nomenclature>('nomenclature_box');
   await Hive.openBox<Product>('products_box');
+
+  var archive = Nomenclature(name: 'Архив', isHide: false);
+  Hive.box<Nomenclature>('nomenclature_box').put('archive', archive);
+await Permission.location.request();
+await Permission.bluetoothScan.request();
 
   runApp(const App());
 }
@@ -48,9 +52,6 @@ class App extends StatelessWidget {
         BlocProvider(create: (context) {
           return PrinterBloc();
         }),
-        BlocProvider(create: (context) {
-          return TsplBloc();
-        })
       ],
       child: MaterialApp(
           showSemanticsDebugger: false,
