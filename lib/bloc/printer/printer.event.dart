@@ -42,6 +42,21 @@ class UpdateTsplCode extends PrinterEvent {
   List<Object> get props => [tsplCode];
 }
 
+class SetSettings extends PrinterEvent {
+  final String height;
+  final String width;
+  final String gap;
+
+  const SetSettings({
+    required this.height,
+    required this.width,
+    required this.gap
+  });
+
+  @override
+  List<Object> get props => [height, width, gap];
+}
+
 class PrintLabel extends PrinterEvent {
   final Product product;
   final Employee employee;

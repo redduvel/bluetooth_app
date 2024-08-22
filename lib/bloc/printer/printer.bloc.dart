@@ -1,23 +1,21 @@
-import 'dart:convert';
 import 'package:bluetooth_app/services/image_utils.dart';
-import 'package:charset_converter/charset_converter.dart';
 import 'package:intl/intl.dart';
-import 'package:translit/translit.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/printer/printer.state.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:image/image.dart' as img;
-
 
 class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   List<BluetoothDevice> devicesList = [];
   BluetoothDevice? connectedDevice;
   BluetoothCharacteristic? characteristic;
-  final translit = Translit();
-  img.Image? image = null;
+
+  // LABEL SETTINGS
+  String labelHeigth = '20';
+  String labelWidth = '30';
+  String labelGap = '2';
 
   PrinterBloc() : super(PrinterInitial()) {
     on<InitializePrinter>(_onInitializePrinter);
@@ -25,6 +23,19 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
     on<DisconnectFromDevice>(_onDisconnectFromDevice);
     on<UpdateTsplCode>(_onUpdateTsplCode);
     on<PrintLabel>(_onPrintLabel);
+    on<SetSettings>(_onSetSettings);
+  }
+
+  Future<bool> _onSetSettings(SetSettings event, Emitter<PrinterState> emit) async {
+    try {
+      labelHeigth = event.height;
+      labelWidth = event.width;
+      labelGap = event.gap;
+
+      return true;
+    } catch (e) {
+      throw Exception('Error set settings');
+    }
   }
 
   Future<void> _onInitializePrinter(
@@ -93,11 +104,11 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   void _onPrintLabel(PrintLabel event, Emitter<PrinterState> emit) async {
     if (state is PrinterConnected) {
       if (characteristic != null) {
-        String name = translit.toTranslit(source: event.employee.fullName);
-        String product = translit.toTranslit(source: event.product.subtitle);
         String startTime =
             DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
         String endTime = '';
+        String count = event.count;
+
         switch (event.adjustmentType) {
           case AdjustmentType.defrosting:
             endTime = DateFormat('yyyy-MM-dd HH:mm').format(
@@ -114,24 +125,29 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           default:
         }
 
-        final data = await ImageUtils().createAndPrintLabel('IVAN');
-        image = data['image'];
-        List<List<int>> list = data['data'];
-        final widthInBytes = list.length;
-        final heightInDots = list.length;
+        final datat = await ImageUtils().createLabelWithText(
+          event.product.subtitle,
+          startTime,
+          endTime,
+          event.employee.fullName
+          
+          );
+        final List<List<int>> data = datat['data'];
+        final widthInBytes = data[0].length;
+        final heightInDots = data.length;
 
+        final buffer = Uint8List.fromList([
+          ...'CLS\r\n'.codeUnits,
+          ...'SIZE $labelWidth mm,$labelHeigth mm\r\n'.codeUnits,
+          ...'GAP $labelGap mm, 0mm\r\n'.codeUnits,
+          ...'CLS\r\n'.codeUnits,
+          ...'BITMAP 0,0,$widthInBytes,$heightInDots,0,'.codeUnits,
+          ...data.expand((row) => row),
+          ...'PRINT $count\r\n'.codeUnits,
+        ]);
 
-        String tsplCommand = '''
-          CLS
-          SIZE 30 mm, 20 mm
-          GAP 2 mm, 0 mm
-          BITMAP 0,0,$widthInBytes,$heightInDots,0, "${list.expand((row) => row).toList()}"
-          PRINT ${event.count},1
-        ''';
-
-        List<int> bytes = utf8.encode(tsplCommand);
         characteristic!
-            .write(Uint8List.fromList(bytes), withoutResponse: true);
+            .write(Uint8List.fromList(buffer), withoutResponse: true);
       }
     }
   }

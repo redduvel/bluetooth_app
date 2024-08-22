@@ -1,18 +1,12 @@
-import 'dart:typed_data';
-
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
-import 'package:bluetooth_app/bloc/printer/printer.state.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/product.dart';
-import 'package:bluetooth_app/widgets/text_feild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
-import 'package:image/image.dart' as img;
-
 
 class ProductGridItem extends StatefulWidget {
   final Product product;
@@ -122,29 +116,16 @@ class _ProductGridItemState extends State<ProductGridItem> {
       BuildContext context, Product product, Employee employee,
       {DateTime? startDate}) {
     return SliverToBoxAdapter(
-        child: BlocBuilder<PrinterBloc, PrinterState>(
-          builder: (context, state) {
-            if (context.read<PrinterBloc>().image != null) {
-              return Container(
-                width: 30 * 5,
+        child: Container(
                 height: 20 * 8,
                 padding: const EdgeInsets.all(5),
+      margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width / 6),
                 decoration: const BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(12)),
-            color: Color.fromARGB(255, 207, 207, 207)),
-                child: Image.memory(Uint8List.fromList(img.encodePng(context.read<PrinterBloc>().image!))));
-                
-            }
-            
-
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-              
-          } 
-                
-                /*Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          color: Color.fromARGB(255, 255, 255, 255)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -165,9 +146,8 @@ class _ProductGridItemState extends State<ProductGridItem> {
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
             )
           ],
-                ),*/
               ),
-        );
+    ));
   }
 
   // для обычной печати
@@ -257,37 +237,59 @@ class _ProductGridItemState extends State<ProductGridItem> {
   }
 
   Widget _buildPrintQuantityButton(BuildContext context, bool adjustmentType) {
+    int count = 1;
+    TextEditingController controller = TextEditingController(text: '$count');
     return SliverToBoxAdapter(
-      child: ElevatedButton(
-        onPressed: () => _showPrintQuantityDialog(context, adjustmentType),
-        child: const Text('Ввести количество'),
-      ),
-    );
-  }
-
-  void _showPrintQuantityDialog(BuildContext context, bool adjustmentType) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        TextEditingController controller = TextEditingController(text: '1');
-        return Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+      child: StatefulBuilder(
+        builder: (context, setSate) => Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text(
-                  'Введите количество копий',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-                ),
-                const Divider(),
-                TextInput(
+                Flexible(
+                    flex: 2,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          setSate(() {
+                            count--;
+                            controller.text = '$count';
+                          });
+                        },
+                        child: const Text(
+                          '-',
+                          style: TextStyle(fontSize: 32),
+                        ))),
+                Flexible(
+                  flex: 2,
+                  child: TextField(
                   controller: controller,
-                  hintText: '1',
-                  labelText: 'Количество этикеток',
-                  type: TextInputType.number,
+                    decoration: const InputDecoration(
+                        label: Text('Количество этикеток')),
+                    textAlign: TextAlign.center,
+                    readOnly: false,
+                    keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 50),
+                ),
+                Flexible(
+                    flex: 2,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          setSate(() {
+                            count++;
+                            controller.text = '$count';
+                          });
+                          print(count);
+                        },
+                        child: const Text(
+                          '+',
+                          style: TextStyle(fontSize: 32),
+                        )))
+              ],
+            ),
+            const Divider(
+              height: 30,
+            ),
                 ElevatedButton(
                   onPressed: () {
                     context.read<PrinterBloc>().add(PrintLabel(
@@ -296,21 +298,21 @@ class _ProductGridItemState extends State<ProductGridItem> {
                               .read<GenericBloc<Employee>>()
                               .repository
                               .currentItem,
-                          startDate: adjustmentType ? customEndDate : DateTime.now(),
+                      startDate:
+                          adjustmentType ? customEndDate : DateTime.now(),
                           adjustmentType: getAdjustmentType(),
                           count: controller.text,
                         ));
-                    Navigator.pop(context);
                   },
-                  child: const Text('Подтвердить'),
+              child: const Text('Печатать'),
                 ),
               ],
             ),
           ),
-        );
-      },
     );
   }
+
+  
 
   // для печати с отложенной датой
   void _showScheduleBottomSheet(BuildContext context) {
@@ -355,26 +357,23 @@ class _ProductGridItemState extends State<ProductGridItem> {
     );
   }
 
-  Widget _buildDatePickerButton(BuildContext context, void Function(void Function()) setState) {
+  Widget _buildDatePickerButton(
+      BuildContext context, void Function(void Function()) setState) {
     return SliverToBoxAdapter(
       child: ElevatedButton(
         onPressed: () {
           DatePicker.showDateTimePicker(context,
               showTitleActions: true,
               minTime: DateTime(2024, 1, 1),
-              maxTime: DateTime(2100, 12, 29), 
-              onConfirm: (date) {
+              maxTime: DateTime(2100, 12, 29), onConfirm: (date) {
                 setState(() {
                   customEndDate = date;
                 });
-              }, 
-              onChanged: (time) {
+          }, onChanged: (time) {
                 setState(() {
                   customEndDate = time;
                 });
-              },
-              currentTime: customEndDate, 
-              locale: LocaleType.ru);
+          }, currentTime: customEndDate, locale: LocaleType.ru);
         },
         child: const Text('Выбрать дату отсчета'),
       ),
