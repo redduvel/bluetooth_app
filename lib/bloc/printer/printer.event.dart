@@ -1,7 +1,7 @@
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/product.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class PrinterEvent extends Equatable {
@@ -12,6 +12,10 @@ abstract class PrinterEvent extends Equatable {
 }
 
 class InitializePrinter extends PrinterEvent {}
+
+class CheckConnection extends PrinterEvent {}
+
+class ReconnectToDevice extends PrinterEvent {}
 
 class ConnectToDevice extends PrinterEvent {
   final BluetoothDevice device;
@@ -29,17 +33,6 @@ class DisconnectFromDevice extends PrinterEvent {
 
   @override
   List<Object> get props => [device];
-}
-
-class ScanForDevices extends PrinterEvent {}
-
-class UpdateTsplCode extends PrinterEvent {
-  final String tsplCode;
-
-  const UpdateTsplCode(this.tsplCode);
-
-  @override
-  List<Object> get props => [tsplCode];
 }
 
 class SetSettings extends PrinterEvent {

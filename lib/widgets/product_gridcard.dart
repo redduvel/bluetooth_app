@@ -21,6 +21,9 @@ class ProductGridItem extends StatefulWidget {
 class _ProductGridItemState extends State<ProductGridItem> {
   TextEditingController customPrintController =
       TextEditingController(text: '1');
+    int count = 1;
+  late TextEditingController controller;
+
   DateTime customEndDate = DateTime.now();
 
   bool selectedDefrosting = true;
@@ -29,6 +32,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   @override
   void initState() {
+    controller = TextEditingController(text: '$count');
     super.initState();
   }
 
@@ -45,6 +49,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
       elevation: 2,
       clipBehavior: Clip.antiAlias,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildListTile(),
           _buildActionRow(context),
@@ -56,7 +61,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
   Widget _buildListTile() {
     return ListTile(
       minVerticalPadding: 0,
-      contentPadding: const EdgeInsets.all(10),
+      contentPadding: const EdgeInsets.all(5),
       title: Text(
         widget.product.subtitle,
         overflow: TextOverflow.ellipsis,
@@ -77,7 +82,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
     return Text(
       "$label${time.toString()}ч.",
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 16),
+      style: const TextStyle(fontSize: 18),
     );
   }
 
@@ -236,83 +241,97 @@ class _ProductGridItemState extends State<ProductGridItem> {
     );
   }
 
-  Widget _buildPrintQuantityButton(BuildContext context, bool adjustmentType) {
-    int count = 1;
-    TextEditingController controller = TextEditingController(text: '$count');
-    return SliverToBoxAdapter(
-      child: StatefulBuilder(
-        builder: (context, setSate) => Column(
+ Widget _buildPrintQuantityButton(BuildContext context, bool adjustmentType) {
+
+  return SliverToBoxAdapter(
+    child: StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Flexible(
-                    flex: 2,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          setSate(() {
-                            count--;
-                            controller.text = '$count';
-                          });
-                        },
-                        child: const Text(
-                          '-',
-                          style: TextStyle(fontSize: 32),
-                        ))),
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        if (count > 1) {
+                          count--;
+                          controller.text = '$count';
+                        }
+                      });
+                    },
+                    child: const Text(
+                      '-',
+                      style: TextStyle(fontSize: 26),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 3,
+                  child: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      label: Text('Количество этикеток'),
+                    ),
+                    textAlign: TextAlign.center,
+                    onChanged: (value) {
+                      setState(() {
+                        final parsedValue = int.tryParse(value);
+                        if (parsedValue != null && parsedValue > 0) {
+                          count = parsedValue;
+                        } else {
+                          controller.text = '$count';
+                        }
+                      });
+                    },
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
                 Flexible(
                   flex: 2,
-                  child: TextField(
-                  controller: controller,
-                    decoration: const InputDecoration(
-                        label: Text('Количество этикеток')),
-                    textAlign: TextAlign.center,
-                    readOnly: false,
-                    keyboardType: TextInputType.number,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        count++;
+                        controller.text = '$count';
+                      });
+                    },
+                    child: const Text(
+                      '+',
+                      style: TextStyle(fontSize: 26),
+                    ),
+                  ),
                 ),
-                ),
-                Flexible(
-                    flex: 2,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          setSate(() {
-                            count++;
-                            controller.text = '$count';
-                          });
-                          print(count);
-                        },
-                        child: const Text(
-                          '+',
-                          style: TextStyle(fontSize: 32),
-                        )))
               ],
             ),
             const Divider(
               height: 30,
             ),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<PrinterBloc>().add(PrintLabel(
-                          product: widget.product,
-                          employee: context
-                              .read<GenericBloc<Employee>>()
-                              .repository
-                              .currentItem,
-                      startDate:
-                          adjustmentType ? customEndDate : DateTime.now(),
-                          adjustmentType: getAdjustmentType(),
-                          count: controller.text,
-                        ));
-                  },
+            ElevatedButton(
+              onPressed: () {
+                context.read<PrinterBloc>().add(PrintLabel(
+                      product: widget.product,
+                      employee: context
+                          .read<GenericBloc<Employee>>()
+                          .repository
+                          .currentItem,
+                      startDate: adjustmentType ? customEndDate : DateTime.now(),
+                      adjustmentType: getAdjustmentType(),
+                      count: controller.text,
+                    ));
+              },
               child: const Text('Печатать'),
-                ),
-              ],
             ),
-          ),
-    );
-  }
+          ],
+        );
+      },
+    ),
+  );
+}
 
-  
 
   // для печати с отложенной датой
   void _showScheduleBottomSheet(BuildContext context) {

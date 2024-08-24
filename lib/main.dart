@@ -1,5 +1,6 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
+import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/repositories/employee.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/nomenclature.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/product.repository.dart';
@@ -10,11 +11,11 @@ import 'package:bluetooth_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // INITIALIZE HIVE  
   await Hive.initFlutter();
 
   Hive.registerAdapter(EmployeeAdapter());
@@ -24,12 +25,12 @@ void main() async {
   await Hive.openBox<Employee>('employee_box');
   await Hive.openBox<Nomenclature>('nomenclature_box');
   await Hive.openBox<Product>('products_box');
+  await Hive.openBox('settings');
 
   var archive = Nomenclature(name: 'Архив', isHide: false);
   Hive.box<Nomenclature>('nomenclature_box').put('archive', archive);
-await Permission.location.request();
-await Permission.bluetoothScan.request();
 
+  // RUN APP
   runApp(const App());
 }
 
@@ -50,7 +51,7 @@ class App extends StatelessWidget {
           return GenericBloc<Product>(ProductRepository());
         }),
         BlocProvider(create: (context) {
-          return PrinterBloc();
+          return PrinterBloc()..add(CheckConnection());
         }),
       ],
       child: MaterialApp(
@@ -58,7 +59,7 @@ class App extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData.from(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange)),
-          home: const HomePage()),
+          home:  const HomePage()),
     );
   }
 }

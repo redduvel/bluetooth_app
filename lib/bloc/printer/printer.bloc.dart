@@ -1,40 +1,80 @@
+import 'dart:async'; // Добавляем для таймера
+import 'package:hive/hive.dart';
+import 'package:flutter/services.dart';
 import 'package:bluetooth_app/services/image_utils.dart';
+import 'package:bluetooth_app/tools/extra.dart';
 import 'package:intl/intl.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/printer/printer.state.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
-  FlutterBlue flutterBlue = FlutterBlue.instance;
-  List<BluetoothDevice> devicesList = [];
+  List<BluetoothDevice> devices = [];
   BluetoothDevice? connectedDevice;
   BluetoothCharacteristic? characteristic;
 
   // LABEL SETTINGS
-  String labelHeigth = '20';
-  String labelWidth = '30';
-  String labelGap = '2';
+  late String labelHeigth;
+  late String labelWidth;
+  late String labelGap;
+
+  // HIVE SETTINGS
+  final Box _settingsBox = Hive.box('settings');
+  final String _lastDeviceKey = 'last_connected_device';
+
+  Timer? _connectionCheckTimer;
 
   PrinterBloc() : super(PrinterInitial()) {
     on<InitializePrinter>(_onInitializePrinter);
     on<ConnectToDevice>(_onConnectToDevice);
     on<DisconnectFromDevice>(_onDisconnectFromDevice);
-    on<UpdateTsplCode>(_onUpdateTsplCode);
     on<PrintLabel>(_onPrintLabel);
     on<SetSettings>(_onSetSettings);
+    on<CheckConnection>(_checkConnection);
+
+    _startConnectionCheckTimer();
+
+
+    labelHeigth = _settingsBox.get('label_height') ?? '20';
+    labelWidth = _settingsBox.get('label_width') ?? '30';
+    labelGap = _settingsBox.get('label_gap') ?? '3';
   }
 
-  Future<bool> _onSetSettings(SetSettings event, Emitter<PrinterState> emit) async {
-    try {
-      labelHeigth = event.height;
-      labelWidth = event.width;
-      labelGap = event.gap;
+  Future<void> _saveLastConnectedDevice(String address) async {
+    await _settingsBox.put(_lastDeviceKey, address);
+  }
 
-      return true;
-    } catch (e) {
-      throw Exception('Error set settings');
+  String? _loadLastConnectedDevice() {
+    return _settingsBox.get(_lastDeviceKey);
+  }
+
+  void _startConnectionCheckTimer() {
+    _connectionCheckTimer?.cancel();
+    _connectionCheckTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      add(CheckConnection());
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _connectionCheckTimer?.cancel();
+    return super.close();
+  }
+
+  Future<void> _attemptReconnectToSavedDevice() async {
+    String? lastDeviceAddress = _loadLastConnectedDevice();
+    if (lastDeviceAddress != null) {
+      await FlutterBluePlus.startScan(timeout: const Duration(seconds: 2));
+      FlutterBluePlus.scanResults.listen((results) async {
+        for (ScanResult result in results) {
+          if (result.device.remoteId.str == lastDeviceAddress) {
+            add(ConnectToDevice(result.device));
+            FlutterBluePlus.stopScan();
+            break;
+          }
+        }
+      });
     }
   }
 
@@ -42,18 +82,16 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       InitializePrinter event, Emitter<PrinterState> emit) async {
     emit(PrinterLoading());
     try {
-      flutterBlue.startScan(timeout: const Duration(seconds: 4));
-
-      flutterBlue.scanResults.listen((results) {
-        for (ScanResult r in results) {
-          if (!devicesList.contains(r.device)) {
-            devicesList.add(r.device);
+      await FlutterBluePlus.startScan(timeout: const Duration(seconds: 2));
+      FlutterBluePlus.scanResults.listen((results) {
+        for (ScanResult result in results) {
+          if (!devices.contains(result.device)) {
+            devices.add(result.device);
           }
         }
       });
 
-      flutterBlue.stopScan();
-      emit(DevicesLoaded(devicesList));
+      emit(DevicesLoaded(devices));
     } catch (e) {
       emit(PrinterDisconnected());
     }
@@ -63,10 +101,14 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       ConnectToDevice event, Emitter<PrinterState> emit) async {
     emit(PrinterLoading());
     try {
-      await event.device.connect();
+      await event.device.connectAndUpdateStream().catchError((e) {
+        throw Exception(e);
+      });
       connectedDevice = event.device;
 
       if (connectedDevice == null) return;
+
+      await connectedDevice!.requestMtu(512);
 
       List<BluetoothService> services =
           await connectedDevice!.discoverServices();
@@ -78,7 +120,10 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
         }
       }
 
+      await _saveLastConnectedDevice(event.device.remoteId.str);
+
       emit(PrinterConnected(event.device, characteristic!));
+
     } catch (e) {
       emit(PrinterDisconnected());
     }
@@ -91,14 +136,44 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       await event.device.disconnect();
       connectedDevice = null;
       characteristic = null;
+
+      await _settingsBox.delete(_lastDeviceKey);
+
       emit(PrinterDisconnected());
     } catch (e) {
       emit(PrinterDisconnected());
     }
   }
 
-  void _onUpdateTsplCode(UpdateTsplCode event, Emitter<PrinterState> emit) {
-    emit(TsplUpdated(event.tsplCode));
+  Future<bool> _onSetSettings(
+      SetSettings event, Emitter<PrinterState> emit) async {
+    try {
+      labelHeigth = event.height;
+      labelWidth = event.width;
+      labelGap = event.gap;
+
+      _settingsBox.put('label_height', labelHeigth);
+      _settingsBox.put('label_width', labelWidth);
+      _settingsBox.put('label_gap', labelGap);
+
+      return true;
+    } catch (e) {
+      throw Exception('Error set settings');
+    }
+  }
+
+  Future<bool> _checkConnection(
+      CheckConnection event, Emitter<PrinterState> emit) async {
+    try {
+      if (connectedDevice == null && characteristic == null) {
+        _attemptReconnectToSavedDevice();
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   void _onPrintLabel(PrintLabel event, Emitter<PrinterState> emit) async {
@@ -126,12 +201,10 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
         }
 
         final datat = await ImageUtils().createLabelWithText(
-          event.product.subtitle,
-          startTime,
-          endTime,
-          event.employee.fullName
-          
-          );
+            event.product.subtitle,
+            startTime,
+            endTime,
+            event.employee.fullName);
         final List<List<int>> data = datat['data'];
         final widthInBytes = data[0].length;
         final heightInDots = data.length;
@@ -147,7 +220,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
         ]);
 
         characteristic!
-            .write(Uint8List.fromList(buffer), withoutResponse: true);
+            .splitWritee(Uint8List.fromList(buffer), timeout: 15);
       }
     }
   }

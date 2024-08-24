@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.orange,
         title: const Text(
-          '',
+          'Fresh Tag',
           style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: false,
@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: SizedBox(
+      body: const SizedBox(
         
       ),
       floatingActionButton: ElevatedButton(

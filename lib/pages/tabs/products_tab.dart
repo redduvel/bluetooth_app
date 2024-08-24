@@ -10,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class ProductsTab extends StatefulWidget {
   final bool showProductTools;
   final bool showFloatingActionButton;
-  final bool showHideProducts;
+  final bool showHideEnemies;
   final bool isSetting;
   final double gridChilAspectRatio;
   final int gridCrossAxisCount;
@@ -19,7 +19,7 @@ class ProductsTab extends StatefulWidget {
     super.key,
     required this.showProductTools,
     required this.showFloatingActionButton,
-    required this.showHideProducts,
+    required this.showHideEnemies,
     required this.gridChilAspectRatio,
     required this.gridCrossAxisCount,
     required this.isSetting,
@@ -66,7 +66,7 @@ class _ProductsTabState extends State<ProductsTab> {
         defrosting: int.parse(defrostingController.text),
         closedTime: int.parse(closedTimeController.text),
         openedTime: int.parse(openedTimeController.text),
-        category: selectedCategory!, // Сохраняем выбранную категорию
+        category: selectedCategory!,
         isHide: false,
       );
 
@@ -102,7 +102,8 @@ class _ProductsTabState extends State<ProductsTab> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: BlocBuilder<GenericBloc<Nomenclature>, GenericState<Nomenclature>>(
+        child:
+            BlocBuilder<GenericBloc<Nomenclature>, GenericState<Nomenclature>>(
           builder: (context, nomenclatureState) {
             if (nomenclatureState is ItemsLoaded<Nomenclature>) {
               return _buildProductGrid(nomenclatureState.items);
@@ -128,7 +129,13 @@ class _ProductsTabState extends State<ProductsTab> {
     );
   }
 
-  Widget _buildProductGrid(List<Nomenclature> nomenclatures) {
+  Widget _buildProductGrid(List<Nomenclature> items) {
+    var filteredNomenclatures = items;
+    if (!widget.showHideEnemies) {  
+      filteredNomenclatures =
+          items.where((n) => n.isHide == false).where((n) => n.name != 'Архив').toList();
+    }
+
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
@@ -142,7 +149,8 @@ class _ProductsTabState extends State<ProductsTab> {
                   hintText: 'Выберите категорию',
                   width: MediaQuery.of(context).size.width - 16,
                   leadingIcon: const Icon(Icons.category),
-                  dropdownMenuEntries: nomenclatures.map((nomenclature) {
+                  dropdownMenuEntries:
+                      filteredNomenclatures.map((nomenclature) {
                     return DropdownMenuEntry(
                       value: nomenclature,
                       label: nomenclature.name,
@@ -158,10 +166,12 @@ class _ProductsTabState extends State<ProductsTab> {
           BlocBuilder<GenericBloc<Product>, GenericState<Product>>(
             builder: (context, productState) {
               if (productState is ItemsLoaded<Product>) {
-                final filteredProducts = _getFilteredProducts(productState.items);
+                final filteredProducts =
+                    _getFilteredProducts(productState.items);
                 if (filteredProducts.isEmpty) {
                   return const SliverToBoxAdapter(
-                    child: Center(child: Text('Нет продуктов для этой категории.')),
+                    child: Center(
+                        child: Text('Нет продуктов для этой категории.')),
                   );
                 }
                 return _buildProductGridItems(filteredProducts);
@@ -179,8 +189,10 @@ class _ProductsTabState extends State<ProductsTab> {
 
   List<Product> _getFilteredProducts(List<Product> products) {
     return products
-        .where((product) => product.category.id == selectedCategory?.id) // Сравниваем по id категории
-        .where((product) => widget.showHideProducts || !product.isHide)
+        .where((product) =>
+            product.category.id ==
+            selectedCategory?.id) // Сравниваем по id категории
+        .where((product) => widget.showHideEnemies || !product.isHide)
         .toList();
   }
 
@@ -278,14 +290,22 @@ class _ProductsTabState extends State<ProductsTab> {
     );
   }
 
-  Widget _buildCategoryDropdown(void Function(void Function()) setState, BuildContext context) {
+  Widget _buildCategoryDropdown(
+      void Function(void Function()) setState, BuildContext context) {
     return SliverToBoxAdapter(
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: BlocBuilder<GenericBloc<Nomenclature>, GenericState<Nomenclature>>(
+          child: BlocBuilder<GenericBloc<Nomenclature>,
+              GenericState<Nomenclature>>(
             builder: (context, state) {
               if (state is ItemsLoaded<Nomenclature>) {
+                var nomenclatures = state.items;
+                if (widget.showHideEnemies == false) {
+                  nomenclatures =
+                      nomenclatures.where((n) => n.name != 'Архив').toList();
+                }
+
                 return DropdownMenu<Nomenclature>(
                   onSelected: (value) => setState(() {
                     selectedCategory = value;
@@ -293,7 +313,7 @@ class _ProductsTabState extends State<ProductsTab> {
                   hintText: 'Выберите категорию',
                   width: MediaQuery.of(context).size.width - 40,
                   leadingIcon: const Icon(Icons.category),
-                  dropdownMenuEntries: state.items.map((nomenclature) {
+                  dropdownMenuEntries: nomenclatures.map((nomenclature) {
                     return DropdownMenuEntry(
                       value: nomenclature,
                       label: nomenclature.name,
