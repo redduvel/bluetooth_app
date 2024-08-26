@@ -4,6 +4,7 @@ import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/repositories/employee.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/nomenclature.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/product.repository.dart';
+import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
@@ -21,6 +22,8 @@ void main() async {
   Hive.registerAdapter(EmployeeAdapter());
   Hive.registerAdapter(ProductAdapter());
   Hive.registerAdapter(NomenclatureAdapter());
+  Hive.registerAdapter(CharacteristicAdapter());
+  Hive.registerAdapter(MeasurementUnitAdapter());
 
   await Hive.openBox<Employee>('employee_box');
   await Hive.openBox<Nomenclature>('nomenclature_box');
