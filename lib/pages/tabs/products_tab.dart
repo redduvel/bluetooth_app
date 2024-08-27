@@ -7,6 +7,7 @@ import 'package:bluetooth_app/widgets/product_gridcard.dart';
 import 'package:bluetooth_app/widgets/text_feild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProductsTab extends StatefulWidget {
   final bool showProductTools;
@@ -134,6 +135,7 @@ class _ProductsTabState extends State<ProductsTab> {
           ? FloatingActionButton(
               onPressed: () {
                 _resetControllers();
+
                 _showAddProductModal();
               },
               child: const Icon(Icons.add),
@@ -232,75 +234,29 @@ class _ProductsTabState extends State<ProductsTab> {
         childCount: products.length,
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: widget.gridCrossAxisCount,
-        childAspectRatio: widget.gridChilAspectRatio,
+        crossAxisCount: widget.isSetting ? widget.gridCrossAxisCount : products.length % 2 == 0 ? 2 : widget.gridCrossAxisCount,
+        childAspectRatio: widget.isSetting ? widget.gridChilAspectRatio : products.length % 2 == 0 ? 4/3 : widget.gridChilAspectRatio,
       ),
     );
   }
 
-  void _showAddProductModal() {
-    showModalBottomSheet(
-      
-      context: context,
-      builder: (context) {
-        return PopScope(
-          onPopInvoked: (didPop) {
-            //_resetControllers();
-          },
-          child: StatefulBuilder(
-              builder: (context, setState) {
-                return Scaffold(
-                  body: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CustomScrollView(
-                      slivers: [
-                        const SliverAppBar(
-                          centerTitle: true,
-                          title: Text('Добавление продукта'),
-                          automaticallyImplyLeading: false,
-                        ),
-                        _buildProductNameInputs(),
-                        const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                        _buildCategoryDropdown(setState, context),
-                        const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                        _buildCharacteristicInputs(setState),
-                        const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                        SliverToBoxAdapter(
-                          child: ElevatedButton(
-                            onPressed: createProduct,
-                            child: const Text('Добавить'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ));
-          },
-        );
-      }
-  
-
   Widget _buildProductNameInputs() {
-    return SliverToBoxAdapter(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              TextInput(
-                controller: nameController,
-                hintText: 'Морковь',
-                labelText: 'Название',
-              ),
-              TextInput(
-                controller: subnameController,
-                hintText: 'Морковь очищенная',
-                labelText: 'Короткое название',
-              ),
-            ],
-          ),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            TextInput(
+              controller: nameController,
+              hintText: 'Морковь',
+              labelText: 'Название',
+            ),
+            TextInput(
+              controller: subnameController,
+              hintText: 'Морковь очищенная',
+              labelText: 'Короткое название',
+            ),
+          ],
         ),
       ),
     );
@@ -308,118 +264,36 @@ class _ProductsTabState extends State<ProductsTab> {
 
   Widget _buildCategoryDropdown(
       void Function(void Function()) setState, BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: BlocBuilder<GenericBloc<Nomenclature>,
-              GenericState<Nomenclature>>(
-            builder: (context, state) {
-              if (state is ItemsLoaded<Nomenclature>) {
-                var nomenclatures = state.items;
-                if (!widget.showHideEnemies) {
-                  nomenclatures =
-                      nomenclatures.where((n) => n.name != 'Архив').toList();
-                }
-
-                return DropdownMenu<Nomenclature>(
-                  onSelected: (value) => setState(() {
-                    selectedCategory = value;
-                  }),
-                  hintText: 'Выберите категорию',
-                  width: MediaQuery.of(context).size.width - 40,
-                  leadingIcon: const Icon(Icons.category),
-                  dropdownMenuEntries: nomenclatures.map((nomenclature) {
-                    return DropdownMenuEntry(
-                      value: nomenclature,
-                      label: nomenclature.name,
-                    );
-                  }).toList(),
-                );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:
+            BlocBuilder<GenericBloc<Nomenclature>, GenericState<Nomenclature>>(
+          builder: (context, state) {
+            if (state is ItemsLoaded<Nomenclature>) {
+              var nomenclatures = state.items;
+              if (!widget.showHideEnemies) {
+                nomenclatures =
+                    nomenclatures.where((n) => n.name != 'Архив').toList();
               }
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildCharacteristicInputs(void Function(void Function()) setState) {
-    return SliverToBoxAdapter(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              ...List.generate(characteristics.length, (index) {
-                return Row(
-                  children: [
-                    Expanded(
-                      child: TextInput(
-                        controller: nameControllers[index],
-                        hintText: 'Например, Вес',
-                        labelText: 'Характеристика',
-                      ),
-                    ),
-                    Expanded(
-                      child: TextInput(
-                        controller: valueControllers[index],
-                        hintText: 'Значение',
-                        labelText: 'Значение',
-                        type: TextInputType.number,
-                      ),
-                    ),
-                    DropdownButton<MeasurementUnit>(
-                      value: units[index],
-                      items: MeasurementUnit.values
-                          .map((unit) => DropdownMenuItem(
-                                value: unit,
-                                child: Text(unit.name),
-                              ))
-                          .toList(),
-                      onChanged: (unit) {
-                        setState(() {
-                          units[index] = unit!;
-                        });
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle),
-                      onPressed: () {
-                        setState(() {
-                          characteristics.removeAt(index);
-                          nameControllers[index].dispose();
-                          valueControllers[index].dispose();
-                          nameControllers.removeAt(index);
-                          valueControllers.removeAt(index);
-                          units.removeAt(index);
-                          
-                        });
-                      },
-                    ),
-                  ],
-                );
-              }),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    final newCharacteristic = Characteristic(
-                      name: '',
-                      value: 0,
-                      unit: MeasurementUnit.hours,
-                    );
-
-                    characteristics.add(newCharacteristic);
-                    nameControllers.add(TextEditingController());
-                    valueControllers.add(TextEditingController());
-                    units.add(MeasurementUnit.hours);
-                  });
-                },
-                child: const Text('Добавить характеристику'),
-              ),
-            ],
-          ),
+              return DropdownMenu<Nomenclature>(
+                onSelected: (value) => setState(() {
+                  selectedCategory = value;
+                }),
+                hintText: 'Выберите категорию',
+                width: MediaQuery.of(context).size.width - 40,
+                leadingIcon: const Icon(Icons.category),
+                dropdownMenuEntries: nomenclatures.map((nomenclature) {
+                  return DropdownMenuEntry(
+                    value: nomenclature,
+                    label: nomenclature.name,
+                  );
+                }).toList(),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );
@@ -428,6 +302,153 @@ class _ProductsTabState extends State<ProductsTab> {
   Widget _buildError(String error) {
     return Center(
       child: Text('Ошибка загрузки категорий: $error'),
+    );
+  }
+
+  void _showAddProductModal() {
+    showBarModalBottomSheet(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _buildProductNameInputs()),
+                const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                SliverToBoxAdapter(
+                    child: _buildCategoryDropdown(setState, context)),
+                const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                SliverList(
+                    delegate: SliverChildListDelegate(
+                  [
+                    ...List.generate(characteristics.length, (index) {
+                      return _buildCharacteristicInput(
+                        context,
+                        setState,
+                        index,
+                        nameControllers,
+                        valueControllers,
+                        units,
+                        characteristics,
+                      );
+                    }),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          characteristics.add(
+                            Characteristic(
+                                name: '',
+                                value: 0,
+                                unit: MeasurementUnit.hours),
+                          );
+                          nameControllers.add(TextEditingController());
+                          valueControllers.add(TextEditingController());
+                          units.add(MeasurementUnit.hours);
+                        });
+                      },
+                      child: const Text('Добавить характеристику'),
+                    ),
+                  ],
+                )),
+                const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                SliverToBoxAdapter(
+                  child: ElevatedButton(
+                    onPressed: createProduct,
+                    child: const Text('Добавить'),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCharacteristicInput(
+    BuildContext context,
+    Function setState,
+    int index,
+    List<TextEditingController> nameControllers,
+    List<TextEditingController> valueControllers,
+    List<MeasurementUnit> units,
+    List<Characteristic> characteristics,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextInput(
+                    controller: nameControllers[index],
+                    labelText: 'Название',
+                    hintText: 'Разморозка',
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      setState(() {
+                        characteristics.removeAt(index);
+                        nameControllers.removeAt(index);
+                        valueControllers.removeAt(index);
+                        units.removeAt(index);
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextInput(
+                    controller: valueControllers[index],
+                    labelText: 'Значение',
+                    hintText: '15',
+                    type: TextInputType.number,
+                  ),
+                ),
+                const VerticalDivider(),
+                Expanded(
+                  flex: 1,
+                  child: DropdownButton<MeasurementUnit>(
+                    value: units[index],
+                    padding: EdgeInsets.zero,
+                    onChanged: (newUnit) {
+                      setState(() {
+                        units[index] = newUnit!;
+                      });
+                    },
+                    alignment: Alignment.center,
+                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                    items: MeasurementUnit.values.map((MeasurementUnit unit) {
+                      return DropdownMenuItem<MeasurementUnit>(
+                        value: unit,
+                        child: Text(
+                          getLocalizedMeasurementUnit(unit),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

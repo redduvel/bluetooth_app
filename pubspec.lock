@@ -326,6 +326,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.21"
+  flutter_sliding_box:
+    dependency: "direct main"
+    description:
+      name: flutter_sliding_box
+      sha256: "93d3e42c5128813c53b890a84c1f221ac44c90a38394f00b2acff408df30d7cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.5"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -592,6 +600,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  modal_bottom_sheet:
+    dependency: "direct main"
+    description:
+      name: modal_bottom_sheet
+      sha256: eac66ef8cb0461bf069a38c5eb0fa728cee525a531a8304bd3f7b2185407c67e
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   nested:
     dependency: transitive
     description:

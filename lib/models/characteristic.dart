@@ -13,10 +13,19 @@ enum MeasurementUnit {
 
   @HiveField(2)
   days,
-
-  @HiveField(3)
-  unknown,
 }
+
+String getLocalizedMeasurementUnit(MeasurementUnit unit) {
+  switch (unit) {
+    case MeasurementUnit.hours:
+      return 'час';
+    case MeasurementUnit.minutes:
+      return 'минута';
+    case MeasurementUnit.days:
+      return 'сутки';
+  }
+}
+
 
 @HiveType(typeId: 4)
 class Characteristic {
@@ -50,19 +59,7 @@ class Characteristic {
 
   @override
   String toString() {
-    return '$name ($shortName): $value ${_unitToString(unit)}';
+    return '$shortName: $value ${getLocalizedMeasurementUnit(unit)}';
   }
 
-  String _unitToString(MeasurementUnit unit) {
-    switch (unit) {
-      case MeasurementUnit.hours:
-        return 'часы';
-      case MeasurementUnit.minutes:
-        return 'минуты';
-      case MeasurementUnit.days:
-        return 'сутки';
-      default:
-        return 'неизвестно';
-    }
-  }
 }

@@ -15,7 +15,7 @@ class ProductRepository implements Repository<Product> {
   Future<void> add(Product item) async {
     try {
       var productBox = Hive.box<Product>('products_box');
-      productBox.put(item.id, item);
+      productBox.add(item);
     } catch (e) {
       throw Exception(e);
     }
@@ -47,6 +47,19 @@ class ProductRepository implements Repository<Product> {
     try {
       await Hive.box<Product>('products_box').put(item.id, item);
       return true;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+    @override
+  Future<void> reorderList(int newIndex, int oldIndex) async {
+    try {
+      var productBox = Hive.box<Product>('products_box');
+      Product product = productBox.getAt(oldIndex)!;
+      productBox.deleteAt(oldIndex);
+      productBox.putAt(newIndex, product);
+
     } catch (e) {
       throw Exception(e);
     }

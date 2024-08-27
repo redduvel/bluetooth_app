@@ -28,7 +28,7 @@ class EmployeeRepository implements Repository<Employee> {
   Future<void> add(Employee item) async {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
-      employeeBox.put(item.id, item);
+      employeeBox.add(item);
     } catch (e) {
       throw Exception(e);
     }
@@ -49,6 +49,19 @@ class EmployeeRepository implements Repository<Employee> {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
       employeeBox.delete(id);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<void> reorderList(int newIndex, int oldIndex) async {
+    try {
+      var employeeBox = Hive.box<Employee>('employee_box');
+      Employee employee = employeeBox.getAt(oldIndex)!;
+      employeeBox.deleteAt(oldIndex);
+      employeeBox.putAt(newIndex, employee);
+
     } catch (e) {
       throw Exception(e);
     }

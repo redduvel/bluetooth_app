@@ -185,10 +185,9 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
         String endTime = '';
         String count = event.count;
 
-        endTime =  DateFormat('yyyy-MM-dd HH:mm').format(
-                _setAdjustmentTime(event.startDate, event.product.characteristics[0])); 
+        endTime = DateFormat('yyyy-MM-dd HH:mm').format(
+                _setAdjustmentTime(event.startDate, event.product.characteristics[event.characteristicIndex])); 
         
-
         final datat = await ImageUtils().createLabelWithText(
             event.product.subtitle,
             startTime,

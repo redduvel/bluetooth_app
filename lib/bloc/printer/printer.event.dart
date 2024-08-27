@@ -1,4 +1,3 @@
-import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/product.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -54,15 +53,17 @@ class PrintLabel extends PrinterEvent {
   final Product product;
   final Employee employee;
   final DateTime startDate;
+  final int characteristicIndex;
   final String count;
 
   const PrintLabel({
     required this.product,
     required this. employee,
     required this.startDate,
+    required this.characteristicIndex,
     required this.count,
   });
 
   @override
-  List<Object> get props => [product, employee, startDate];
+  List<Object> get props => [product, employee, startDate, characteristicIndex, count];
 }

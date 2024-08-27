@@ -26,14 +26,13 @@ class _ProductGridItemState extends State<ProductGridItem> {
   late TextEditingController controller;
 
   DateTime customEndDate = DateTime.now();
-
-  bool selectedDefrosting = true;
-  bool selectedClosed = false;
-  bool selectedOpened = false;
+  DateTime adjustmentDateTime = DateTime.now();
+  int selectedCharacteristic = 0;
 
   @override
   void initState() {
     controller = TextEditingController(text: '$count');
+
     super.initState();
   }
 
@@ -55,11 +54,11 @@ class _ProductGridItemState extends State<ProductGridItem> {
   Widget _buildListTile() {
     return ListTile(
         minVerticalPadding: 0,
-        contentPadding: const EdgeInsets.all(5),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 5),
         title: Text(
           widget.product.subtitle,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
         subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,15 +69,15 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   Widget _buildProductInfo(Characteristic characteristic) {
     return Text(
-      "${characteristic.toString()}",
+      characteristic.toString(),
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 18),
+      style: const TextStyle(fontSize: 14),
     );
   }
 
   Widget _buildActionRow(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildPrintButton(context),
         _buildScheduleButton(context),
@@ -90,9 +89,9 @@ class _ProductGridItemState extends State<ProductGridItem> {
     return IconButton(
       onPressed: () => _showPrintBottomSheet(context),
       icon: const Icon(Icons.print),
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.all(0),
-      iconSize: 24,
+      visualDensity: VisualDensity.comfortable,
+      padding: const EdgeInsets.all(5),
+      iconSize: 32,
     );
   }
 
@@ -100,9 +99,9 @@ class _ProductGridItemState extends State<ProductGridItem> {
     return IconButton(
       onPressed: () => _showScheduleBottomSheet(context),
       icon: const Icon(Icons.schedule),
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.all(0),
-      iconSize: 24,
+      visualDensity: VisualDensity.comfortable,
+      padding: const EdgeInsets.all(5),
+      iconSize: 32,
     );
   }
 
@@ -133,7 +132,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
           ),
           Text(
             DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
-                customEndDate, widget.product.characteristics[0])),
+                adjustmentDateTime, widget.product.characteristics[0])),
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
           ),
           Text(
@@ -148,7 +147,9 @@ class _ProductGridItemState extends State<ProductGridItem> {
   // для обычной печати
   void _showPrintBottomSheet(BuildContext context) {
     widget.bloc.repository.currentItem = widget.product;
-
+    if ( selectedCharacteristic >= widget.product.characteristics.length) {
+      selectedCharacteristic = 0;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -181,6 +182,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
               const SliverToBoxAdapter(
                 child: Divider(),
               ),
+              
               _buildChoiceChips(setState),
               const SliverToBoxAdapter(child: Divider()),
               _buildPrintQuantityButton(context, false),
@@ -192,27 +194,37 @@ class _ProductGridItemState extends State<ProductGridItem> {
   }
 
   Widget _buildChoiceChips(void Function(void Function()) setState) {
+    if (widget.product.characteristics.isEmpty) {
+      return SizedBox.shrink();
+    }
+    
     return SliverToBoxAdapter(
-      child:  Wrap(
-        crossAxisAlignment: WrapCrossAlignment.start,
-        alignment: WrapAlignment.start,
-        runAlignment: WrapAlignment.start,
-        
-        spacing: 5,
-        runSpacing: -3,
-        children: 
-        widget.product.characteristics.map((c) => _buildChoiceChip(c.name, false, (value) {})).toList()
-         
-      ),
+      child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.start,
+          alignment: WrapAlignment.start,
+          runAlignment: WrapAlignment.start,
+          spacing: 5,
+          runSpacing: -3,
+          children:
+              List.generate(widget.product.characteristics.length, (index) {
+            Characteristic c = widget.product.characteristics[index];
+            return _buildChoiceChip(c, setState, index);
+          })),
     );
   }
 
   Widget _buildChoiceChip(
-      String label, bool selected, ValueChanged<bool> onSelected) {
+      Characteristic c, void Function(void Function()) setState, int index) {
+    int thisIndex = index;
     return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: onSelected,
+      label: Text(c.name),
+      selected: selectedCharacteristic == thisIndex,
+      onSelected: (value) {
+        setState(() {
+          selectedCharacteristic = thisIndex;
+          adjustmentDateTime = _setAdjustmentTime(customEndDate, c);
+        });
+      },
     );
   }
 
@@ -294,6 +306,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                             .currentItem,
                         startDate:
                             adjustmentType ? customEndDate : DateTime.now(),
+                        characteristicIndex: selectedCharacteristic,
                         count: controller.text,
                       ));
                 },
@@ -308,6 +321,9 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   // для печати с отложенной датой
   void _showScheduleBottomSheet(BuildContext context) {
+    if (selectedCharacteristic >= widget.product.characteristics.length) {
+      selectedCharacteristic = 0;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -364,6 +380,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
           }, onChanged: (time) {
             setState(() {
               customEndDate = time;
+              adjustmentDateTime = _setAdjustmentTime(time, widget.product.characteristics[selectedCharacteristic]);
             });
           }, currentTime: customEndDate, locale: LocaleType.ru);
         },

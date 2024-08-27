@@ -61,8 +61,6 @@ class MeasurementUnitAdapter extends TypeAdapter<MeasurementUnit> {
         return MeasurementUnit.minutes;
       case 2:
         return MeasurementUnit.days;
-      case 3:
-        return MeasurementUnit.unknown;
       default:
         return MeasurementUnit.hours;
     }
@@ -79,9 +77,6 @@ class MeasurementUnitAdapter extends TypeAdapter<MeasurementUnit> {
         break;
       case MeasurementUnit.days:
         writer.writeByte(2);
-        break;
-      case MeasurementUnit.unknown:
-        writer.writeByte(3);
         break;
     }
   }

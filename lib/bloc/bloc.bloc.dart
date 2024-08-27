@@ -22,6 +22,12 @@ class DeleteItem<T> extends GenericEvent<T> {
   DeleteItem(this.id);
 }
 
+class ReorderList<T> extends GenericEvent<T> {
+  final int newIndex;
+  final int oldIndex;
+  ReorderList(this.newIndex, this.oldIndex);
+}
+
 
 
 // ======STATES======
@@ -74,6 +80,15 @@ class GenericBloc<T> extends Bloc<GenericEvent<T>, GenericState<T>> {
     on<DeleteItem<T>>((event, emit) async {
       try {
         await repository.delete(event.id);
+        add(LoadItems<T>());
+      } catch (e) {
+        emit(ItemOperationFailed<T>(e.toString()));
+      }
+    });
+
+    on<ReorderList<T>>((event, emit) async {
+      try {
+        await repository.reorderList(event.newIndex, event.oldIndex);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));

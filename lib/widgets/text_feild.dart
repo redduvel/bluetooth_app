@@ -34,11 +34,24 @@ class _TextInputState extends State<TextInput> {
         valid = value.isNotEmpty;
       }),
       keyboardType: widget.type,
+      style: const TextStyle(
+        fontSize: 14
+      ),
       decoration: InputDecoration(
         icon: widget.icon != null ? Icon(widget.icon) : null,
         errorText: !valid ? 'Обязательное поле' : null,
         label: Text(widget.labelText),
         hintText: widget.hintText,
+        
+        labelStyle: const TextStyle(
+          fontSize: 14
+        ),
+        hintStyle: const TextStyle(
+          fontSize: 12
+        ),
+        errorStyle: const TextStyle(
+          fontSize: 12
+        )
       ),
     );
   }

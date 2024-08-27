@@ -5,6 +5,7 @@ import 'package:bluetooth_app/models/product.dart';
 import 'package:bluetooth_app/widgets/text_feild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
@@ -29,8 +30,6 @@ class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -46,16 +45,15 @@ class _ProductCardState extends State<ProductCard> {
       leading: widget.product.isHide
           ? const Icon(Icons.visibility_off, size: 24)
           : null,
-      title: Text(widget.product.title),
-      subtitle: Text(widget.product.subtitle),
+      title: Text(widget.product.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
+      subtitle: Text(widget.product.subtitle, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
       trailing: widget.showTools ? _buildPopupMenu() : null,
     );
   }
 
   Widget _buildProductDetailsTile() {
     return ListTile(
-      title: Text(widget.product.category.name),
-      trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.print)),
+      title: Text(widget.product.category.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),),
       subtitle: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,9 +66,9 @@ class _ProductCardState extends State<ProductCard> {
 
   Widget _buildProductInfo(Characteristic characteristic) {
     return Text(
-      "${characteristic.name}: ${characteristic.value} ${characteristic.unit.toString().split('.').last}",
+      "${characteristic.shortName}: ${characteristic.value} ${getLocalizedMeasurementUnit(characteristic.unit)}",
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 18),
+      style: const TextStyle(fontSize: 14),
     );
   }
 
@@ -103,7 +101,8 @@ class _ProductCardState extends State<ProductCard> {
     TextEditingController subnameController =
         TextEditingController(text: widget.product.subtitle);
 
-    List<Characteristic> characteristics = List.from(widget.product.characteristics);
+    List<Characteristic> characteristics =
+        List.from(widget.product.characteristics);
     List<TextEditingController> nameControllers = characteristics
         .map((c) => TextEditingController(text: c.name))
         .toList();
@@ -115,19 +114,18 @@ class _ProductCardState extends State<ProductCard> {
     selectedCategory = widget.product.category;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
+      showBarModalBottomSheet(
+        backgroundColor: Colors.white,
         context: context,
         builder: (context) {
-          return Dialog(
-            child: _buildEditDialog(
-              context,
-              nameController,
-              subnameController,
-              nameControllers,
-              valueControllers,
-              units,
-              characteristics,
-            ),
+          return _buildEditDialog(
+            context,
+            nameController,
+            subnameController,
+            nameControllers,
+            valueControllers,
+            units,
+            characteristics,
           );
         },
       );
@@ -143,21 +141,23 @@ class _ProductCardState extends State<ProductCard> {
     List<MeasurementUnit> units,
     List<Characteristic> characteristics,
   ) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildTextInputCard(nameController, subnameController),
-            const SizedBox(height: 10),
-            _buildCategoryDropdown(context),
-            const SizedBox(height: 10),
-            Column(
-              children: [
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: StatefulBuilder(
+        builder: (context, setState) => CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+                child: _buildTextInputCard(nameController, subnameController)),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverToBoxAdapter(child: _buildCategoryDropdown(context)),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverList(
+                delegate: SliverChildListDelegate(
+              [
                 ...List.generate(characteristics.length, (index) {
                   return _buildCharacteristicInput(
                     context,
+                    setState,
                     index,
                     nameControllers,
                     valueControllers,
@@ -169,7 +169,8 @@ class _ProductCardState extends State<ProductCard> {
                   onPressed: () {
                     setState(() {
                       characteristics.add(
-                        Characteristic(name: '', value: 0, unit: MeasurementUnit.hours),
+                        Characteristic(
+                            name: '', value: 0, unit: MeasurementUnit.hours),
                       );
                       nameControllers.add(TextEditingController());
                       valueControllers.add(TextEditingController());
@@ -179,16 +180,18 @@ class _ProductCardState extends State<ProductCard> {
                   child: const Text('Добавить характеристику'),
                 ),
               ],
-            ),
-            const SizedBox(height: 10),
-            _buildSaveButton(
-              context,
-              nameController,
-              subnameController,
-              characteristics,
-              nameControllers,
-              valueControllers,
-              units,
+            )),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverToBoxAdapter(
+              child: _buildSaveButton(
+                context,
+                nameController,
+                subnameController,
+                characteristics,
+                nameControllers,
+                valueControllers,
+                units,
+              ),
             ),
           ],
         ),
@@ -198,62 +201,87 @@ class _ProductCardState extends State<ProductCard> {
 
   Widget _buildCharacteristicInput(
     BuildContext context,
+    Function setState,
     int index,
     List<TextEditingController> nameControllers,
     List<TextEditingController> valueControllers,
     List<MeasurementUnit> units,
     List<Characteristic> characteristics,
   ) {
-    return Row(
-      children: [
-        ListTile(
-          title: TextField(),
-          subtitle: TextField(),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextInput(
+                    controller: nameControllers[index],
+                    labelText: 'Название',
+                    hintText: 'Разморозка',
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      setState(() {
+                        characteristics.removeAt(index);
+                        nameControllers.removeAt(index);
+                        valueControllers.removeAt(index);
+                        units.removeAt(index);
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextInput(
+                    controller: valueControllers[index],
+                    labelText: 'Значение',
+                    hintText: '15',
+                    type: TextInputType.number,
+                  ),
+                ),
+                const VerticalDivider(),
+                Expanded(
+                  flex: 1,
+                  child: DropdownButton<MeasurementUnit>(
+                    value: units[index],
+                    padding: EdgeInsets.zero,
+                    onChanged: (newUnit) {
+                      setState(() {
+                        units[index] = newUnit!;
+                      });
+                    },
+                    alignment: Alignment.center,
+                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                    items: MeasurementUnit.values.map((MeasurementUnit unit) {
+                      return DropdownMenuItem<MeasurementUnit>(
+                        value: unit,
+                        child: Text(
+                          getLocalizedMeasurementUnit(unit),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        Expanded(
-          flex: 2,
-          child: TextField(
-            controller: nameControllers[index],
-            decoration: const InputDecoration(labelText: 'Название'),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: TextField(
-            controller: valueControllers[index],
-            decoration: const InputDecoration(labelText: 'Значение'),
-            keyboardType: TextInputType.number,
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: DropdownButton<MeasurementUnit>(
-            value: units[index],
-            onChanged: (newUnit) {
-              setState(() {
-                units[index] = newUnit!;
-              });
-            },
-            items: MeasurementUnit.values.map((MeasurementUnit unit) {
-              return DropdownMenuItem<MeasurementUnit>(
-                value: unit,
-                child: Text(unit.toString().split('.').last),
-              );
-            }).toList(),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () {
-            setState(() {
-              characteristics.removeAt(index);
-              nameControllers.removeAt(index);
-              valueControllers.removeAt(index);
-              units.removeAt(index);
-            });
-          },
-        ),
-      ],
+      ),
     );
   }
 
@@ -290,7 +318,7 @@ class _ProductCardState extends State<ProductCard> {
             if (state is ItemsLoaded<Nomenclature>) {
               return DropdownMenu<Nomenclature>(
                 hintText: selectedCategory?.name ?? 'Выберите категорию',
-                width: MediaQuery.of(context).size.width - 70,
+                width: MediaQuery.of(context).size.width - 40,
                 leadingIcon: const Icon(Icons.category),
                 onSelected: (value) => setState(() {
                   selectedCategory = value;

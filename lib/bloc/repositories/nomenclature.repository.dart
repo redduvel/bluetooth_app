@@ -28,7 +28,7 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   Future<void> add(Nomenclature item) async {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-      nomenclatureBox.put(item.id, item);
+      nomenclatureBox.add(item);
     } catch (e) {
       throw Exception(e);
     }
@@ -65,4 +65,32 @@ Future<bool> update(Nomenclature item) async {
       throw Exception(e);
     }
   }
+
+@override
+Future<void> reorderList(int oldIndex, int newIndex) async {
+  try {
+    var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
+    List<Nomenclature> nomenclatures = nomenclatureBox.values.toList();
+    // Если элемент перетаскивается вниз, уменьшаем newIndex на 1, чтобы не нарушить порядок
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+
+    // Получаем элемент, который нужно переместить
+    Nomenclature movedItem = nomenclatures.elementAt(oldIndex);
+
+    // Удаляем элемент с текущей позиции
+    nomenclatures.removeAt(oldIndex);
+
+    // Вставляем элемент на новую позицию
+    nomenclatures.insert(newIndex, movedItem);
+    nomenclatureBox.clear();
+    for (var n in nomenclatures) {
+      nomenclatureBox.put(n.id, n);
+    }
+  } catch (e) {
+    throw Exception("Ошибка при перестановке: $e");
+  }
+}
+
 }
