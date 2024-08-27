@@ -54,17 +54,15 @@ class PrintLabel extends PrinterEvent {
   final Product product;
   final Employee employee;
   final DateTime startDate;
-  final AdjustmentType adjustmentType;
   final String count;
 
   const PrintLabel({
     required this.product,
     required this. employee,
     required this.startDate,
-    required this.adjustmentType,
     required this.count,
   });
 
   @override
-  List<Object> get props => [product, employee, startDate, adjustmentType];
+  List<Object> get props => [product, employee, startDate];
 }

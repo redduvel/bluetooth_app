@@ -10,7 +10,7 @@ class TsplTools {
     String height = '20';
     String gap = '3';
     String dateTimeNow = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
-    String date = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now().add(Duration(hours: currentProduct.openedTime)));
+    String date = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now().add(Duration(hours: 2)));
 
     StringBuffer tsplCode = StringBuffer();
 

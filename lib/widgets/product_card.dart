@@ -1,4 +1,5 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
+import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
 import 'package:bluetooth_app/widgets/text_feild.dart';
@@ -23,7 +24,7 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
   bool validCategory = true;
-  Nomenclature? selectedCategory; // Добавляем переменную для хранения выбранной категории
+  Nomenclature? selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +59,18 @@ class _ProductCardState extends State<ProductCard> {
       subtitle: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Разморозка: ${widget.product.defrosting}ч."),
-          Text('Хранение (о): ${widget.product.openedTime}ч.'),
-          Text('Хранение (з): ${widget.product.closedTime}ч.'),
-        ],
+        children: widget.product.characteristics
+            .map((c) => _buildProductInfo(c))
+            .toList(),
       ),
+    );
+  }
+
+  Widget _buildProductInfo(Characteristic characteristic) {
+    return Text(
+      "${characteristic.name}: ${characteristic.value} ${characteristic.unit.toString().split('.').last}",
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 18),
     );
   }
 
@@ -95,27 +102,32 @@ class _ProductCardState extends State<ProductCard> {
         TextEditingController(text: widget.product.title);
     TextEditingController subnameController =
         TextEditingController(text: widget.product.subtitle);
-    TextEditingController defrostingController =
-        TextEditingController(text: widget.product.defrosting.toString());
-    TextEditingController closedTimeController =
-        TextEditingController(text: widget.product.closedTime.toString());
-    TextEditingController openedTimeController =
-        TextEditingController(text: widget.product.openedTime.toString());
 
-    // Инициализируем выбранную категорию текущей категорией продукта
+    List<Characteristic> characteristics = List.from(widget.product.characteristics);
+    List<TextEditingController> nameControllers = characteristics
+        .map((c) => TextEditingController(text: c.name))
+        .toList();
+    List<TextEditingController> valueControllers = characteristics
+        .map((c) => TextEditingController(text: c.value.toString()))
+        .toList();
+    List<MeasurementUnit> units = characteristics.map((c) => c.unit).toList();
+
     selectedCategory = widget.product.category;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
         context: context,
         builder: (context) {
-          return _buildEditDialog(
-            context,
-            nameController,
-            subnameController,
-            defrostingController,
-            closedTimeController,
-            openedTimeController,
+          return Dialog(
+            child: _buildEditDialog(
+              context,
+              nameController,
+              subnameController,
+              nameControllers,
+              valueControllers,
+              units,
+              characteristics,
+            ),
           );
         },
       );
@@ -126,18 +138,14 @@ class _ProductCardState extends State<ProductCard> {
     BuildContext context,
     TextEditingController nameController,
     TextEditingController subnameController,
-    TextEditingController defrostingController,
-    TextEditingController closedTimeController,
-    TextEditingController openedTimeController,
+    List<TextEditingController> nameControllers,
+    List<TextEditingController> valueControllers,
+    List<MeasurementUnit> units,
+    List<Characteristic> characteristics,
   ) {
     return Center(
-      child: Container(
-        padding: const EdgeInsets.all(8.0),
-        margin: const EdgeInsets.all(15),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -145,20 +153,107 @@ class _ProductCardState extends State<ProductCard> {
             const SizedBox(height: 10),
             _buildCategoryDropdown(context),
             const SizedBox(height: 10),
-            _buildStorageInputCard(defrostingController, closedTimeController,
-                openedTimeController),
+            Column(
+              children: [
+                ...List.generate(characteristics.length, (index) {
+                  return _buildCharacteristicInput(
+                    context,
+                    index,
+                    nameControllers,
+                    valueControllers,
+                    units,
+                    characteristics,
+                  );
+                }),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      characteristics.add(
+                        Characteristic(name: '', value: 0, unit: MeasurementUnit.hours),
+                      );
+                      nameControllers.add(TextEditingController());
+                      valueControllers.add(TextEditingController());
+                      units.add(MeasurementUnit.hours);
+                    });
+                  },
+                  child: const Text('Добавить характеристику'),
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
             _buildSaveButton(
               context,
               nameController,
               subnameController,
-              defrostingController,
-              closedTimeController,
-              openedTimeController,
+              characteristics,
+              nameControllers,
+              valueControllers,
+              units,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCharacteristicInput(
+    BuildContext context,
+    int index,
+    List<TextEditingController> nameControllers,
+    List<TextEditingController> valueControllers,
+    List<MeasurementUnit> units,
+    List<Characteristic> characteristics,
+  ) {
+    return Row(
+      children: [
+        ListTile(
+          title: TextField(),
+          subtitle: TextField(),
+        ),
+        Expanded(
+          flex: 2,
+          child: TextField(
+            controller: nameControllers[index],
+            decoration: const InputDecoration(labelText: 'Название'),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: TextField(
+            controller: valueControllers[index],
+            decoration: const InputDecoration(labelText: 'Значение'),
+            keyboardType: TextInputType.number,
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: DropdownButton<MeasurementUnit>(
+            value: units[index],
+            onChanged: (newUnit) {
+              setState(() {
+                units[index] = newUnit!;
+              });
+            },
+            items: MeasurementUnit.values.map((MeasurementUnit unit) {
+              return DropdownMenuItem<MeasurementUnit>(
+                value: unit,
+                child: Text(unit.toString().split('.').last),
+              );
+            }).toList(),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () {
+            setState(() {
+              characteristics.removeAt(index);
+              nameControllers.removeAt(index);
+              valueControllers.removeAt(index);
+              units.removeAt(index);
+            });
+          },
+        ),
+      ],
     );
   }
 
@@ -198,7 +293,7 @@ class _ProductCardState extends State<ProductCard> {
                 width: MediaQuery.of(context).size.width - 70,
                 leadingIcon: const Icon(Icons.category),
                 onSelected: (value) => setState(() {
-                  selectedCategory = value; // Сохраняем выбранную категорию
+                  selectedCategory = value;
                   validCategory = true;
                 }),
                 dropdownMenuEntries: state.items.map((nomenclature) {
@@ -216,50 +311,14 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  Widget _buildStorageInputCard(
-      TextEditingController defrostingController,
-      TextEditingController closedTimeController,
-      TextEditingController openedTimeController) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            const Text('Сроки указываются в часах'),
-            TextInput(
-              controller: defrostingController,
-              hintText: '100',
-              labelText: 'Разморозка',
-              type: TextInputType.number,
-              icon: Icons.ac_unit,
-            ),
-            TextInput(
-              controller: closedTimeController,
-              hintText: '100',
-              labelText: 'Срок закрытого хранения',
-              type: TextInputType.number,
-              icon: Icons.close_fullscreen,
-            ),
-            TextInput(
-              controller: openedTimeController,
-              hintText: '100',
-              labelText: 'Срок открытого хранения',
-              type: TextInputType.number,
-              icon: Icons.open_with,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSaveButton(
     BuildContext context,
     TextEditingController nameController,
     TextEditingController subnameController,
-    TextEditingController defrostingController,
-    TextEditingController closedTimeController,
-    TextEditingController openedTimeController,
+    List<Characteristic> characteristics,
+    List<TextEditingController> nameControllers,
+    List<TextEditingController> valueControllers,
+    List<MeasurementUnit> units,
   ) {
     return ElevatedButton(
       onPressed: () {
@@ -274,10 +333,14 @@ class _ProductCardState extends State<ProductCard> {
           id: widget.product.id,
           title: nameController.text,
           subtitle: subnameController.text,
-          defrosting: int.parse(defrostingController.text),
-          closedTime: int.parse(closedTimeController.text),
-          openedTime: int.parse(openedTimeController.text),
-          category: selectedCategory!, // Используем выбранную категорию
+          characteristics: List.generate(characteristics.length, (index) {
+            return Characteristic(
+              name: nameControllers[index].text,
+              value: int.parse(valueControllers[index].text),
+              unit: units[index],
+            );
+          }),
+          category: selectedCategory!,
           isHide: widget.product.isHide,
         );
 

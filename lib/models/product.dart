@@ -1,3 +1,4 @@
+import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/tools/id_generator.dart';
 import 'package:hive/hive.dart';
@@ -15,27 +16,19 @@ class Product extends HiveObject {
   final String subtitle;
 
   @HiveField(3)
-  final int defrosting;
+  final List<Characteristic> characteristics;
 
   @HiveField(4)
-  final int closedTime;
-
-  @HiveField(5)
-  final int openedTime;
-
-  @HiveField(6)
   final Nomenclature category;
 
-  @HiveField(7)
+  @HiveField(5)
   final bool isHide;
 
   Product(
       {String? id,
       required this.title,
       required this.subtitle,
-      required this.defrosting,
-      required this.closedTime,
-      required this.openedTime,
+      required this.characteristics,
       required this.category,
       required this.isHide})
       : id = id ?? IdGenerator.generate();
@@ -45,9 +38,7 @@ class Product extends HiveObject {
     String? id,
     String? title,
     String? subtitle,
-    int? defrosting,
-    int? closedTime,
-    int? openedTime,
+    List<Characteristic>? characteristics,
     Nomenclature? category,
     bool? isHide,
   }) {
@@ -55,9 +46,7 @@ class Product extends HiveObject {
       id: id ?? this.id,
       title: title ?? this.title,
       subtitle: subtitle ?? this.subtitle,
-      defrosting: defrosting ?? this.defrosting,
-      closedTime: closedTime ?? this.closedTime,
-      openedTime: openedTime ?? this.openedTime,
+      characteristics: characteristics ?? this.characteristics,
       category: category ?? this.category,
       isHide: isHide ?? this.isHide,
     );

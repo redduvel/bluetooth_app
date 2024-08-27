@@ -1,6 +1,7 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
+import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/product.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class ProductGridItem extends StatefulWidget {
 class _ProductGridItemState extends State<ProductGridItem> {
   TextEditingController customPrintController =
       TextEditingController(text: '1');
-    int count = 1;
+  int count = 1;
   late TextEditingController controller;
 
   DateTime customEndDate = DateTime.now();
@@ -34,13 +35,6 @@ class _ProductGridItemState extends State<ProductGridItem> {
   void initState() {
     controller = TextEditingController(text: '$count');
     super.initState();
-  }
-
-  AdjustmentType getAdjustmentType() {
-    if (selectedDefrosting) return AdjustmentType.defrosting;
-    if (selectedClosed) return AdjustmentType.closed;
-    if (selectedOpened) return AdjustmentType.opened;
-    throw Exception('Invalid Adjustment Type');
   }
 
   @override
@@ -60,27 +54,23 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   Widget _buildListTile() {
     return ListTile(
-      minVerticalPadding: 0,
-      contentPadding: const EdgeInsets.all(5),
-      title: Text(
-        widget.product.subtitle,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildProductInfo("(р)", widget.product.defrosting),
-          _buildProductInfo("(з)", widget.product.closedTime),
-          _buildProductInfo("(о)", widget.product.openedTime),
-        ],
-      ),
-    );
+        minVerticalPadding: 0,
+        contentPadding: const EdgeInsets.all(5),
+        title: Text(
+          widget.product.subtitle,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widget.product.characteristics
+                .map((c) => _buildProductInfo(c))
+                .toList()));
   }
 
-  Widget _buildProductInfo(String label, int time) {
+  Widget _buildProductInfo(Characteristic characteristic) {
     return Text(
-      "$label${time.toString()}ч.",
+      "${characteristic.toString()}",
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(fontSize: 18),
     );
@@ -122,36 +112,36 @@ class _ProductGridItemState extends State<ProductGridItem> {
       {DateTime? startDate}) {
     return SliverToBoxAdapter(
         child: Container(
-                height: 20 * 8,
-                padding: const EdgeInsets.all(5),
+      height: 20 * 8,
+      padding: const EdgeInsets.all(5),
       margin: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width / 6),
-                decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
+      decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
           color: Color.fromARGB(255, 255, 255, 255)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              product.subtitle,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(startDate ?? customEndDate),
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
-                  widget.product, customEndDate, getAdjustmentType())),
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              employee.fullName,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-            )
-          ],
-              ),
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            product.subtitle,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            DateFormat('yyyy-MM-dd HH:mm').format(startDate ?? customEndDate),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
+                customEndDate, widget.product.characteristics[0])),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            employee.fullName,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          )
+        ],
+      ),
     ));
   }
 
@@ -203,31 +193,16 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   Widget _buildChoiceChips(void Function(void Function()) setState) {
     return SliverToBoxAdapter(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildChoiceChip('Разморозка', selectedDefrosting, (value) {
-            setState(() {
-              selectedDefrosting = true;
-              selectedOpened = false;
-              selectedClosed = false;
-            });
-          }),
-          _buildChoiceChip('Открытое', selectedOpened, (value) {
-            setState(() {
-              selectedOpened = true;
-              selectedDefrosting = false;
-              selectedClosed = false;
-            });
-          }),
-          _buildChoiceChip('Закрытое', selectedClosed, (value) {
-            setState(() {
-              selectedDefrosting = false;
-              selectedOpened = false;
-              selectedClosed = true;
-            });
-          }),
-        ],
+      child:  Wrap(
+        crossAxisAlignment: WrapCrossAlignment.start,
+        alignment: WrapAlignment.start,
+        runAlignment: WrapAlignment.start,
+        
+        spacing: 5,
+        runSpacing: -3,
+        children: 
+        widget.product.characteristics.map((c) => _buildChoiceChip(c.name, false, (value) {})).toList()
+         
       ),
     );
   }
@@ -241,97 +216,95 @@ class _ProductGridItemState extends State<ProductGridItem> {
     );
   }
 
- Widget _buildPrintQuantityButton(BuildContext context, bool adjustmentType) {
-
-  return SliverToBoxAdapter(
-    child: StatefulBuilder(
-      builder: (context, setState) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Flexible(
-                  flex: 2,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        if (count > 1) {
-                          count--;
+  Widget _buildPrintQuantityButton(BuildContext context, bool adjustmentType) {
+    return SliverToBoxAdapter(
+      child: StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          if (count > 1) {
+                            count--;
+                            controller.text = '$count';
+                          }
+                        });
+                      },
+                      child: const Text(
+                        '-',
+                        style: TextStyle(fontSize: 26),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 3,
+                    child: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        label: Text('Количество этикеток'),
+                      ),
+                      textAlign: TextAlign.center,
+                      onChanged: (value) {
+                        setState(() {
+                          final parsedValue = int.tryParse(value);
+                          if (parsedValue != null && parsedValue > 0) {
+                            count = parsedValue;
+                          } else {
+                            controller.text = '$count';
+                          }
+                        });
+                      },
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          count++;
                           controller.text = '$count';
-                        }
-                      });
-                    },
-                    child: const Text(
-                      '-',
-                      style: TextStyle(fontSize: 26),
+                        });
+                      },
+                      child: const Text(
+                        '+',
+                        style: TextStyle(fontSize: 26),
+                      ),
                     ),
                   ),
-                ),
-                Flexible(
-                  flex: 3,
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      label: Text('Количество этикеток'),
-                    ),
-                    textAlign: TextAlign.center,
-                    onChanged: (value) {
-                      setState(() {
-                        final parsedValue = int.tryParse(value);
-                        if (parsedValue != null && parsedValue > 0) {
-                          count = parsedValue;
-                        } else {
-                          controller.text = '$count';
-                        }
-                      });
-                    },
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                Flexible(
-                  flex: 2,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        count++;
-                        controller.text = '$count';
-                      });
-                    },
-                    child: const Text(
-                      '+',
-                      style: TextStyle(fontSize: 26),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const Divider(
-              height: 30,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.read<PrinterBloc>().add(PrintLabel(
-                      product: widget.product,
-                      employee: context
-                          .read<GenericBloc<Employee>>()
-                          .repository
-                          .currentItem,
-                      startDate: adjustmentType ? customEndDate : DateTime.now(),
-                      adjustmentType: getAdjustmentType(),
-                      count: controller.text,
-                    ));
-              },
-              child: const Text('Печатать'),
-            ),
-          ],
-        );
-      },
-    ),
-  );
-}
-
+                ],
+              ),
+              const Divider(
+                height: 30,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  context.read<PrinterBloc>().add(PrintLabel(
+                        product: widget.product,
+                        employee: context
+                            .read<GenericBloc<Employee>>()
+                            .repository
+                            .currentItem,
+                        startDate:
+                            adjustmentType ? customEndDate : DateTime.now(),
+                        count: controller.text,
+                      ));
+                },
+                child: const Text('Печатать'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 
   // для печати с отложенной датой
   void _showScheduleBottomSheet(BuildContext context) {
@@ -385,13 +358,13 @@ class _ProductGridItemState extends State<ProductGridItem> {
               showTitleActions: true,
               minTime: DateTime(2024, 1, 1),
               maxTime: DateTime(2100, 12, 29), onConfirm: (date) {
-                setState(() {
-                  customEndDate = date;
-                });
+            setState(() {
+              customEndDate = date;
+            });
           }, onChanged: (time) {
-                setState(() {
-                  customEndDate = time;
-                });
+            setState(() {
+              customEndDate = time;
+            });
           }, currentTime: customEndDate, locale: LocaleType.ru);
         },
         child: const Text('Выбрать дату отсчета'),
@@ -399,17 +372,17 @@ class _ProductGridItemState extends State<ProductGridItem> {
     );
   }
 
-  DateTime _setAdjustmentTime(Product currentProduct, DateTime selectedTime,
-      AdjustmentType adjustmentType) {
-    switch (adjustmentType) {
-      case AdjustmentType.defrosting:
-        return selectedTime.add(Duration(hours: currentProduct.defrosting));
-      case AdjustmentType.closed:
-        return selectedTime.add(Duration(hours: currentProduct.closedTime));
-      case AdjustmentType.opened:
-        return selectedTime.add(Duration(hours: currentProduct.openedTime));
+  DateTime _setAdjustmentTime(
+      DateTime startTime, Characteristic characteristic) {
+    switch (characteristic.unit) {
+      case MeasurementUnit.hours:
+        return startTime.add(Duration(hours: characteristic.value));
+      case MeasurementUnit.minutes:
+        return startTime.add(Duration(minutes: characteristic.value));
+      case MeasurementUnit.days:
+        return startTime.add(Duration(days: characteristic.value));
       default:
-        return selectedTime;
+        throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
     }
   }
 }

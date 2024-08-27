@@ -20,18 +20,16 @@ class ProductAdapter extends TypeAdapter<Product> {
       id: fields[0] as String?,
       title: fields[1] as String,
       subtitle: fields[2] as String,
-      defrosting: fields[3] as int,
-      closedTime: fields[4] as int,
-      openedTime: fields[5] as int,
-      category: fields[6] as Nomenclature,
-      isHide: fields[7] as bool,
+      characteristics: (fields[3] as List).cast<Characteristic>(),
+      category: fields[4] as Nomenclature,
+      isHide: fields[5] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Product obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -39,14 +37,10 @@ class ProductAdapter extends TypeAdapter<Product> {
       ..writeByte(2)
       ..write(obj.subtitle)
       ..writeByte(3)
-      ..write(obj.defrosting)
+      ..write(obj.characteristics)
       ..writeByte(4)
-      ..write(obj.closedTime)
-      ..writeByte(5)
-      ..write(obj.openedTime)
-      ..writeByte(6)
       ..write(obj.category)
-      ..writeByte(7)
+      ..writeByte(5)
       ..write(obj.isHide);
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async'; // Добавляем для таймера
+import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/services.dart';
 import 'package:bluetooth_app/services/image_utils.dart';
@@ -184,21 +185,9 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
         String endTime = '';
         String count = event.count;
 
-        switch (event.adjustmentType) {
-          case AdjustmentType.defrosting:
-            endTime = DateFormat('yyyy-MM-dd HH:mm').format(
-                event.startDate.add(Duration(hours: event.product.defrosting)));
-            break;
-          case AdjustmentType.closed:
-            endTime = DateFormat('yyyy-MM-dd HH:mm').format(
-                event.startDate.add(Duration(hours: event.product.closedTime)));
-            break;
-          case AdjustmentType.opened:
-            endTime = DateFormat('yyyy-MM-dd HH:mm').format(
-                event.startDate.add(Duration(hours: event.product.openedTime)));
-            break;
-          default:
-        }
+        endTime =  DateFormat('yyyy-MM-dd HH:mm').format(
+                _setAdjustmentTime(event.startDate, event.product.characteristics[0])); 
+        
 
         final datat = await ImageUtils().createLabelWithText(
             event.product.subtitle,
@@ -226,4 +215,17 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   }
 }
 
-enum AdjustmentType { defrosting, closed, opened }
+  DateTime _setAdjustmentTime(
+      DateTime startTime, Characteristic characteristic) {
+    switch (characteristic.unit) {
+      case MeasurementUnit.hours:
+        return startTime.add(Duration(hours: characteristic.value));
+      case MeasurementUnit.minutes:
+        return startTime.add(Duration(minutes: characteristic.value));
+      case MeasurementUnit.days:
+        return startTime.add(Duration(days: characteristic.value));
+      default:
+        throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
+    }
+  }
+

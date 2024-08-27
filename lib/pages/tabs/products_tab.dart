@@ -1,6 +1,7 @@
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
+import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:bluetooth_app/widgets/product_card.dart';
 import 'package:bluetooth_app/widgets/product_gridcard.dart';
 import 'package:bluetooth_app/widgets/text_feild.dart';
@@ -36,10 +37,12 @@ class _ProductsTabState extends State<ProductsTab> {
   // Контроллеры для создания продукта
   TextEditingController nameController = TextEditingController();
   TextEditingController subnameController = TextEditingController();
-  TextEditingController defrostingController = TextEditingController();
-  TextEditingController closedTimeController = TextEditingController();
-  TextEditingController openedTimeController = TextEditingController();
   bool validCategory = true;
+
+  List<Characteristic> characteristics = [];
+  List<TextEditingController> nameControllers = [];
+  List<TextEditingController> valueControllers = [];
+  List<MeasurementUnit> units = [];
 
   @override
   void initState() {
@@ -52,9 +55,12 @@ class _ProductsTabState extends State<ProductsTab> {
   void dispose() {
     nameController.dispose();
     subnameController.dispose();
-    defrostingController.dispose();
-    closedTimeController.dispose();
-    openedTimeController.dispose();
+    for (var controller in nameControllers) {
+      controller.dispose();
+    }
+    for (var controller in valueControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -63,14 +69,19 @@ class _ProductsTabState extends State<ProductsTab> {
       final product = Product(
         title: nameController.text,
         subtitle: subnameController.text,
-        defrosting: int.parse(defrostingController.text),
-        closedTime: int.parse(closedTimeController.text),
-        openedTime: int.parse(openedTimeController.text),
+        characteristics: List.generate(characteristics.length, (index) {
+          return Characteristic(
+            name: nameControllers[index].text,
+            value: int.parse(valueControllers[index].text),
+            unit: units[index],
+          );
+        }),
         category: selectedCategory!,
         isHide: false,
       );
 
       productBloc.add(AddItem<Product>(product));
+
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,19 +93,21 @@ class _ProductsTabState extends State<ProductsTab> {
   bool _isInputValid() {
     return nameController.text.isNotEmpty &&
         subnameController.text.isNotEmpty &&
-        defrostingController.text.isNotEmpty &&
-        closedTimeController.text.isNotEmpty &&
-        openedTimeController.text.isNotEmpty &&
-        selectedCategory != null;
+        selectedCategory != null &&
+        characteristics.isNotEmpty &&
+        nameControllers.every((controller) => controller.text.isNotEmpty) &&
+        valueControllers.every((controller) => controller.text.isNotEmpty);
   }
 
   void _resetControllers() {
     nameController.clear();
     subnameController.clear();
-    defrostingController.clear();
-    closedTimeController.clear();
-    openedTimeController.clear();
     selectedCategory = null;
+
+    characteristics.clear();
+    nameControllers.clear();
+    valueControllers.clear();
+    units.clear();
   }
 
   @override
@@ -120,7 +133,7 @@ class _ProductsTabState extends State<ProductsTab> {
       floatingActionButton: widget.showFloatingActionButton
           ? FloatingActionButton(
               onPressed: () {
-                _resetControllers(); // Сброс контроллеров перед созданием нового продукта
+                _resetControllers();
                 _showAddProductModal();
               },
               child: const Icon(Icons.add),
@@ -131,9 +144,11 @@ class _ProductsTabState extends State<ProductsTab> {
 
   Widget _buildProductGrid(List<Nomenclature> items) {
     var filteredNomenclatures = items;
-    if (!widget.showHideEnemies) {  
-      filteredNomenclatures =
-          items.where((n) => n.isHide == false).where((n) => n.name != 'Архив').toList();
+    if (!widget.showHideEnemies) {
+      filteredNomenclatures = items
+          .where((n) => !n.isHide)
+          .where((n) => n.name != 'Архив')
+          .toList();
     }
 
     return CustomScrollView(
@@ -225,12 +240,14 @@ class _ProductsTabState extends State<ProductsTab> {
 
   void _showAddProductModal() {
     showModalBottomSheet(
+      
       context: context,
       builder: (context) {
-        return BottomSheet(
-          onClosing: () {},
-          builder: (context) {
-            return StatefulBuilder(
+        return PopScope(
+          onPopInvoked: (didPop) {
+            //_resetControllers();
+          },
+          child: StatefulBuilder(
               builder: (context, setState) {
                 return Scaffold(
                   body: Padding(
@@ -246,7 +263,7 @@ class _ProductsTabState extends State<ProductsTab> {
                         const SliverToBoxAdapter(child: SizedBox(height: 10)),
                         _buildCategoryDropdown(setState, context),
                         const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                        _buildProductTimesInputs(),
+                        _buildCharacteristicInputs(setState),
                         const SliverToBoxAdapter(child: SizedBox(height: 10)),
                         SliverToBoxAdapter(
                           child: ElevatedButton(
@@ -259,12 +276,11 @@ class _ProductsTabState extends State<ProductsTab> {
                   ),
                 );
               },
-            );
+            ));
           },
         );
-      },
-    );
-  }
+      }
+  
 
   Widget _buildProductNameInputs() {
     return SliverToBoxAdapter(
@@ -301,7 +317,7 @@ class _ProductsTabState extends State<ProductsTab> {
             builder: (context, state) {
               if (state is ItemsLoaded<Nomenclature>) {
                 var nomenclatures = state.items;
-                if (widget.showHideEnemies == false) {
+                if (!widget.showHideEnemies) {
                   nomenclatures =
                       nomenclatures.where((n) => n.name != 'Архив').toList();
                 }
@@ -329,34 +345,78 @@ class _ProductsTabState extends State<ProductsTab> {
     );
   }
 
-  Widget _buildProductTimesInputs() {
+  Widget _buildCharacteristicInputs(void Function(void Function()) setState) {
     return SliverToBoxAdapter(
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              const Text('Сроки указываются в часах'),
-              TextInput(
-                controller: defrostingController,
-                hintText: '100',
-                labelText: 'Разморозка',
-                type: TextInputType.number,
-                icon: Icons.ac_unit,
-              ),
-              TextInput(
-                controller: closedTimeController,
-                hintText: '100',
-                labelText: 'Срок закрытого хранения',
-                type: TextInputType.number,
-                icon: Icons.close_fullscreen,
-              ),
-              TextInput(
-                controller: openedTimeController,
-                hintText: '100',
-                labelText: 'Срок открытого хранения',
-                type: TextInputType.number,
-                icon: Icons.open_with,
+              ...List.generate(characteristics.length, (index) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextInput(
+                        controller: nameControllers[index],
+                        hintText: 'Например, Вес',
+                        labelText: 'Характеристика',
+                      ),
+                    ),
+                    Expanded(
+                      child: TextInput(
+                        controller: valueControllers[index],
+                        hintText: 'Значение',
+                        labelText: 'Значение',
+                        type: TextInputType.number,
+                      ),
+                    ),
+                    DropdownButton<MeasurementUnit>(
+                      value: units[index],
+                      items: MeasurementUnit.values
+                          .map((unit) => DropdownMenuItem(
+                                value: unit,
+                                child: Text(unit.name),
+                              ))
+                          .toList(),
+                      onChanged: (unit) {
+                        setState(() {
+                          units[index] = unit!;
+                        });
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle),
+                      onPressed: () {
+                        setState(() {
+                          characteristics.removeAt(index);
+                          nameControllers[index].dispose();
+                          valueControllers[index].dispose();
+                          nameControllers.removeAt(index);
+                          valueControllers.removeAt(index);
+                          units.removeAt(index);
+                          
+                        });
+                      },
+                    ),
+                  ],
+                );
+              }),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    final newCharacteristic = Characteristic(
+                      name: '',
+                      value: 0,
+                      unit: MeasurementUnit.hours,
+                    );
+
+                    characteristics.add(newCharacteristic);
+                    nameControllers.add(TextEditingController());
+                    valueControllers.add(TextEditingController());
+                    units.add(MeasurementUnit.hours);
+                  });
+                },
+                child: const Text('Добавить характеристику'),
               ),
             ],
           ),
