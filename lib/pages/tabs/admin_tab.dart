@@ -32,7 +32,7 @@ class _AdminTabState extends State<AdminTab> {
                               (context, index) {
                                 return ListTile(
                                   title: Text( employeeState.items[index].fullName),
-                                  subtitle: Text(employeeState.items[index].id),
+                                  subtitle: Text(index.toString()),
                                 );
                               },
                               childCount: employeeState.items.length
@@ -45,7 +45,7 @@ class _AdminTabState extends State<AdminTab> {
                               (context, index) {
                                 return ListTile(
                                   title: Text(nomenclatureState.items[index].name),
-                                  subtitle: Text(nomenclatureState.items[index].id),
+                                  subtitle: Text(index.toString()),
                                 );
                               },
                               childCount: nomenclatureState.items.length
@@ -60,7 +60,7 @@ class _AdminTabState extends State<AdminTab> {
                                   title: Text(productState.items[index].title),
                                   subtitle: Column(
                                     children: [
-                                      Text(productState.items[index].category.id),
+                                      Text(index.toString()),
                                       Text(productState.items[index].category.name),
                                     ],
                                   ),

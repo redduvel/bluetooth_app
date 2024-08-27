@@ -8,12 +8,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProductCard extends StatefulWidget {
+  final int index;
   final Product product;
   final GenericBloc<Product> bloc;
   final bool showTools;
 
   const ProductCard({
     super.key,
+    required this.index,
     required this.product,
     required this.bloc,
     this.showTools = false,
@@ -47,7 +49,7 @@ class _ProductCardState extends State<ProductCard> {
           : null,
       title: Text(widget.product.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
       subtitle: Text(widget.product.subtitle, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
-      trailing: widget.showTools ? _buildPopupMenu() : null,
+      trailing: widget.showTools ? _buildPopupMenu(widget.index) : null,
     );
   }
 
@@ -72,7 +74,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  Widget _buildPopupMenu() {
+  Widget _buildPopupMenu(int index) {
     return PopupMenuButton(
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -82,14 +84,14 @@ class _ProductCardState extends State<ProductCard> {
         PopupMenuItem(
           child: Text(widget.product.isHide ? 'Убрать из скрытых' : 'Скрыть'),
           onTap: () {
-            widget.bloc.add(UpdateItem<Product>(
+            widget.bloc.add(UpdateItem<Product>(widget.index,
               widget.product.copyWith(isHide: !widget.product.isHide),
             ));
           },
         ),
         PopupMenuItem(
           child: const Text('Удалить'),
-          onTap: () => widget.bloc.add(DeleteItem<Product>(widget.product.id)),
+          onTap: () => widget.bloc.add(DeleteItem<Product>(widget.index)),
         ),
       ],
     );
@@ -358,7 +360,6 @@ class _ProductCardState extends State<ProductCard> {
         }
 
         Product updatedProduct = Product(
-          id: widget.product.id,
           title: nameController.text,
           subtitle: subnameController.text,
           characteristics: List.generate(characteristics.length, (index) {
@@ -372,7 +373,7 @@ class _ProductCardState extends State<ProductCard> {
           isHide: widget.product.isHide,
         );
 
-        widget.bloc.add(UpdateItem<Product>(updatedProduct));
+        widget.bloc.add(UpdateItem<Product>(widget.index, updatedProduct));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Данные обновлены.')),
         );

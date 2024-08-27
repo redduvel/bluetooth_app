@@ -7,35 +7,30 @@ part 'product.g.dart';
 @HiveType(typeId: 2)
 class Product extends HiveObject {
   @HiveField(0)
-  final String id;
-
-  @HiveField(1)
   final String title;
 
-  @HiveField(2)
+  @HiveField(1)
   final String subtitle;
 
-  @HiveField(3)
+  @HiveField(2)
   final List<Characteristic> characteristics;
 
-  @HiveField(4)
+  @HiveField(3)
   final Nomenclature category;
 
-  @HiveField(5)
+  @HiveField(4)
   final bool isHide;
 
   Product(
-      {String? id,
+      {
       required this.title,
       required this.subtitle,
       required this.characteristics,
       required this.category,
-      required this.isHide})
-      : id = id ?? IdGenerator.generate();
+      required this.isHide});
 
   
   Product copyWith({
-    String? id,
     String? title,
     String? subtitle,
     List<Characteristic>? characteristics,
@@ -43,7 +38,6 @@ class Product extends HiveObject {
     bool? isHide,
   }) {
     return Product(
-      id: id ?? this.id,
       title: title ?? this.title,
       subtitle: subtitle ?? this.subtitle,
       characteristics: characteristics ?? this.characteristics,

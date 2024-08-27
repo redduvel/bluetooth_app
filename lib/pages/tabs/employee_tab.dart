@@ -77,7 +77,7 @@ class _EmployeeTabState extends State<EmployeeTab> {
                                               ),
                                               ElevatedButton(
                                                   onPressed: () {
-                                                    bloc.add(UpdateItem<Employee>(
+                                                    bloc.add(UpdateItem<Employee>(index,
                                                         state.items[index].copyWith(
                                                           fullName: editNameController.text
                                                         )));
@@ -95,8 +95,7 @@ class _EmployeeTabState extends State<EmployeeTab> {
                             PopupMenuItem(
                               child: const Text('Удалить'),
                               onTap: () {
-                                bloc.add(DeleteItem<Employee>(
-                                    state.items[index].id));
+                                bloc.add(DeleteItem<Employee>(index));
                               },
                             ),
                           ];

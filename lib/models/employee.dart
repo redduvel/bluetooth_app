@@ -5,22 +5,17 @@ part 'employee.g.dart';
 @HiveType(typeId: 0)
 class Employee extends HiveObject {
   @HiveField(0)
-  final String id;
-  
-  @HiveField(1)
   final String fullName;
 
   Employee({
     String? id,
-    required this.fullName}): id = id ?? IdGenerator.generate(); 
+    required this.fullName});
 
 
   Employee copyWith({
-    String? id,
     String? fullName,
   }) {
     return Employee(
-      id: id ?? this.id,
       fullName: fullName ?? this.fullName,
 
     );

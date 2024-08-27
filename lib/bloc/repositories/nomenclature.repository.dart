@@ -35,20 +35,9 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   }
 
 @override
-Future<bool> update(Nomenclature item) async {
+Future<bool> update(int index, Nomenclature item) async {
   try {
-    await Hive.box<Nomenclature>('nomenclature_box').put(item.id, item);
-
-    var productsBox = Hive.box<Product>('products_box');
-    var allProducts = productsBox.values.toList();
-
-    for (var product in allProducts) {
-      if (product.category.id == item.id) {
-        var updatedProduct = product.copyWith(category: item);
-        await productsBox.put(product.id, updatedProduct);
-      }
-    }
-
+    await Hive.box<Nomenclature>('nomenclature_box').putAt(index, item);
     return true;
   } catch (e) {
     throw Exception('Ошибка при обновлении категории: $e');
@@ -57,10 +46,10 @@ Future<bool> update(Nomenclature item) async {
 
 
   @override
-  Future<void> delete(String id) async {
+  Future<void> delete(int index) async {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-      nomenclatureBox.delete(id);
+      nomenclatureBox.deleteAt(index);
     } catch (e) {
       throw Exception(e);
     }
@@ -71,22 +60,16 @@ Future<void> reorderList(int oldIndex, int newIndex) async {
   try {
     var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
     List<Nomenclature> nomenclatures = nomenclatureBox.values.toList();
-    // Если элемент перетаскивается вниз, уменьшаем newIndex на 1, чтобы не нарушить порядок
-    if (newIndex > oldIndex) {
-      newIndex -= 1;
-    }
 
-    // Получаем элемент, который нужно переместить
+
     Nomenclature movedItem = nomenclatures.elementAt(oldIndex);
 
-    // Удаляем элемент с текущей позиции
     nomenclatures.removeAt(oldIndex);
 
-    // Вставляем элемент на новую позицию
     nomenclatures.insert(newIndex, movedItem);
     nomenclatureBox.clear();
     for (var n in nomenclatures) {
-      nomenclatureBox.put(n.id, n);
+      nomenclatureBox.add(n);
     }
   } catch (e) {
     throw Exception("Ошибка при перестановке: $e");

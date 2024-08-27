@@ -35,9 +35,9 @@ class EmployeeRepository implements Repository<Employee> {
   }
 
   @override
-  Future<bool> update(Employee item) async {
+  Future<bool> update(int index, Employee item) async {
     try {
-      await Hive.box<Employee>('employee_box').put(item.id, item);
+      await Hive.box<Employee>('employee_box').putAt(index, item);
       return true;
     } catch (e) {
       throw Exception(e);
@@ -45,10 +45,10 @@ class EmployeeRepository implements Repository<Employee> {
   }
 
   @override
-  Future<void> delete(String id) async {
+  Future<void> delete(int index) async {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
-      employeeBox.delete(id);
+      employeeBox.deleteAt(index);
     } catch (e) {
       throw Exception(e);
     }

@@ -207,8 +207,8 @@ class _ProductsTabState extends State<ProductsTab> {
   List<Product> _getFilteredProducts(List<Product> products) {
     return products
         .where((product) =>
-            product.category.id ==
-            selectedCategory?.id) // Сравниваем по id категории
+            product.category.name ==
+            selectedCategory?.name) // Сравниваем по id категории
         .where((product) => widget.showHideEnemies || !product.isHide)
         .toList();
   }
@@ -220,6 +220,7 @@ class _ProductsTabState extends State<ProductsTab> {
           final product = products[index];
           if (widget.isSetting) {
             return ProductCard(
+              index: index,
               product: product,
               bloc: productBloc,
               showTools: widget.showProductTools,

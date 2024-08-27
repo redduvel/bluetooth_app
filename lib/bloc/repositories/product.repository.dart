@@ -22,10 +22,10 @@ class ProductRepository implements Repository<Product> {
   }
 
   @override
-  Future<void> delete(String id) async {
+  Future<void> delete(int index) async {
     try {
       var productBox = Hive.box<Product>('products_box');
-      productBox.delete(id);
+      productBox.deleteAt(index);
     } catch (e) {
       throw Exception(e);
     }
@@ -43,9 +43,9 @@ class ProductRepository implements Repository<Product> {
   }
 
   @override
-  Future<bool> update(Product item) async {
+  Future<bool> update(int index, Product item) async {
     try {
-      await Hive.box<Product>('products_box').put(item.id, item);
+      await Hive.box<Product>('products_box').putAt(index, item);
       return true;
     } catch (e) {
       throw Exception(e);

@@ -57,7 +57,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
 
             return CustomScrollView(
               slivers: [
-                if (archiveCategory.id.isNotEmpty) ...[
+                ...[
                   const SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
@@ -69,11 +69,11 @@ class _DocumentsTabState extends State<DocumentsTab> {
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: _buildNomenclatureTile(archiveCategory, false,
+                    child: _buildNomenclatureTile(0, archiveCategory, false,
                         icon: Icons.archive),
                   ),
                   SliverToBoxAdapter(
-                    child: _buildNomenclatureTile(tagCategory, false,
+                    child: _buildNomenclatureTile(1, tagCategory, false,
                         icon: Icons.tag),
                   ),
                   const SliverToBoxAdapter(
@@ -98,7 +98,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
                         if (newIndex > oldIndex) {
                           newIndex -= 1;
                         }
-                        bloc.add(ReorderList(newIndex , oldIndex ));
+                        bloc.add(ReorderList(newIndex, oldIndex));
                       });
                     },
                     itemBuilder: (context, index) {
@@ -113,16 +113,16 @@ class _DocumentsTabState extends State<DocumentsTab> {
                           onSelected: (value) {
                             switch (value) {
                               case 'edit':
-                                _showEditCategoryDialog(nomenclature);
+                                _showEditCategoryDialog(index, nomenclature);
                                 break;
                               case 'hide':
-                                bloc.add(UpdateItem<Nomenclature>(
+                                bloc.add(UpdateItem<Nomenclature>(index,
                                   nomenclature.copyWith(
                                       isHide: !nomenclature.isHide),
                                 ));
                                 break;
                               case 'delete':
-                                _showDeleteConfirmationDialog(nomenclature);
+                                _showDeleteConfirmationDialog(index, nomenclature);
                                 break;
                             }
                           },
@@ -192,28 +192,28 @@ class _DocumentsTabState extends State<DocumentsTab> {
 
       return CustomScrollView(
         slivers: [
-          if (archiveCategory.id.isNotEmpty) ...[
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Системные:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+          ...[
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Системные:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
-            SliverToBoxAdapter(
-              child: _buildNomenclatureTile(archiveCategory, false,
-                  icon: Icons.archive),
-            ),
-            SliverToBoxAdapter(
-              child:
-                  _buildNomenclatureTile(tagCategory, false, icon: Icons.tag),
-            ),
-            const SliverToBoxAdapter(
-              child: Divider(),
-            ),
-          ],
+          ),
+          SliverToBoxAdapter(
+            child: _buildNomenclatureTile(0, archiveCategory, false,
+                icon: Icons.archive),
+          ),
+          SliverToBoxAdapter(
+            child:
+                _buildNomenclatureTile(1, tagCategory, false, icon: Icons.tag),
+          ),
+          const SliverToBoxAdapter(
+            child: Divider(),
+          ),
+        ],
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(8.0),
@@ -245,15 +245,15 @@ class _DocumentsTabState extends State<DocumentsTab> {
                   onSelected: (value) {
                     switch (value) {
                       case 'edit':
-                        _showEditCategoryDialog(nomenclature);
+                        _showEditCategoryDialog(index, nomenclature);
                         break;
                       case 'hide':
-                        bloc.add(UpdateItem<Nomenclature>(
+                        bloc.add(UpdateItem<Nomenclature>(index,
                           nomenclature.copyWith(isHide: !nomenclature.isHide),
                         ));
                         break;
                       case 'delete':
-                        _showDeleteConfirmationDialog(nomenclature);
+                        _showDeleteConfirmationDialog(index, nomenclature);
                         break;
                     }
                   },
@@ -282,11 +282,10 @@ class _DocumentsTabState extends State<DocumentsTab> {
     }
   }
 
-  void _showDeleteConfirmationDialog(Nomenclature nomenclature) {
+  void _showDeleteConfirmationDialog(int index, Nomenclature nomenclature) {
     var productsBox = Hive.box<Product>('products_box');
 
     var relatedProducts = productsBox.values
-        .where((product) => product.category.id == nomenclature.id)
         .toList();
 
     showDialog(
@@ -306,10 +305,12 @@ class _DocumentsTabState extends State<DocumentsTab> {
             ),
             TextButton(
               onPressed: () {
-                for (var product in relatedProducts) {
-                  productsBox.delete(product.id);
+                for (var i = 0; i < relatedProducts.length; i++) {
+                  if (relatedProducts[i].category.name == nomenclature.name) {
+                    context.read<GenericBloc<Product>>().add(DeleteItem<Product>(i));
+                  }
                 }
-                bloc.add(DeleteItem<Nomenclature>(nomenclature.id));
+                bloc.add(DeleteItem<Nomenclature>(index));
                 Navigator.pop(context);
               },
               child: const Text('Удалить вместе с категорией'),
@@ -317,14 +318,17 @@ class _DocumentsTabState extends State<DocumentsTab> {
             TextButton(
               onPressed: () async {
                 var archiveCategory =
-                    Hive.box<Nomenclature>('nomenclature_box').get('archive');
-                for (var product in relatedProducts) {
-                  var updatedProduct =
-                      product.copyWith(category: archiveCategory);
-                  await productsBox.put(product.id, updatedProduct);
-                }
+                    Hive.box<Nomenclature>('nomenclature_box').getAt(0);
+                    for (var i = 0; i < relatedProducts.length; i++) {
+                      if (relatedProducts[i].category.name == nomenclature.name) {
+                        
+                        context.read<GenericBloc<Product>>().add(UpdateItem<Product>(i, relatedProducts[i].copyWith(
+                          category: archiveCategory
+                        )));
+                      }
+                    }
 
-                bloc.add(DeleteItem<Nomenclature>(nomenclature.id));
+                bloc.add(DeleteItem<Nomenclature>(index));
                 Navigator.pop(context);
               },
               child: const Text('Архивировать продукты и удалить категорию'),
@@ -335,10 +339,10 @@ class _DocumentsTabState extends State<DocumentsTab> {
     );
   }
 
-  ListTile _buildNomenclatureTile(Nomenclature nomenclature, bool showTools,
+  ListTile _buildNomenclatureTile(int index, Nomenclature nomenclature, bool showTools,
       {IconData? icon}) {
     return ListTile(
-      key: ValueKey(nomenclature.id),
+      key: ValueKey(nomenclature),
       leading: nomenclature.isHide
           ? const Icon(Icons.visibility_off, size: 24)
           : Icon(icon ?? Icons.category),
@@ -348,15 +352,15 @@ class _DocumentsTabState extends State<DocumentsTab> {
               onSelected: (value) {
                 switch (value) {
                   case 'edit':
-                    _showEditCategoryDialog(nomenclature);
+                    _showEditCategoryDialog(index, nomenclature);
                     break;
                   case 'hide':
-                    bloc.add(UpdateItem<Nomenclature>(
+                    bloc.add(UpdateItem<Nomenclature>(index,
                       nomenclature.copyWith(isHide: !nomenclature.isHide),
                     ));
                     break;
                   case 'delete':
-                    _showDeleteConfirmationDialog(nomenclature);
+                    _showDeleteConfirmationDialog(index, nomenclature);
                     break;
                 }
               },
@@ -444,7 +448,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
     );
   }
 
-  void _showEditCategoryDialog(Nomenclature nomenclature) {
+  void _showEditCategoryDialog(int index, Nomenclature nomenclature) {
     editController.text = nomenclature.name;
     showDialog(
       context: context,
@@ -463,8 +467,8 @@ class _DocumentsTabState extends State<DocumentsTab> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    bloc.add(UpdateItem<Nomenclature>(
-                      nomenclature.copyWith(id: nomenclature.id, name: editController.text),
+                    bloc.add(UpdateItem<Nomenclature>(index, 
+                      nomenclature.copyWith(name: editController.text),
                     ));
                     editController.clear();
                     Navigator.pop(context);

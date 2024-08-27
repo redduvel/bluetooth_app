@@ -17,30 +17,27 @@ class ProductAdapter extends TypeAdapter<Product> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Product(
-      id: fields[0] as String?,
-      title: fields[1] as String,
-      subtitle: fields[2] as String,
-      characteristics: (fields[3] as List).cast<Characteristic>(),
-      category: fields[4] as Nomenclature,
-      isHide: fields[5] as bool,
+      title: fields[0] as String,
+      subtitle: fields[1] as String,
+      characteristics: (fields[2] as List).cast<Characteristic>(),
+      category: fields[3] as Nomenclature,
+      isHide: fields[4] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Product obj) {
     writer
-      ..writeByte(6)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.title)
-      ..writeByte(2)
-      ..write(obj.subtitle)
-      ..writeByte(3)
-      ..write(obj.characteristics)
-      ..writeByte(4)
-      ..write(obj.category)
       ..writeByte(5)
+      ..writeByte(0)
+      ..write(obj.title)
+      ..writeByte(1)
+      ..write(obj.subtitle)
+      ..writeByte(2)
+      ..write(obj.characteristics)
+      ..writeByte(3)
+      ..write(obj.category)
+      ..writeByte(4)
       ..write(obj.isHide);
   }
 

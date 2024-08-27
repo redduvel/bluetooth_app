@@ -31,14 +31,14 @@ void main() async {
   await Hive.openBox<Product>('products_box');
   await Hive.openBox('settings');
 
-  if (Hive.box<Nomenclature>('nomenclature_box').get('archive') == null) {
+  if (Hive.box<Nomenclature>('nomenclature_box').getAt(0) == null) {
     var archive = Nomenclature(id: 'archive', name: 'Архив', isHide: false);
-  Hive.box<Nomenclature>('nomenclature_box').put(archive.id, archive);
+  Hive.box<Nomenclature>('nomenclature_box').add(archive);
   }
 
-  if (Hive.box<Nomenclature>('nomenclature_box').get('tag') == null) {
+  if (Hive.box<Nomenclature>('nomenclature_box').getAt(1) == null) {
     var tag = Nomenclature(id: 'tag', name: 'TAG', isHide: false);
-    Hive.box<Nomenclature>('nomenclature_box').put(tag.id, tag);
+    Hive.box<Nomenclature>('nomenclature_box').add(tag);
   }
   // RUN APP
   runApp(const App());
