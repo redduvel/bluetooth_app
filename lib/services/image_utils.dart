@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 class ImageUtils {
   Future<Map<String, dynamic>> createLabelWithText(
-      String product, String startDate, String endDate, String name) async {
+      String product, String name, {String? startDate, String? endDate}) async {
     const int dpi = 203;
     const double widthMm = 30.0;
     const double heightMm = 20.0;
@@ -32,21 +32,41 @@ class ImageUtils {
       fontFamily: 'Roboto',
     );
 
-    final texts = [product, startDate, endDate, name];
+    if (startDate == null && endDate == null) {
+      final texts = [product, name];
 
-    double offsetY = 0;
-    for (var txt in texts) {
-      final textSpan = TextSpan(text: txt, style: textStyle);
-      final textPainter = TextPainter(
-        text: textSpan,
-        textAlign: TextAlign.left,
-        textDirection: TextDirection.ltr,
-      );
-      textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
-      final offsetX = (widthPx - textPainter.width) / 2;
-      textPainter.paint(canvas, Offset(offsetX, offsetY));
-      offsetY += textPainter.height + 10;
+      double offsetY = 30;
+      for (var txt in texts) {
+        final textSpan = TextSpan(text: txt, style: textStyle);
+        final textPainter = TextPainter(
+          text: textSpan,
+          textAlign: TextAlign.left,
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
+        final offsetX = (widthPx - textPainter.width) / 2;
+        textPainter.paint(canvas, Offset(offsetX, offsetY));
+        offsetY += textPainter.height + 25;
+      }
+    } else {
+      final texts = [product, startDate, endDate, name];
+
+      double offsetY = 0;
+      for (var txt in texts) {
+        final textSpan = TextSpan(text: txt, style: textStyle);
+        final textPainter = TextPainter(
+          text: textSpan,
+          textAlign: TextAlign.left,
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
+        final offsetX = (widthPx - textPainter.width) / 2;
+        textPainter.paint(canvas, Offset(offsetX, offsetY));
+        offsetY += textPainter.height + 10;
+      }
     }
+
+
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(widthPx, heightPx);

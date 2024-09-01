@@ -15,7 +15,7 @@ class ProductRepository implements Repository<Product> {
   Future<void> add(Product item) async {
     try {
       var productBox = Hive.box<Product>('products_box');
-      productBox.add(item);
+      productBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }

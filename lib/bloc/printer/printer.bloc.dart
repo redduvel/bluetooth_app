@@ -36,7 +36,6 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
 
     _startConnectionCheckTimer();
 
-
     labelHeigth = _settingsBox.get('label_height') ?? '20';
     labelWidth = _settingsBox.get('label_width') ?? '30';
     labelGap = _settingsBox.get('label_gap') ?? '3';
@@ -124,7 +123,6 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       await _saveLastConnectedDevice(event.device.remoteId.str);
 
       emit(PrinterConnected(event.device, characteristic!));
-
     } catch (e) {
       emit(PrinterDisconnected());
     }
@@ -184,15 +182,21 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
             DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
         String endTime = '';
         String count = event.count;
+        Map<String, dynamic> datat;
 
-        endTime = DateFormat('yyyy-MM-dd HH:mm').format(
-                _setAdjustmentTime(event.startDate, event.product.characteristics[event.characteristicIndex])); 
-        
-        final datat = await ImageUtils().createLabelWithText(
-            event.product.subtitle,
-            startTime,
-            endTime,
-            event.employee.fullName);
+        if (event.product.characteristics.isNotEmpty) {
+          endTime = DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
+              event.startDate,
+              event.product.characteristics[event.characteristicIndex]));
+
+          datat = await ImageUtils().createLabelWithText(
+              event.product.subtitle, event.employee.fullName,
+              startDate: startTime, endDate: endTime);
+        } else {
+           datat = await ImageUtils().createLabelWithText(
+              event.product.subtitle, event.employee.fullName);
+        }
+
         final List<List<int>> data = datat['data'];
         final widthInBytes = data[0].length;
         final heightInDots = data.length;
@@ -207,24 +211,21 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           ...'PRINT $count\r\n'.codeUnits,
         ]);
 
-        characteristic!
-            .splitWritee(Uint8List.fromList(buffer), timeout: 15);
+        characteristic!.splitWritee(Uint8List.fromList(buffer), timeout: 15);
       }
     }
   }
 }
 
-  DateTime _setAdjustmentTime(
-      DateTime startTime, Characteristic characteristic) {
-    switch (characteristic.unit) {
-      case MeasurementUnit.hours:
-        return startTime.add(Duration(hours: characteristic.value));
-      case MeasurementUnit.minutes:
-        return startTime.add(Duration(minutes: characteristic.value));
-      case MeasurementUnit.days:
-        return startTime.add(Duration(days: characteristic.value));
-      default:
-        throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
-    }
+DateTime _setAdjustmentTime(DateTime startTime, Characteristic characteristic) {
+  switch (characteristic.unit) {
+    case MeasurementUnit.hours:
+      return startTime.add(Duration(hours: characteristic.value));
+    case MeasurementUnit.minutes:
+      return startTime.add(Duration(minutes: characteristic.value));
+    case MeasurementUnit.days:
+      return startTime.add(Duration(days: characteristic.value));
+    default:
+      throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
   }
-
+}

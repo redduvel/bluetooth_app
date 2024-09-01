@@ -9,7 +9,6 @@ import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
 import 'package:bluetooth_app/pages/home_page.dart';
-import 'package:bluetooth_app/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -33,7 +32,7 @@ void main() async {
 
   if (Hive.box<Nomenclature>('nomenclature_box').get('archive') == null) {
     var archive = Nomenclature(id: 'archive', name: 'Архив', isHide: false);
-  Hive.box<Nomenclature>('nomenclature_box').put(archive.id, archive);
+    Hive.box<Nomenclature>('nomenclature_box').put(archive.id, archive);
   }
 
   if (Hive.box<Nomenclature>('nomenclature_box').get('tag') == null) {
@@ -69,7 +68,7 @@ class App extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData.from(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange)),
-          home:HomePage()),
+          home: const HomePage()),
     );
   }
 }

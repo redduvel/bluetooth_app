@@ -28,7 +28,7 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   Future<void> add(Nomenclature item) async {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-      nomenclatureBox.add(item);
+      nomenclatureBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }

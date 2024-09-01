@@ -95,7 +95,7 @@ class _ProductsTabState extends State<ProductsTab> {
     return nameController.text.isNotEmpty &&
         subnameController.text.isNotEmpty &&
         selectedCategory != null &&
-        characteristics.isNotEmpty &&
+        //characteristics.isNotEmpty &&
         nameControllers.every((controller) => controller.text.isNotEmpty) &&
         valueControllers.every((controller) => controller.text.isNotEmpty);
   }
@@ -234,8 +234,8 @@ class _ProductsTabState extends State<ProductsTab> {
         childCount: products.length,
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: widget.isSetting ? widget.gridCrossAxisCount : products.length % 2 == 0 ? 2 : widget.gridCrossAxisCount,
-        childAspectRatio: widget.isSetting ? widget.gridChilAspectRatio : products.length % 2 == 0 ? 4/3 : widget.gridChilAspectRatio,
+        crossAxisCount: widget.gridCrossAxisCount,
+        childAspectRatio: widget.gridChilAspectRatio,
       ),
     );
   }

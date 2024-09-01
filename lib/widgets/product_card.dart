@@ -357,8 +357,7 @@ class _ProductCardState extends State<ProductCard> {
           return;
         }
 
-        Product updatedProduct = Product(
-          id: widget.product.id,
+        Product updatedProduct = widget.product.copyWith(
           title: nameController.text,
           subtitle: subnameController.text,
           characteristics: List.generate(characteristics.length, (index) {
@@ -369,8 +368,7 @@ class _ProductCardState extends State<ProductCard> {
             );
           }),
           category: selectedCategory!,
-          isHide: widget.product.isHide,
-        );
+        ); 
 
         widget.bloc.add(UpdateItem<Product>(updatedProduct));
         ScaffoldMessenger.of(context).showSnackBar(

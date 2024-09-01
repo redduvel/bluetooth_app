@@ -52,7 +52,7 @@ extension Extra on BluetoothDevice {
   }
 }
 
-extension splitWrite on BluetoothCharacteristic {
+extension SplitWrite on BluetoothCharacteristic {
   Future<void> splitWritee(List<int> value, {int timeout = 15}) async {
     int chunk = device.mtuNow - 3; // 3 bytes ble overhead
     for (int i = 0; i < value.length; i += chunk) {

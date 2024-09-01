@@ -28,7 +28,7 @@ class EmployeeRepository implements Repository<Employee> {
   Future<void> add(Employee item) async {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
-      employeeBox.add(item);
+      employeeBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }

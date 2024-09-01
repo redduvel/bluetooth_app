@@ -19,11 +19,9 @@ dependencies:
   uuid: ^4.4.2
   intl: ^0.19.0
   image: ^3.0.2
-  blue_thermal_printer: ^1.2.3
   flutter_blue_plus: ^1.32.12
   path_provider: ^2.1.4
   flutter_spinkit: ^5.2.1
-  flutter_sliding_box: ^1.1.5
   modal_bottom_sheet: ^3.0.0
 
 dev_dependencies:

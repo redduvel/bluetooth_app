@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProductGridItem extends StatefulWidget {
   final Product product;
@@ -21,7 +22,7 @@ class ProductGridItem extends StatefulWidget {
 
 class _ProductGridItemState extends State<ProductGridItem> {
   TextEditingController customPrintController =
-      TextEditingController(text: '1');
+      TextEditingController();
   int count = 1;
   late TextEditingController controller;
 
@@ -38,15 +39,20 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildListTile(),
-          _buildActionRow(context),
-        ],
+    return InkWell(
+      onTap: () {
+        _showPrintBottomSheet(context);
+      },
+      child: Card(
+        elevation: 2,
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(flex: 1, child: _buildListTile()),
+            Flexible(flex: 1, child: _buildActionRow(context)),
+          ],
+        ),
       ),
     );
   }
@@ -111,12 +117,14 @@ class _ProductGridItemState extends State<ProductGridItem> {
       {DateTime? startDate}) {
     return SliverToBoxAdapter(
         child: Container(
+          
       height: 20 * 8,
       padding: const EdgeInsets.all(5),
       margin: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width / 6),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
+          border: Border.all(color: Colors.black, width: 2),
           color: Color.fromARGB(255, 255, 255, 255)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -126,15 +134,16 @@ class _ProductGridItemState extends State<ProductGridItem> {
             product.subtitle,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
           ),
-          Text(
-            DateFormat('yyyy-MM-dd HH:mm').format(startDate ?? customEndDate),
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-          ),
-          Text(
-            DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
-                adjustmentDateTime, widget.product.characteristics[0])),
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-          ),
+          if (widget.product.characteristics.isNotEmpty)
+            Text(
+              DateFormat('yyyy-MM-dd HH:mm').format(startDate ?? customEndDate),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            ),
+          if (widget.product.characteristics.isNotEmpty)
+            Text(
+              DateFormat('yyyy-MM-dd HH:mm').format(adjustmentDateTime),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            ),
           Text(
             employee.fullName,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
@@ -147,15 +156,14 @@ class _ProductGridItemState extends State<ProductGridItem> {
   // для обычной печати
   void _showPrintBottomSheet(BuildContext context) {
     widget.bloc.repository.currentItem = widget.product;
-    if ( selectedCharacteristic >= widget.product.characteristics.length) {
+    if (selectedCharacteristic >= widget.product.characteristics.length) {
       selectedCharacteristic = 0;
     }
-    showModalBottomSheet(
+    showBarModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       builder: (context) {
         return SizedBox(
-            height: MediaQuery.of(context).size.height - 150,
+            height: MediaQuery.of(context).size.height - 50,
             child: _buildPrintBottomSheetContent(context));
       },
     );
@@ -176,13 +184,24 @@ class _ProductGridItemState extends State<ProductGridItem> {
                 ),
               ),
               const SliverToBoxAdapter(child: Divider()),
-              _buildLabelTemplate(context, widget.product,
+              if (widget.product.characteristics.isNotEmpty)
+                _buildLabelTemplate(
+                    context,
+                    widget.product,
+                    context
+                        .read<GenericBloc<Employee>>()
+                        .repository
+                        .currentItem,
+                    startDate: DateTime.now()),
+              if (widget.product.characteristics.isEmpty)
+                _buildEmptyLabelTemplate(
+                  context,
+                  widget.product,
                   context.read<GenericBloc<Employee>>().repository.currentItem,
-                  startDate: DateTime.now()),
+                ),
               const SliverToBoxAdapter(
                 child: Divider(),
               ),
-              
               _buildChoiceChips(setState),
               const SliverToBoxAdapter(child: Divider()),
               _buildPrintQuantityButton(context, false),
@@ -195,9 +214,9 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   Widget _buildChoiceChips(void Function(void Function()) setState) {
     if (widget.product.characteristics.isEmpty) {
-      return SizedBox.shrink();
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
-    
+
     return SliverToBoxAdapter(
       child: Wrap(
           crossAxisAlignment: WrapCrossAlignment.start,
@@ -263,7 +282,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                         label: Text('Количество этикеток'),
                       ),
                       textAlign: TextAlign.center,
-                      onChanged: (value) {
+                      onSubmitted: (value) {
                         setState(() {
                           final parsedValue = int.tryParse(value);
                           if (parsedValue != null && parsedValue > 0) {
@@ -324,12 +343,11 @@ class _ProductGridItemState extends State<ProductGridItem> {
     if (selectedCharacteristic >= widget.product.characteristics.length) {
       selectedCharacteristic = 0;
     }
-    showModalBottomSheet(
+    showBarModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       builder: (context) {
         return SizedBox(
-            height: MediaQuery.of(context).size.height - 150,
+            height: MediaQuery.of(context).size.height - 50,
             child: _buildScheduleBottomSheetContent(context));
       },
     );
@@ -380,13 +398,43 @@ class _ProductGridItemState extends State<ProductGridItem> {
           }, onChanged: (time) {
             setState(() {
               customEndDate = time;
-              adjustmentDateTime = _setAdjustmentTime(time, widget.product.characteristics[selectedCharacteristic]);
+              adjustmentDateTime = _setAdjustmentTime(
+                  time, widget.product.characteristics[selectedCharacteristic]);
             });
           }, currentTime: customEndDate, locale: LocaleType.ru);
         },
         child: const Text('Выбрать дату отсчета'),
       ),
     );
+  }
+
+  // пустой шаблон
+  Widget _buildEmptyLabelTemplate(
+      BuildContext context, Product product, Employee employee) {
+    return SliverToBoxAdapter(
+        child: Container(
+      height: 20 * 8,
+      padding: const EdgeInsets.all(5),
+      margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width / 6),
+      decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          color: Color.fromARGB(255, 255, 255, 255)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            product.subtitle,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            employee.fullName,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          )
+        ],
+      ),
+    ));
   }
 
   DateTime _setAdjustmentTime(
