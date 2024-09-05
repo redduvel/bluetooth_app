@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
@@ -21,12 +24,12 @@ class ProductGridItem extends StatefulWidget {
 }
 
 class _ProductGridItemState extends State<ProductGridItem> {
-  TextEditingController customPrintController =
-      TextEditingController();
+  TextEditingController customPrintController = TextEditingController();
   int count = 1;
   late TextEditingController controller;
 
   DateTime customEndDate = DateTime.now();
+  DateTime startDate = DateTime.now();
   DateTime adjustmentDateTime = DateTime.now();
   int selectedCharacteristic = 0;
 
@@ -113,40 +116,64 @@ class _ProductGridItemState extends State<ProductGridItem> {
 
   // шаблон этикетки
   Widget _buildLabelTemplate(
-      BuildContext context, Product product, Employee employee,
+      BuildContext context, Product product, Employee employee, bool customDate,
       {DateTime? startDate}) {
     return SliverToBoxAdapter(
         child: Container(
-          
       height: 20 * 8,
       padding: const EdgeInsets.all(5),
       margin: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width / 6),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
           border: Border.all(color: Colors.black, width: 2),
-          color: Color.fromARGB(255, 255, 255, 255)),
+          color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          AutoSizeText(
             product.subtitle,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            maxLines: 1,
+            maxFontSize: 22,
+            minFontSize: 14,
           ),
           if (widget.product.characteristics.isNotEmpty)
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(startDate ?? customEndDate),
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-            ),
+            customDate
+                ? AutoSizeText(
+                    DateFormat('yyyy-MM-dd HH:mm').format(customEndDate),
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    maxFontSize: 22,
+                    minFontSize: 14,
+                  )
+                : ClockWidget(
+                    startDate: startDate!,
+                    characteristic: null,
+                  ),
           if (widget.product.characteristics.isNotEmpty)
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(adjustmentDateTime),
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-            ),
-          Text(
+            customDate
+                ? AutoSizeText(
+                    DateFormat('yyyy-MM-dd HH:mm').format(adjustmentDateTime),
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    maxFontSize: 22,
+                    minFontSize: 14,
+                  )
+                : ClockWidget(
+                    key: ValueKey(selectedCharacteristic),
+                    startDate: adjustmentDateTime,
+                    characteristic:
+                        widget.product.characteristics[selectedCharacteristic]),
+          AutoSizeText(
             employee.fullName,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            maxLines: 1,
+            maxFontSize: 22,
+            minFontSize: 14,
           )
         ],
       ),
@@ -157,8 +184,15 @@ class _ProductGridItemState extends State<ProductGridItem> {
   void _showPrintBottomSheet(BuildContext context) {
     widget.bloc.repository.currentItem = widget.product;
     if (selectedCharacteristic >= widget.product.characteristics.length) {
-      selectedCharacteristic = 0;
+      setState(() {
+        selectedCharacteristic = 0;
+      });
     }
+    setState(() {
+      adjustmentDateTime = startDate;
+      adjustmentDateTime = setAdjustmentTime(adjustmentDateTime,
+          widget.product.characteristics[selectedCharacteristic]);
+    });
     showBarModalBottomSheet(
       context: context,
       builder: (context) {
@@ -166,7 +200,11 @@ class _ProductGridItemState extends State<ProductGridItem> {
             height: MediaQuery.of(context).size.height - 50,
             child: _buildPrintBottomSheetContent(context));
       },
-    );
+    ).whenComplete(() {
+      startDate = DateTime.now();
+      customEndDate = DateTime.now();
+      adjustmentDateTime = DateTime.now();
+    });
   }
 
   Widget _buildPrintBottomSheetContent(BuildContext context) {
@@ -192,7 +230,8 @@ class _ProductGridItemState extends State<ProductGridItem> {
                         .read<GenericBloc<Employee>>()
                         .repository
                         .currentItem,
-                    startDate: DateTime.now()),
+                    false,
+                    startDate: startDate),
               if (widget.product.characteristics.isEmpty)
                 _buildEmptyLabelTemplate(
                   context,
@@ -241,7 +280,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
       onSelected: (value) {
         setState(() {
           selectedCharacteristic = thisIndex;
-          adjustmentDateTime = _setAdjustmentTime(customEndDate, c);
+          adjustmentDateTime = setAdjustmentTime(customEndDate, c);
         });
       },
     );
@@ -341,8 +380,15 @@ class _ProductGridItemState extends State<ProductGridItem> {
   // для печати с отложенной датой
   void _showScheduleBottomSheet(BuildContext context) {
     if (selectedCharacteristic >= widget.product.characteristics.length) {
-      selectedCharacteristic = 0;
+      setState(() {
+        selectedCharacteristic = 0;
+      });
     }
+    setState(() {
+      adjustmentDateTime = startDate;
+      adjustmentDateTime = setAdjustmentTime(adjustmentDateTime,
+          widget.product.characteristics[selectedCharacteristic]);
+    });
     showBarModalBottomSheet(
       context: context,
       builder: (context) {
@@ -350,7 +396,11 @@ class _ProductGridItemState extends State<ProductGridItem> {
             height: MediaQuery.of(context).size.height - 50,
             child: _buildScheduleBottomSheetContent(context));
       },
-    );
+    ).whenComplete(() {
+      startDate = DateTime.now();
+      customEndDate = DateTime.now();
+      adjustmentDateTime = DateTime.now();
+    });
   }
 
   Widget _buildScheduleBottomSheetContent(BuildContext context) {
@@ -368,8 +418,11 @@ class _ProductGridItemState extends State<ProductGridItem> {
                 ),
               ),
               const SliverToBoxAdapter(child: Divider()),
-              _buildLabelTemplate(context, widget.product,
-                  context.read<GenericBloc<Employee>>().repository.currentItem),
+              _buildLabelTemplate(
+                  context,
+                  widget.product,
+                  context.read<GenericBloc<Employee>>().repository.currentItem,
+                  true),
               const SliverToBoxAdapter(child: Divider()),
               _buildChoiceChips(setState),
               const SliverToBoxAdapter(child: Divider()),
@@ -398,7 +451,8 @@ class _ProductGridItemState extends State<ProductGridItem> {
           }, onChanged: (time) {
             setState(() {
               customEndDate = time;
-              adjustmentDateTime = _setAdjustmentTime(
+
+              adjustmentDateTime = setAdjustmentTime(
                   time, widget.product.characteristics[selectedCharacteristic]);
             });
           }, currentTime: customEndDate, locale: LocaleType.ru);
@@ -419,7 +473,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
           horizontal: MediaQuery.of(context).size.width / 6),
       decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
-          color: Color.fromARGB(255, 255, 255, 255)),
+          color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -436,18 +490,81 @@ class _ProductGridItemState extends State<ProductGridItem> {
       ),
     ));
   }
+}
 
-  DateTime _setAdjustmentTime(
-      DateTime startTime, Characteristic characteristic) {
-    switch (characteristic.unit) {
-      case MeasurementUnit.hours:
-        return startTime.add(Duration(hours: characteristic.value));
-      case MeasurementUnit.minutes:
-        return startTime.add(Duration(minutes: characteristic.value));
-      case MeasurementUnit.days:
-        return startTime.add(Duration(days: characteristic.value));
-      default:
-        throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
+DateTime setAdjustmentTime(DateTime startTime, Characteristic characteristic) {
+  switch (characteristic.unit) {
+    case MeasurementUnit.hours:
+      return startTime.add(Duration(hours: characteristic.value));
+    case MeasurementUnit.minutes:
+      return startTime.add(Duration(minutes: characteristic.value));
+    case MeasurementUnit.days:
+      return startTime.add(Duration(days: characteristic.value));
+    default:
+      throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
+  }
+}
+
+class ClockWidget extends StatefulWidget {
+  final DateTime startDate;
+  final Characteristic? characteristic;
+
+  const ClockWidget(
+      {super.key, required this.startDate, required this.characteristic});
+
+  @override
+  _ClockWidgetState createState() => _ClockWidgetState();
+}
+
+class _ClockWidgetState extends State<ClockWidget> {
+  DateTime? _currentTime;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeTime();
+    _timer =
+        Timer.periodic(const Duration(seconds: 1), (Timer t) => _updateTime());
+  }
+
+  @override
+  void didUpdateWidget(covariant ClockWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.characteristic != oldWidget.characteristic) {
+      _initializeTime();
     }
+  }
+
+  void _initializeTime() {
+    _currentTime = widget.startDate;
+    if (widget.characteristic != null) {
+      //_currentTime = setAdjustmentTime(_currentTime!, widget.characteristic!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _updateTime() {
+    setState(() {
+      _currentTime = _currentTime!.add(const Duration(seconds: 1));
+    });
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _formatDateTime(_currentTime!),
+      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+    );
   }
 }

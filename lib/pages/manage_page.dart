@@ -40,18 +40,19 @@ class _ManagePageState extends State<ManagePage> {
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-          onTap: onTabTapped,
-          currentIndex: _currentIndex,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_pizza),
-              label: 'Ингридиенты',
-            ),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.person), label: 'Сотрудники'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.category), label: 'Категории')
-          ]),
+        onTap: onTabTapped,
+        currentIndex: _currentIndex,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_pizza),
+            label: 'Ингридиенты',
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person), label: 'Сотрудники'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.category), label: 'Категории')
+        ]
+      ),
     );
   }
 }

@@ -184,24 +184,24 @@ class _LabelPageState extends State<LabelPage> {
     final devicess = devices.where((d) => d.platformName != '').toList();
 
     return 
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final device = devicess[index];
-              return ListTile(
-                title: Text(device.platformName),
-                subtitle: Text(device.remoteId.toString()),
-                onTap: () => printerBloc.add(ConnectToDevice(device)),
-                trailing: printerBloc.connectedDevice == device
-                    ? const Text(
-                        'Подключено',
-                        style: TextStyle(color: Colors.green),
-                      )
-                    : null,
-              );
-            },
-            childCount: devicess.length,
-          ),
-        );
+      SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final device = devicess[index];
+            return ListTile(
+              title: Text(device.platformName),
+              subtitle: Text(device.remoteId.toString()),
+              onTap: () => printerBloc.add(ConnectToDevice(device)),
+              trailing: printerBloc.connectedDevice == device
+                ? const Text(
+                    'Подключено',
+                    style: TextStyle(color: Colors.green),
+                  )
+                : null,
+            );
+          },
+          childCount: devicess.length,
+        ),
+      );
   }
 }

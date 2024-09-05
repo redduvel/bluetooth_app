@@ -248,12 +248,12 @@ class _ProductsTabState extends State<ProductsTab> {
           children: [
             TextInput(
               controller: nameController,
-              hintText: 'Морковь',
+              hintText: 'Морковь очищенная',
               labelText: 'Название',
             ),
             TextInput(
               controller: subnameController,
-              hintText: 'Морковь очищенная',
+              hintText: 'Морковь очищ.',
               labelText: 'Короткое название',
             ),
           ],
