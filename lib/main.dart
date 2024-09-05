@@ -1,3 +1,4 @@
+import 'package:bluetooth_app/aaa/tsplprinter.dart';
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
@@ -39,6 +40,29 @@ void main() async {
     var tag = Nomenclature(id: 'tag', name: 'TAG', isHide: false);
     Hive.box<Nomenclature>('nomenclature_box').put(tag.id, tag);
   }
+
+
+final printer = TSPLPrinter();
+
+  // Подключение к принтеру через USB
+  int handle = printer.connect("USB001");
+  if (handle != -1) {
+    print("Принтер подключен");
+
+    // Отправка команды TSPL
+    bool success = printer.sendCommand(handle, "SIZE 30 mm, 20 mm\r\nGAP 3 mm, 0 mm\r\nTEXT 10,10,\"3\",0,1,1,\"Test Label\"\r\nPRINT\r\n");
+    if (success) {
+      print("Команда отправлена успешно");
+    } else {
+      print("Ошибка отправки команды");
+    }
+
+    // Отключение принтера
+    printer.disconnect(handle);
+  } else {
+    print("Ошибка подключения к принтеру");
+  }
+
   // RUN APP
   runApp(const App());
 }
