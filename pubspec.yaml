@@ -24,7 +24,15 @@ dependencies:
   flutter_spinkit: ^5.2.1
   modal_bottom_sheet: ^3.0.0
   auto_size_text: ^3.0.0
-  flutter_libserialport: ^0.4.0
+  pdf: ^3.8.4
+  universal_io: ^2.2.2
+
+  dart_pdf:
+    git:
+      url: https://github.com/DavBfr/dart_pdf.git
+      ref: 6be38a9
+
+
 
 dev_dependencies:
   flutter_test:

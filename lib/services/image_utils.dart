@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class ImageUtils {
   Future<Map<String, dynamic>> createLabelWithText(
@@ -135,5 +136,27 @@ class ImageUtils {
   Future<Uint8List> loadBmpImageData(String path) async {
     final file = File(path);
     return file.readAsBytesSync();
+  }
+
+  Future<pw.Document> generatePdf(String subtitle, String fullName, {String? startDate, String? endDate}) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Product: $subtitle', style: const pw.TextStyle(fontSize: 18)),
+              pw.Text('Employee: $fullName', style: const pw.TextStyle(fontSize: 18)),
+              if (startDate != null) pw.Text('Start: $startDate', style: const pw.TextStyle(fontSize: 18)),
+              if (endDate != null) pw.Text('End: $endDate', style: const pw.TextStyle(fontSize: 18)),
+            ],
+          );
+        },
+      ),
+    );
+
+    return pdf;
   }
 }

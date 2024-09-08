@@ -1,4 +1,4 @@
-import 'dart:async'; // Добавляем для таймера
+import 'dart:async';
 import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +9,9 @@ import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/bloc/printer/printer.state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:pdf/pdf.dart';
+import 'package:universal_io/io.dart' as universal_io; // Добавляем для определения платформы
+import 'package:printing/printing.dart'; // Для печати на macOS/Windows
 
 class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   List<BluetoothDevice> devices = [];
@@ -40,6 +43,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
     labelWidth = _settingsBox.get('label_width') ?? '30';
     labelGap = _settingsBox.get('label_gap') ?? '3';
   }
+
 
   Future<void> _saveLastConnectedDevice(String address) async {
     await _settingsBox.put(_lastDeviceKey, address);
@@ -175,44 +179,69 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
     }
   }
 
-  void _onPrintLabel(PrintLabel event, Emitter<PrinterState> emit) async {
-    if (state is PrinterConnected) {
-      if (characteristic != null) {
-        String startTime =
-            DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
-        String endTime = '';
-        String count = event.count;
-        Map<String, dynamic> datat;
+    Future<void> _onPrintLabel(PrintLabel event, Emitter<PrinterState> emit) async {
+    if (universal_io.Platform.isIOS || universal_io.Platform.isAndroid) {
+      // Код для iOS/Android
+      if (state is PrinterConnected) {
+        if (characteristic != null) {
+          String startTime =
+              DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
+          String endTime = '';
+          String count = event.count;
+          Map<String, dynamic> datat;
 
-        if (event.product.characteristics.isNotEmpty) {
-          endTime = DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
-              event.startDate,
-              event.product.characteristics[event.characteristicIndex]));
+          if (event.product.characteristics.isNotEmpty) {
+            endTime = DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
+                event.startDate,
+                event.product.characteristics[event.characteristicIndex]));
 
-          datat = await ImageUtils().createLabelWithText(
-              event.product.subtitle, event.employee.fullName,
-              startDate: startTime, endDate: endTime);
-        } else {
-           datat = await ImageUtils().createLabelWithText(
-              event.product.subtitle, event.employee.fullName);
+            datat = await ImageUtils().createLabelWithText(
+                event.product.subtitle, event.employee.fullName,
+                startDate: startTime, endDate: endTime);
+          } else {
+             datat = await ImageUtils().createLabelWithText(
+                event.product.subtitle, event.employee.fullName);
+          }
+          final img = await ImageUtils().generatePdf('sdcsdv', 'dsv');
+
+          final img_data = await img.save();
+
+          final List<List<int>> data = datat['data'];
+          final widthInBytes = data[0].length;
+          final heightInDots = data.length;
+
+          final buffer = Uint8List.fromList([
+            ...'CLS\r\n'.codeUnits,
+            ...'SIZE $labelWidth mm,$labelHeigth mm\r\n'.codeUnits,
+            ...'GAP $labelGap mm, 0mm\r\n'.codeUnits,
+            ...'CLS\r\n'.codeUnits,
+            ...'BITMAP 0,0,$widthInBytes,$heightInDots,0,'.codeUnits,
+            ...img_data,
+            ...'PRINT $count\r\n'.codeUnits,
+          ]);
+
+          characteristic!.splitWritee(Uint8List.fromList(buffer), timeout: 15);
         }
-
-        final List<List<int>> data = datat['data'];
-        final widthInBytes = data[0].length;
-        final heightInDots = data.length;
-
-        final buffer = Uint8List.fromList([
-          ...'CLS\r\n'.codeUnits,
-          ...'SIZE $labelWidth mm,$labelHeigth mm\r\n'.codeUnits,
-          ...'GAP $labelGap mm, 0mm\r\n'.codeUnits,
-          ...'CLS\r\n'.codeUnits,
-          ...'BITMAP 0,0,$widthInBytes,$heightInDots,0,'.codeUnits,
-          ...data.expand((row) => row),
-          ...'PRINT $count\r\n'.codeUnits,
-        ]);
-
-        characteristic!.splitWritee(Uint8List.fromList(buffer), timeout: 15);
       }
+    } else if (universal_io.Platform.isMacOS || universal_io.Platform.isWindows) {
+      // Код для macOS/Windows с использованием библиотеки printing
+      String startTime = DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
+      String endTime = '';
+
+      if (event.product.characteristics.isNotEmpty) {
+        endTime = DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
+            event.startDate, event.product.characteristics[event.characteristicIndex]));
+      }
+
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async {
+          final pdf = await ImageUtils().generatePdf(
+            event.product.subtitle, event.employee.fullName,
+            startDate: startTime, endDate: endTime,
+          );
+          return pdf.save();
+        },
+      );
     }
   }
 }

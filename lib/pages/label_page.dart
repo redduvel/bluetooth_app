@@ -1,3 +1,4 @@
+
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
@@ -24,8 +25,9 @@ class _LabelPageState extends State<LabelPage> {
   @override
   void initState() {
     super.initState();
-    printerBloc = context.read<PrinterBloc>();
-    printerBloc.add(InitializePrinter());
+      printerBloc = context.read<PrinterBloc>();
+      printerBloc.add(InitializePrinter());
+    
   }
 
   @override
