@@ -116,8 +116,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       if (connectedDevice == null) return;
 
       if (Platform.isAndroid) {
-        
-      await connectedDevice!.requestMtu(512);
+        await connectedDevice!.requestMtu(512);
       }
 
       List<BluetoothService> services =
@@ -203,7 +202,9 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
                 event.product.characteristics[event.characteristicIndex]));
             img = await ImageUtils()
                 .generatePdf(
-                    const PdfPageFormat(30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
+                    int.tryParse(event.count)!,
+                    const PdfPageFormat(
+                        30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
                         marginAll: 0),
                     event.product.subtitle,
                     event.employee.fullName,
@@ -215,7 +216,9 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           } else {
             img = await ImageUtils()
                 .generatePdf(
-                    const PdfPageFormat(30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
+                    int.tryParse(event.count)!,
+                    const PdfPageFormat(
+                        30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
                         marginAll: 0),
                     event.product.subtitle,
                     event.employee.fullName)
@@ -254,12 +257,13 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
             event.product.characteristics[event.characteristicIndex]));
       }
 
-      await Printing.layoutPdf(
-        
-        format: const PdfPageFormat(30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
-            marginAll: 0),
-        onLayout: (PdfPageFormat format) async {
+      await Printing.directPrintPdf(
+        printer: Printer(url: 'Xprinter XP-365B'),
+        format: const PdfPageFormat(
+            30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
+            marginAll: 0),        onLayout: (PdfPageFormat format) async {
           final pdf = await ImageUtils().generatePdf(
+            int.tryParse(event.count)!,
             format,
             event.product.subtitle,
             event.employee.fullName,
@@ -269,6 +273,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           return pdf.save();
         },
       );
+      
     }
   }
 }

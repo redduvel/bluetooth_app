@@ -156,6 +156,15 @@ class _ProductsTabState extends State<ProductsTab> {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
+          child: Wrap(
+            runSpacing: 5,
+            spacing: 5,
+            children: List.generate(10, (index) {
+              return Chip(label: Text('Категория $index'));
+            }),
+          ),
+        ),
+        SliverToBoxAdapter(
           child: Row(
             children: [
               Expanded(
@@ -214,6 +223,30 @@ class _ProductsTabState extends State<ProductsTab> {
   }
 
   Widget _buildProductGridItems(List<Product> products) {
+    /*return SliverToBoxAdapter(
+      child: Wrap(
+        
+        runAlignment: WrapAlignment.start,
+        direction: Axis.horizontal,
+        spacing: 5,
+        runSpacing: 5,
+        children: List.generate(products.length, (index) {
+                    final product = products[index];
+          if (widget.isSetting) {
+            return ProductCard(
+              product: product,
+              bloc: productBloc,
+              showTools: widget.showProductTools,
+            );
+          } else {
+            return ProductGridItem(
+              product: product,
+              bloc: productBloc,
+            );
+          }
+        }),
+      ),
+    );*/
     return SliverGrid(
       delegate: SliverChildBuilderDelegate(
         (context, index) {

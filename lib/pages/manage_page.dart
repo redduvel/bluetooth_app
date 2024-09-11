@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bluetooth_app/pages/tabs/documents_tab.dart';
 import 'package:bluetooth_app/pages/tabs/employee_tab.dart';
 import 'package:bluetooth_app/pages/tabs/products_tab.dart';
@@ -14,13 +16,13 @@ class _ManagePageState extends State<ManagePage> {
   int _currentIndex = 2;
 
   final List<Widget> _children = [
-    const ProductsTab(
+     ProductsTab(
       showProductTools: true,
       showFloatingActionButton: true,
       showHideEnemies: true,
       isSetting: true,
-      gridCrossAxisCount: 1,
-      gridChilAspectRatio: 2 / 1,
+      gridCrossAxisCount: Platform.isMacOS ? 5 : 1,
+      gridChilAspectRatio: Platform.isMacOS ? 1/2 : 2 / 1,
     ),
     const EmployeeTab(),
     const DocumentsTab(),

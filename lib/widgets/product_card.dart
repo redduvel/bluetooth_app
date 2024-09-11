@@ -45,16 +45,34 @@ class _ProductCardState extends State<ProductCard> {
       leading: widget.product.isHide
           ? const Icon(Icons.visibility_off, size: 24)
           : null,
-      title: Text(widget.product.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
-      subtitle: Text(widget.product.subtitle, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
+      title: RichText(
+          textScaler: const TextScaler.linear(1),
+          text: TextSpan(
+              text: widget.product.title,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black),
+              children: [
+                TextSpan(
+                  text: "  ${widget.product.subtitle}",
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black),
+                )
+              ])),
+      subtitle: Text(
+        widget.product.category.name,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      ),
       trailing: widget.showTools ? _buildPopupMenu() : null,
     );
   }
 
   Widget _buildProductDetailsTile() {
     return ListTile(
-      title: Text(widget.product.category.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),),
-      subtitle: Column(
+      title: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: widget.product.characteristics
@@ -368,7 +386,7 @@ class _ProductCardState extends State<ProductCard> {
             );
           }),
           category: selectedCategory!,
-        ); 
+        );
 
         widget.bloc.add(UpdateItem<Product>(updatedProduct));
         ScaffoldMessenger.of(context).showSnackBar(

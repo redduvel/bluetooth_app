@@ -183,16 +183,18 @@ class _ProductGridItemState extends State<ProductGridItem> {
   // для обычной печати
   void _showPrintBottomSheet(BuildContext context) {
     widget.bloc.repository.currentItem = widget.product;
-    if (selectedCharacteristic >= widget.product.characteristics.length) {
+    if (widget.product.characteristics.isNotEmpty) {      
+      if (selectedCharacteristic >= widget.product.characteristics.length) {
+        setState(() {
+          selectedCharacteristic = 0;
+        });
+      }
       setState(() {
-        selectedCharacteristic = 0;
+        adjustmentDateTime = startDate;
+        adjustmentDateTime = setAdjustmentTime(adjustmentDateTime,
+            widget.product.characteristics[selectedCharacteristic]);
       });
     }
-    setState(() {
-      adjustmentDateTime = startDate;
-      adjustmentDateTime = setAdjustmentTime(adjustmentDateTime,
-          widget.product.characteristics[selectedCharacteristic]);
-    });
     showBarModalBottomSheet(
       context: context,
       builder: (context) {
@@ -241,6 +243,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
               const SliverToBoxAdapter(
                 child: Divider(),
               ),
+              if(widget.product.characteristics.isNotEmpty)
               _buildChoiceChips(setState),
               const SliverToBoxAdapter(child: Divider()),
               _buildPrintQuantityButton(context, false),
@@ -384,11 +387,13 @@ class _ProductGridItemState extends State<ProductGridItem> {
         selectedCharacteristic = 0;
       });
     }
-    setState(() {
-      adjustmentDateTime = startDate;
-      adjustmentDateTime = setAdjustmentTime(adjustmentDateTime,
-          widget.product.characteristics[selectedCharacteristic]);
-    });
+    if (widget.product.characteristics.isNotEmpty) {      
+      setState(() {
+        adjustmentDateTime = startDate;
+        adjustmentDateTime = setAdjustmentTime(adjustmentDateTime,
+            widget.product.characteristics[selectedCharacteristic]);
+      });
+    }
     showBarModalBottomSheet(
       context: context,
       builder: (context) {
@@ -424,6 +429,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                   context.read<GenericBloc<Employee>>().repository.currentItem,
                   true),
               const SliverToBoxAdapter(child: Divider()),
+              if(widget.product.characteristics.isNotEmpty)
               _buildChoiceChips(setState),
               const SliverToBoxAdapter(child: Divider()),
               _buildDatePickerButton(context, setState),
