@@ -76,8 +76,8 @@ class _LabelPageState extends State<LabelPage> {
         showFloatingActionButton: false,
         showHideEnemies: true,
         isSetting: false,
-        gridCrossAxisCount: Platform.isMacOS ? 7 : 2,
-        gridChilAspectRatio: Platform.isMacOS ? 3 / 4 : 1 / 1,
+        gridCrossAxisCount: Platform.isMacOS || Platform.isWindows ? 7 : 2,
+        gridChilAspectRatio: Platform.isMacOS || Platform.isWindows ? 3 / 4 : 1 / 1,
       ),
     );
   }
