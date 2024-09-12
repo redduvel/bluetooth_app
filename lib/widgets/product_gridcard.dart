@@ -47,13 +47,12 @@ class _ProductGridItemState extends State<ProductGridItem> {
         _showPrintBottomSheet(context);
       },
       child: Card(
-        elevation: 2,
-        clipBehavior: Clip.antiAlias,
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Flexible(flex: 1, child: _buildListTile()),
-            Flexible(flex: 1, child: _buildActionRow(context)),
+            _buildListTile(),
+            _buildActionRow(context),
           ],
         ),
       ),

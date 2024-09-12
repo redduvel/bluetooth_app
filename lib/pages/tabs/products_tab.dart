@@ -45,6 +45,9 @@ class _ProductsTabState extends State<ProductsTab> {
   List<TextEditingController> valueControllers = [];
   List<MeasurementUnit> units = [];
 
+  Set<Nomenclature> selectedNomenclatures = {};
+  List<Product> products = [];
+
   @override
   void initState() {
     super.initState();
@@ -159,32 +162,23 @@ class _ProductsTabState extends State<ProductsTab> {
           child: Wrap(
             runSpacing: 5,
             spacing: 5,
-            children: List.generate(10, (index) {
-              return Chip(label: Text('Категория $index'));
+            children: List.generate(filteredNomenclatures.length, (index) {
+              Nomenclature nomenclature = filteredNomenclatures[index];
+              return ChoiceChip(
+                label: Text(nomenclature.name),
+                selected: selectedNomenclatures.contains(nomenclature),
+                onSelected: (value) {
+                  setState(() {
+                    if (selectedNomenclatures.contains(nomenclature)) {
+                      selectedNomenclatures.remove(nomenclature);
+                    } else {
+                      selectedNomenclatures.add(nomenclature);
+                      selectedCategory = nomenclature;
+                    }
+                  });
+                },
+              );
             }),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Row(
-            children: [
-              Expanded(
-                child: DropdownMenu<Nomenclature>(
-                  onSelected: (value) => setState(() {
-                    selectedCategory = value;
-                  }),
-                  hintText: 'Выберите категорию',
-                  width: MediaQuery.of(context).size.width - 16,
-                  leadingIcon: const Icon(Icons.category),
-                  dropdownMenuEntries:
-                      filteredNomenclatures.map((nomenclature) {
-                    return DropdownMenuEntry(
-                      value: nomenclature,
-                      label: nomenclature.name,
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
           ),
         ),
         const SliverToBoxAdapter(child: Divider()),
@@ -192,15 +186,20 @@ class _ProductsTabState extends State<ProductsTab> {
           BlocBuilder<GenericBloc<Product>, GenericState<Product>>(
             builder: (context, productState) {
               if (productState is ItemsLoaded<Product>) {
-                final filteredProducts =
-                    _getFilteredProducts(productState.items);
+                final filteredProducts = _getFilteredProducts(
+                    productState.items, selectedNomenclatures);
                 if (filteredProducts.isEmpty) {
                   return const SliverToBoxAdapter(
                     child: Center(
                         child: Text('Нет продуктов для этой категории.')),
                   );
+                } else {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      products = productState.items;
+                    });
+                  });
                 }
-                return _buildProductGridItems(filteredProducts);
               }
               return const SliverToBoxAdapter(child: SizedBox.shrink());
             },
@@ -209,68 +208,85 @@ class _ProductsTabState extends State<ProductsTab> {
           const SliverToBoxAdapter(
             child: Center(child: Text('Выберите категорию')),
           ),
+        ..._buildProductsList(products),
       ],
     );
   }
 
-  List<Product> _getFilteredProducts(List<Product> products) {
-    return products
-        .where((product) =>
-            product.category.id ==
-            selectedCategory?.id) // Сравниваем по id категории
-        .where((product) => widget.showHideEnemies || !product.isHide)
-        .toList();
+  List<Product> _getFilteredProducts(
+      List<Product> products, Set<Nomenclature> nomenclatures) {
+    final productss = products.where((product) {
+      return nomenclatures
+          .any((nomenclature) => product.category.id == nomenclature.id);
+    }).toList();
+    return productss;
   }
 
-  Widget _buildProductGridItems(List<Product> products) {
-    /*return SliverToBoxAdapter(
-      child: Wrap(
-        
-        runAlignment: WrapAlignment.start,
-        direction: Axis.horizontal,
-        spacing: 5,
-        runSpacing: 5,
-        children: List.generate(products.length, (index) {
-                    final product = products[index];
-          if (widget.isSetting) {
-            return ProductCard(
-              product: product,
-              bloc: productBloc,
-              showTools: widget.showProductTools,
-            );
-          } else {
-            return ProductGridItem(
-              product: product,
-              bloc: productBloc,
-            );
-          }
-        }),
-      ),
-    );*/
-    return SliverGrid(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final product = products[index];
-          if (widget.isSetting) {
-            return ProductCard(
-              product: product,
-              bloc: productBloc,
-              showTools: widget.showProductTools,
-            );
-          } else {
-            return ProductGridItem(
-              product: product,
-              bloc: productBloc,
-            );
-          }
-        },
-        childCount: products.length,
-      ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: widget.gridCrossAxisCount,
-        childAspectRatio: widget.gridChilAspectRatio,
-      ),
-    );
+  List<Widget> _buildProductsList(List<Product> products) {
+    Map<Nomenclature, List<Product>> productsByCategory = {};
+
+    if (products.isEmpty) {
+      return [
+        const SliverToBoxAdapter(
+          child: SizedBox.shrink(),
+        )
+      ];
+    }
+
+    for (var product in products) {
+      if (selectedNomenclatures
+          .any((nomenclature) => product.category.id == nomenclature.id)) {
+        if (!productsByCategory.containsKey(product.category)) {
+          productsByCategory[product.category] = [];
+        }
+        productsByCategory[product.category]!.add(product);
+      }
+    }
+
+    List<Widget> widgets = [];
+
+    widgets = productsByCategory.entries.map((entry) {
+      final category = entry.key;
+      final productsInCategory = entry.value;
+
+      return SliverList(
+        delegate: SliverChildListDelegate([
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              category.name,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const Divider(),
+          GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: widget.gridCrossAxisCount,
+                  childAspectRatio: widget.gridChilAspectRatio),
+              itemBuilder: (context, index) {
+                final product = productsInCategory[index];
+
+                if (widget.isSetting) {
+                  return ProductCard(
+                    product: product,
+                    bloc: productBloc,
+                    showTools: widget.showProductTools,
+                  );
+                } else {
+                  return ProductGridItem(
+                    product: product,
+                    bloc: productBloc,
+                  );
+                }
+              },
+              itemCount: productsInCategory.length)
+        ]),
+      );
+    }).toList();
+
+    return widgets;
   }
 
   Widget _buildProductNameInputs() {

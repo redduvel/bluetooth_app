@@ -194,41 +194,21 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
               DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
           String endTime = '';
           String count = event.count;
-          Uint8List img;
+          Map<String, dynamic> img;
 
           if (event.product.characteristics.isNotEmpty) {
             endTime = DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
                 event.startDate,
                 event.product.characteristics[event.characteristicIndex]));
-            img = await ImageUtils()
-                .generatePdf(
-                    int.tryParse(event.count)!,
-                    const PdfPageFormat(
-                        30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
-                        marginAll: 0),
-                    event.product.subtitle,
-                    event.employee.fullName,
-                    startDate: startTime,
-                    endDate: endTime)
-                .then((value) async {
-              return await value.save();
-            });
+            img = await ImageUtils().createLabelWithText(
+                event.product.subtitle, event.employee.fullName,
+                startDate: startTime, endDate: endTime);
           } else {
-            img = await ImageUtils()
-                .generatePdf(
-                    int.tryParse(event.count)!,
-                    const PdfPageFormat(
-                        30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
-                        marginAll: 0),
-                    event.product.subtitle,
-                    event.employee.fullName)
-                .then((value) async {
-              return await value.save();
-            });
+            img = await ImageUtils().createLabelWithText(
+                event.product.subtitle, event.employee.fullName);
           }
 
-          final List<List<int>> data =
-              await ImageUtils().getImageDataFromBmp(img);
+          final List<List<int>> data = img['data'];
           final widthInBytes = data[0].length;
           final heightInDots = data.length;
 
@@ -258,10 +238,11 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       }
 
       await Printing.directPrintPdf(
-        printer: Printer(url: 'Xprinter XP-365B'),
+        printer: const Printer(url: 'Xprinter XP-365B'),
         format: const PdfPageFormat(
             30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
-            marginAll: 0),        onLayout: (PdfPageFormat format) async {
+            marginAll: 0),
+        onLayout: (PdfPageFormat format) async {
           final pdf = await ImageUtils().generatePdf(
             int.tryParse(event.count)!,
             format,
@@ -273,7 +254,6 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           return pdf.save();
         },
       );
-      
     }
   }
 }

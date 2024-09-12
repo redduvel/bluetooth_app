@@ -1,3 +1,4 @@
+import 'dart:io';
 
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
@@ -25,9 +26,8 @@ class _LabelPageState extends State<LabelPage> {
   @override
   void initState() {
     super.initState();
-      printerBloc = context.read<PrinterBloc>();
-      printerBloc.add(InitializePrinter());
-    
+    printerBloc = context.read<PrinterBloc>();
+    printerBloc.add(InitializePrinter());
   }
 
   @override
@@ -40,6 +40,10 @@ class _LabelPageState extends State<LabelPage> {
         title: Text(employeeName),
         centerTitle: false,
         actions: [
+          IconButton(onPressed: () {
+
+          }, icon: const Icon(Icons.search)),
+          if (Platform.isAndroid || Platform.isIOS)
           BlocBuilder<PrinterBloc, PrinterState>(
             builder: (context, state) {
               if (state is PrinterLoading) {
@@ -67,13 +71,13 @@ class _LabelPageState extends State<LabelPage> {
           ),
         ],
       ),
-      body: const ProductsTab(
+      body: ProductsTab(
         showProductTools: false,
         showFloatingActionButton: false,
-        showHideEnemies: false,
+        showHideEnemies: true,
         isSetting: false,
-        gridCrossAxisCount: 2,
-        gridChilAspectRatio: 1 / 1,
+        gridCrossAxisCount: Platform.isMacOS ? 7 : 2,
+        gridChilAspectRatio: Platform.isMacOS ? 3 / 4 : 1 / 1,
       ),
     );
   }
@@ -168,12 +172,12 @@ class _LabelPageState extends State<LabelPage> {
                       ),
                     if (state is DevicesLoaded) _buildDeviceList(state.devices),
                     if (state is PrinterDisconnected)
-                      const SliverToBoxAdapter(child: Center(child: Text('Принтер отключен'))),
+                      const SliverToBoxAdapter(
+                          child: Center(child: Text('Принтер отключен'))),
                     if (state is PrinterConnected)
                       _buildDeviceList(printerBloc.devices)
                   ],
                 );
-
               },
             ),
           ),
@@ -185,25 +189,24 @@ class _LabelPageState extends State<LabelPage> {
   Widget _buildDeviceList(List<BluetoothDevice> devices) {
     final devicess = devices.where((d) => d.platformName != '').toList();
 
-    return 
-      SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final device = devicess[index];
-            return ListTile(
-              title: Text(device.platformName),
-              subtitle: Text(device.remoteId.toString()),
-              onTap: () => printerBloc.add(ConnectToDevice(device)),
-              trailing: printerBloc.connectedDevice == device
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final device = devicess[index];
+          return ListTile(
+            title: Text(device.platformName),
+            subtitle: Text(device.remoteId.toString()),
+            onTap: () => printerBloc.add(ConnectToDevice(device)),
+            trailing: printerBloc.connectedDevice == device
                 ? const Text(
                     'Подключено',
                     style: TextStyle(color: Colors.green),
                   )
                 : null,
-            );
-          },
-          childCount: devicess.length,
-        ),
-      );
+          );
+        },
+        childCount: devicess.length,
+      ),
+    );
   }
 }
