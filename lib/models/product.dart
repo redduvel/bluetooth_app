@@ -24,13 +24,17 @@ class Product extends HiveObject {
   @HiveField(5)
   final bool isHide;
 
-  Product(
+  @HiveField(6)
+  final bool allowFreeTime;
+
+  Product( 
       {String? id,
       required this.title,
       required this.subtitle,
       required this.characteristics,
       required this.category,
-      required this.isHide})
+      required this.isHide,
+      required this.allowFreeTime})
       : id = id ?? IdGenerator.generate();
 
   
@@ -41,6 +45,7 @@ class Product extends HiveObject {
     List<Characteristic>? characteristics,
     Nomenclature? category,
     bool? isHide,
+    bool? allowFreeTime
   }) {
     return Product(
       id: id ?? this.id,
@@ -49,6 +54,7 @@ class Product extends HiveObject {
       characteristics: characteristics ?? this.characteristics,
       category: category ?? this.category,
       isHide: isHide ?? this.isHide,
+      allowFreeTime: allowFreeTime ?? this.allowFreeTime
     );
   }
 }

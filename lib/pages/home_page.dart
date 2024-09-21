@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/pages/label_page.dart';
@@ -17,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   late GenericBloc<Employee> bloc;
   TextEditingController passwordController = TextEditingController();
   bool valid = true;
-
+  final String correctPassword = "1234";
 
   @override
   void initState() {
@@ -39,161 +41,194 @@ class _HomePageState extends State<HomePage> {
         title: const Text(
           'Fresh Tag',
           style: TextStyle(
-              color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600),
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        centerTitle: false,
         actions: [
           PopupMenuButton(
             iconColor: Colors.white,
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  child: const Text('Настройки'),
-                  onTap: () {
-                    showBarModalBottomSheet(
-                      context: context,
-                      builder: (context) => SizedBox(
-                        height: 400,
-                        child: StatefulBuilder(
-                          builder: (context, setState) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      TextField(
-                                        controller: passwordController,
-                                        obscureText: true,
-                                        onSubmitted: (value) {
-                                          if (value != "1234") {
-                                            setState(() {
-                                              valid = false;
-                                            });
-                                            return;
-                                          }
-                        
-                                          Navigator.pop(context);
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const ManagePage()));
-                                        },
-                                        decoration: InputDecoration(
-                                            hintText: '* * * *',
-                                            errorText:
-                                                valid ? null : 'Неверный пароль',
-                                            label: const Text('Пароль')),
-                                      ),
-                                      const Divider(),
-                                      ElevatedButton(
-                                          onPressed: () {
-                                            if (passwordController.text !=
-                                                "1234") {
-                                              setState(() {
-                                                valid = false;
-                                              });
-                                              return;
-                                            }
-                                            Navigator.pop(context);
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const ManagePage()));
-                                          },
-                                          child: const Text('Войти в настройки'))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ];
-            },
-          )
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: const Text('Настройки'),
+                onTap: () => navigateToSettings(context),
+              ),
+            ],
+          ),
         ],
       ),
       body: const SizedBox(),
       floatingActionButton: ElevatedButton(
-          onPressed: () {
-            showBarModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return SizedBox(
-                  height: 500,
-                  child: BlocBuilder<GenericBloc<Employee>,
-                      GenericState<Employee>>(
-                    bloc: bloc,
-                    builder: (context, state) {
-                      if (state is ItemsLoaded<Employee>) {
-                        List<Employee> employees = state.items;
-                        if (employees.isEmpty) {
-                          return const CustomScrollView(
-                            slivers: [
-                              SliverToBoxAdapter(
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text('Нет сотрудников'),
-                                ),
-                              )
-                            ],
-                          );
-                        } else {
-                          return CustomScrollView(
-                            slivers: [
-                              SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                      (context, index) {
-                                return ListTile(
-                                  title: Text(employees[index].fullName),
-                                  trailing: const Icon(Icons.arrow_forward),
-                                  leading: const Icon(Icons.person),
-                                  onTap: () {
-                                    bloc.repository.currentItem =
-                                        employees[index];
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const LabelPage()));
-                                  },
-                                );
-                              }, childCount: employees.length)),
-                            ],
-                          );
-                        }
-                      }
-                      if (state is ItemOperationFailed<Employee>) {
-                        return const CustomScrollView(
-                          slivers: [
-                            SliverToBoxAdapter(
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text('Ошибка загрузки данных')),
-                            )
-                          ],
-                        );
-                      }
-                  
-                      return const SizedBox.shrink();
-                    },
-                  ),
+        onPressed: _onMarkingButtonPressed,
+        child: const Text('Маркировка'),
+      ),
+    );
+  }
+
+  void navigateToSettings(BuildContext context) {
+    if (Platform.isMacOS || Platform.isWindows) {
+      _showPasswordDialog(context);
+    } else {
+      _showPasswordModal(context);
+    }
+  }
+
+  void _showPasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return _buildPasswordDialog(setState);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPasswordDialog(void Function(void Function()) setState) {
+    return AlertDialog(
+      title: const Text('Вход в настройки'),
+      content: _buildPasswordField(setState),
+      actions: [
+        _buildEnterButton(setState),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField(void Function(void Function()) setState) {
+    return TextField(
+      controller: passwordController,
+      obscureText: true,
+      onSubmitted: (value) => _validatePassword(setState),
+      decoration: InputDecoration(
+        hintText: '* * * *',
+        errorText: valid ? null : 'Неверный пароль',
+        label: const Text('Пароль'),
+      ),
+    );
+  }
+
+  ElevatedButton _buildEnterButton(void Function(void Function()) setState) {
+    return ElevatedButton(
+      onPressed: () => _validatePassword(setState),
+      child: const Text('Войти в настройки'),
+    );
+  }
+
+  void _validatePassword(void Function(void Function()) setState) {
+    if (passwordController.text != correctPassword) {
+      setState(() => valid = false);
+      return;
+    }
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ManagePage()),
+    );
+  }
+
+  void _showPasswordModal(BuildContext context) {
+    showBarModalBottomSheet(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return _buildPasswordModal(setState);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPasswordModal(void Function(void Function()) setState) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildPasswordField(setState),
+            const Divider(),
+            _buildEnterButton(setState),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onMarkingButtonPressed() {
+    showBarModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SizedBox(
+          height: 500,
+          child: BlocBuilder<GenericBloc<Employee>, GenericState<Employee>>(
+            bloc: bloc,
+            builder: (context, state) {
+              if (state is ItemsLoaded<Employee>) {
+                return _buildEmployeeList(state.items);
+              } else if (state is ItemOperationFailed<Employee>) {
+                return _buildErrorState();
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmployeeList(List<Employee> employees) {
+    if (employees.isEmpty) {
+      return _buildEmptyState();
+    } else {
+      return CustomScrollView(
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return ListTile(
+                  title: Text(employees[index].fullName),
+                  trailing: const Icon(Icons.arrow_forward),
+                  leading: const Icon(Icons.person),
+                  onTap: () {
+                    bloc.repository.currentItem = employees[index];
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LabelPage()),
+                    );
+                  },
                 );
               },
-            );
-          },
-          child: const Text('Маркировка')),
+              childCount: employees.length,
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
+  Widget _buildEmptyState() {
+    return const CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Align(
+            alignment: Alignment.center,
+            child: Text('Нет сотрудников'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState() {
+    return const CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Align(
+            alignment: Alignment.center,
+            child: Text('Ошибка загрузки данных'),
+          ),
+        ),
+      ],
     );
   }
 }

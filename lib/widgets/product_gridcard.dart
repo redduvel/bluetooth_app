@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/bloc/printer/printer.event.dart';
+import 'package:bluetooth_app/core/constants/ui_const.dart';
 import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/product.dart';
@@ -47,7 +49,6 @@ class _ProductGridItemState extends State<ProductGridItem> {
         _showPrintBottomSheet(context);
       },
       child: Card(
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -88,6 +89,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildPrintButton(context),
+        if (widget.product.allowFreeTime)
         _buildScheduleButton(context),
       ],
     );
@@ -122,7 +124,8 @@ class _ProductGridItemState extends State<ProductGridItem> {
       height: 20 * 8,
       padding: const EdgeInsets.all(5),
       margin: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width / 6),
+          horizontal: MediaQuery.of(context).size.width /
+              (Platform.isMacOS || Platform.isMacOS ? 2.5 : 6)),
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           border: Border.all(color: Colors.black, width: 2),
@@ -182,7 +185,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
   // для обычной печати
   void _showPrintBottomSheet(BuildContext context) {
     widget.bloc.repository.currentItem = widget.product;
-    if (widget.product.characteristics.isNotEmpty) {      
+    if (widget.product.characteristics.isNotEmpty) {
       if (selectedCharacteristic >= widget.product.characteristics.length) {
         setState(() {
           selectedCharacteristic = 0;
@@ -242,8 +245,8 @@ class _ProductGridItemState extends State<ProductGridItem> {
               const SliverToBoxAdapter(
                 child: Divider(),
               ),
-              if(widget.product.characteristics.isNotEmpty)
-              _buildChoiceChips(setState),
+              if (widget.product.characteristics.isNotEmpty)
+                _buildChoiceChips(setState),
               const SliverToBoxAdapter(child: Divider()),
               _buildPrintQuantityButton(context, false),
             ],
@@ -386,7 +389,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
         selectedCharacteristic = 0;
       });
     }
-    if (widget.product.characteristics.isNotEmpty) {      
+    if (widget.product.characteristics.isNotEmpty) {
       setState(() {
         adjustmentDateTime = startDate;
         adjustmentDateTime = setAdjustmentTime(adjustmentDateTime,
@@ -428,8 +431,8 @@ class _ProductGridItemState extends State<ProductGridItem> {
                   context.read<GenericBloc<Employee>>().repository.currentItem,
                   true),
               const SliverToBoxAdapter(child: Divider()),
-              if(widget.product.characteristics.isNotEmpty)
-              _buildChoiceChips(setState),
+              if (widget.product.characteristics.isNotEmpty)
+                _buildChoiceChips(setState),
               const SliverToBoxAdapter(child: Divider()),
               _buildDatePickerButton(context, setState),
               const SliverToBoxAdapter(child: Divider()),
@@ -475,9 +478,13 @@ class _ProductGridItemState extends State<ProductGridItem> {
       height: 20 * 8,
       padding: const EdgeInsets.all(5),
       margin: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width / 6),
-      decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
+          horizontal: MediaQuery.of(context).size.width /
+              (Platform.isMacOS || Platform.isWindows
+                  ? UIConst.desktop_labelTemplate_horMarginFacotr
+                  : UIConst.mobile_labelTemplate_horMarginFactor)),
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          border: Border.all(color: Colors.black, width: 2),
           color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

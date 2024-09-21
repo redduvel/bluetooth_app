@@ -16,13 +16,14 @@ class _ManagePageState extends State<ManagePage> {
   int _currentIndex = 2;
 
   final List<Widget> _children = [
-     ProductsTab(
+    ProductsTab(
       showProductTools: true,
       showFloatingActionButton: true,
       showHideEnemies: true,
       isSetting: true,
       gridCrossAxisCount: Platform.isMacOS || Platform.isWindows ? 7 : 1,
-      gridChilAspectRatio: Platform.isMacOS || Platform.isWindows ? 1/1.5 : 2 / 1,
+      gridChilAspectRatio:
+          Platform.isMacOS || Platform.isWindows ? 1 / 1.5 : 2 / 1,
     ),
     const EmployeeTab(),
     const DocumentsTab(),
@@ -42,19 +43,18 @@ class _ManagePageState extends State<ManagePage> {
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_pizza),
-            label: 'Ингридиенты',
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: 'Сотрудники'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.category), label: 'Категории')
-        ]
-      ),
+          onTap: onTabTapped,
+          currentIndex: _currentIndex,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.local_pizza),
+              label: 'Ингридиенты',
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person), label: 'Сотрудники'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.category), label: 'Категории')
+          ]),
     );
   }
 }

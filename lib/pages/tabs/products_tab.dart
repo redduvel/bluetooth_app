@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/bloc/bloc.bloc.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
@@ -38,6 +39,7 @@ class _ProductsTabState extends State<ProductsTab> {
   // Контроллеры для создания продукта
   TextEditingController nameController = TextEditingController();
   TextEditingController subnameController = TextEditingController();
+  bool checkAllogFreeTime = true;
   bool validCategory = true;
 
   List<Characteristic> characteristics = [];
@@ -71,18 +73,18 @@ class _ProductsTabState extends State<ProductsTab> {
   void createProduct() {
     if (_isInputValid()) {
       final product = Product(
-        title: nameController.text,
-        subtitle: subnameController.text,
-        characteristics: List.generate(characteristics.length, (index) {
-          return Characteristic(
-            name: nameControllers[index].text,
-            value: int.parse(valueControllers[index].text),
-            unit: units[index],
-          );
-        }),
-        category: selectedCategory!,
-        isHide: false,
-      );
+          title: nameController.text,
+          subtitle: subnameController.text,
+          characteristics: List.generate(characteristics.length, (index) {
+            return Characteristic(
+              name: nameControllers[index].text,
+              value: int.parse(valueControllers[index].text),
+              unit: units[index],
+            );
+          }),
+          category: selectedCategory!,
+          isHide: false,
+          allowFreeTime: checkAllogFreeTime);
 
       productBloc.add(AddItem<Product>(product));
 
@@ -400,6 +402,25 @@ class _ProductsTabState extends State<ProductsTab> {
                     ),
                   ],
                 )),
+                const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                SliverToBoxAdapter(
+                  child: Row(
+                    children: [
+                      const AutoSizeText('Разрешить свободную маркировку?', maxFontSize: 22, minFontSize: 12,
+                       style: TextStyle(fontSize: 18),),
+                      Checkbox(
+                          value: checkAllogFreeTime,
+                          
+                          onChanged: (value) {
+                            setState(
+                              () {
+                                checkAllogFreeTime = value ?? !checkAllogFreeTime;
+                              },
+                            );
+                          }),
+                    ],
+                  ),
+                ),
                 const SliverToBoxAdapter(child: SizedBox(height: 10)),
                 SliverToBoxAdapter(
                   child: ElevatedButton(

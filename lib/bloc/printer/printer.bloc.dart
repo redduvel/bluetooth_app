@@ -39,7 +39,9 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
     on<SetSettings>(_onSetSettings);
     on<CheckConnection>(_checkConnection);
 
-    _startConnectionCheckTimer();
+    if (universal_io.Platform.isAndroid || universal_io.Platform.isIOS) {
+      _startConnectionCheckTimer();
+    }
 
     labelHeigth = _settingsBox.get('label_height') ?? '20';
     labelWidth = _settingsBox.get('label_width') ?? '30';
