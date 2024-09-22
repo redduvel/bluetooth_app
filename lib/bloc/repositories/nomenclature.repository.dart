@@ -10,14 +10,18 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   get currentItem => currentNomenclature;
 
   @override
-  set currentItem(currentItem) =>
-    currentNomenclature = currentItem;
+  set currentItem(currentItem) => currentNomenclature = currentItem;
 
   @override
   Future<List<Nomenclature>> getAll() async {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
       List<Nomenclature> nomenclatures = nomenclatureBox.values.toList();
+      print(
+          'GET NOMENCLATURES=================================================================');
+      for (var i in nomenclatures) {
+        print("${i.id} | ${i.name}");
+      }
       return nomenclatures;
     } catch (e) {
       throw Exception(e);
@@ -28,33 +32,38 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   Future<void> add(Nomenclature item) async {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-      nomenclatureBox.put(item.id, item);
+      nomenclatureBox.add(item);
     } catch (e) {
       throw Exception(e);
     }
   }
 
-@override
-Future<bool> update(Nomenclature item) async {
-  try {
-    await Hive.box<Nomenclature>('nomenclature_box').put(item.id, item);
+  @override
+  Future<bool> update(Nomenclature item) async {
+    try {
+      var nomenclatureBox =
+          Hive.box<Nomenclature>('nomenclature_box').values.toList();
 
-    var productsBox = Hive.box<Product>('products_box');
-    var allProducts = productsBox.values.toList();
+      int updateIndex = nomenclatureBox.indexWhere((n) => n.id == item.id);
 
-    for (var product in allProducts) {
-      if (product.category.id == item.id) {
-        var updatedProduct = product.copyWith(category: item);
-        await productsBox.put(product.id, updatedProduct);
+      await Hive.box<Nomenclature>('nomenclature_box').putAt(updateIndex, item);
+
+      var productsBox = Hive.box<Product>('products_box');
+      var allProducts = productsBox.values.toList();
+
+      for (int i = 0; i < allProducts.length; i++) {
+        var product = allProducts[i];
+        if (product.category.id == item.id) {
+          var updatedProduct = product.copyWith(category: item);
+          await productsBox.put(product.id, updatedProduct);
+        }
       }
+
+      return true;
+    } catch (e) {
+      throw Exception('Ошибка при обновлении категории: $e');
     }
-
-    return true;
-  } catch (e) {
-    throw Exception('Ошибка при обновлении категории: $e');
   }
-}
-
 
   @override
   Future<void> delete(String id) async {
@@ -66,31 +75,17 @@ Future<bool> update(Nomenclature item) async {
     }
   }
 
-@override
-Future<void> reorderList(int oldIndex, int newIndex) async {
-  try {
-    var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-    List<Nomenclature> nomenclatures = nomenclatureBox.values.toList();
-    // Если элемент перетаскивается вниз, уменьшаем newIndex на 1, чтобы не нарушить порядок
-    if (newIndex > oldIndex) {
-      newIndex -= 1;
+  @override
+  Future<void> reorderList(int oldIndex, int newIndex) async {
+    try {
+      var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
+
+      final oldItem = nomenclatureBox.get(oldIndex);
+      final newItem = nomenclatureBox.get(newIndex);
+      update(newItem!.copyWith(id: oldItem!.id));
+      update(oldItem.copyWith(id: newItem.id));
+    } catch (e) {
+      throw Exception("Ошибка при перестановке: $e");
     }
-
-    // Получаем элемент, который нужно переместить
-    Nomenclature movedItem = nomenclatures.elementAt(oldIndex);
-
-    // Удаляем элемент с текущей позиции
-    nomenclatures.removeAt(oldIndex);
-
-    // Вставляем элемент на новую позицию
-    nomenclatures.insert(newIndex, movedItem);
-    nomenclatureBox.clear();
-    for (var n in nomenclatures) {
-      nomenclatureBox.put(n.id, n);
-    }
-  } catch (e) {
-    throw Exception("Ошибка при перестановке: $e");
   }
-}
-
 }

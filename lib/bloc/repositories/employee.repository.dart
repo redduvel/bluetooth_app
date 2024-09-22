@@ -18,6 +18,7 @@ class EmployeeRepository implements Repository<Employee> {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
       List<Employee> employees = employeeBox.values.toList();
+
       return employees;
     } catch (e) {
       throw Exception(e);
@@ -28,7 +29,7 @@ class EmployeeRepository implements Repository<Employee> {
   Future<void> add(Employee item) async {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
-      employeeBox.put(item.id, item);
+      employeeBox.add(item);
     } catch (e) {
       throw Exception(e);
     }

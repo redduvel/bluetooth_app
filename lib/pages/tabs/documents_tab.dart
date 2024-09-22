@@ -6,6 +6,7 @@ import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
 import 'package:bluetooth_app/widgets/text_feild.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:reorderables/reorderables.dart';
 
 class DocumentsTab extends StatefulWidget {
   const DocumentsTab({super.key});
@@ -115,7 +116,60 @@ class _DocumentsTabState extends State<DocumentsTab> {
               ),
             ),
           ),
-          SliverList(
+          ReorderableSliverList(
+            delegate: ReorderableSliverChildBuilderDelegate(
+                childCount: otherNomenclatures.length, (context, index) {
+              final nomenclature = otherNomenclatures[index];
+
+              return ListTile(
+                key: ValueKey(nomenclature),
+                leading: nomenclature.isHide
+                    ? const Icon(Icons.visibility_off, size: 24)
+                    : const Icon(Icons.category),
+                title: Text(nomenclature.name),
+                trailing: PopupMenuButton(
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'edit':
+                        _showEditCategoryDialog(nomenclature);
+                        break;
+                      case 'hide':
+                        bloc.add(UpdateItem<Nomenclature>(
+                          nomenclature.copyWith(isHide: !nomenclature.isHide),
+                        ));
+                        break;
+                      case 'delete':
+                        _showDeleteConfirmationDialog(nomenclature);
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Text('Изменить'),
+                    ),
+                    PopupMenuItem(
+                      value: 'hide',
+                      child: Text(
+                          nomenclature.isHide ? 'Убрать из скрытых' : 'Скрыть'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Удалить'),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            onReorder: (oldIndex, newIndex) {
+              bloc.add(ReorderList<Nomenclature>(newIndex, oldIndex));
+              setState(() {
+                var row = otherNomenclatures.removeAt(oldIndex);
+                otherNomenclatures.insert(newIndex, row);
+              });
+            },
+          ),
+          /*SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               final nomenclature = otherNomenclatures[index];
               return ListTile(
@@ -158,7 +212,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
                 ),
               );
             }, childCount: otherNomenclatures.length),
-          ),
+          ),*/
         ],
       );
     }

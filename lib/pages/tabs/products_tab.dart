@@ -158,6 +158,8 @@ class _ProductsTabState extends State<ProductsTab> {
           .toList();
     }
 
+    productBloc.add(LoadItems<Product>());
+
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(

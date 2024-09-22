@@ -26,3 +26,4 @@ class Employee extends HiveObject {
     );
   }
 }
+

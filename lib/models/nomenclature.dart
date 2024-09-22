@@ -34,3 +34,4 @@ class Nomenclature extends HiveObject {
   @override
   int get hashCode => id.hashCode;
 }
+

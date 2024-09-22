@@ -19,7 +19,7 @@ class Product extends HiveObject {
   final List<Characteristic> characteristics;
 
   @HiveField(4)
-  final Nomenclature category;
+  late final Nomenclature category;
 
   @HiveField(5)
   final bool isHide;
@@ -58,3 +58,7 @@ class Product extends HiveObject {
     );
   }
 }
+
+
+
+

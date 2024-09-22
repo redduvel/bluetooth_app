@@ -30,8 +30,8 @@ void main() async {
   Hive.registerAdapter(MeasurementUnitAdapter());
 
   await Hive.openBox<Employee>('employee_box');
-  await Hive.openBox<Nomenclature>('nomenclature_box');
-  final b = await Hive.openBox<Product>('products_box');
+  final b = await Hive.openBox<Nomenclature>('nomenclature_box');
+  await Hive.openBox<Product>('products_box');
   await Hive.openBox('settings');
 
   if (Hive.box<Nomenclature>('nomenclature_box').get('archive') == null) {
@@ -61,6 +61,9 @@ void main() async {
     });
   }
 
+  for (var i in b.toMap().entries.toList()) {
+    print("${i.key} | ${i.value.name} | ${i.value.id}");
+  }
 
   // RUN APP
   runApp(const App());
