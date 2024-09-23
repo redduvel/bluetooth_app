@@ -9,12 +9,10 @@ class EmployeeRepository implements Repository<Employee> {
   get currentItem => currentEmployee;
 
   @override
-  set currentItem(currentItem) =>
-    currentEmployee = currentItem;
-  
+  set currentItem(currentItem) => currentEmployee = currentItem;
 
   @override
-  Future<List<Employee>> getAll() async {
+  List<Employee> getAll() {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
       List<Employee> employees = employeeBox.values.toList();
@@ -29,7 +27,7 @@ class EmployeeRepository implements Repository<Employee> {
   Future<void> add(Employee item) async {
     try {
       var employeeBox = Hive.box<Employee>('employee_box');
-      employeeBox.add(item);
+      employeeBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }
@@ -62,7 +60,6 @@ class EmployeeRepository implements Repository<Employee> {
       Employee employee = employeeBox.getAt(oldIndex)!;
       employeeBox.deleteAt(oldIndex);
       employeeBox.putAt(newIndex, employee);
-
     } catch (e) {
       throw Exception(e);
     }

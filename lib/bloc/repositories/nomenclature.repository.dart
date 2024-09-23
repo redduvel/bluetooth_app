@@ -13,15 +13,11 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   set currentItem(currentItem) => currentNomenclature = currentItem;
 
   @override
-  Future<List<Nomenclature>> getAll() async {
+  List<Nomenclature> getAll() {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
       List<Nomenclature> nomenclatures = nomenclatureBox.values.toList();
-      print(
-          'GET NOMENCLATURES=================================================================');
-      for (var i in nomenclatures) {
-        print("${i.id} | ${i.name}");
-      }
+      nomenclatures.sort((a, b) => a.order.compareTo(b.order));
       return nomenclatures;
     } catch (e) {
       throw Exception(e);
@@ -32,7 +28,17 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   Future<void> add(Nomenclature item) async {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-      nomenclatureBox.add(item);
+
+      List<Nomenclature> userCategories =
+          nomenclatureBox.values.where((n) => n.order < 100000).toList();
+
+      int maxOrder = userCategories.isNotEmpty
+          ? userCategories.map((n) => n.order).reduce((a, b) => a > b ? a : b)
+          : 0;
+
+      item = item.copyWith(order: maxOrder + 1);
+
+      nomenclatureBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }
@@ -41,18 +47,12 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   @override
   Future<bool> update(Nomenclature item) async {
     try {
-      var nomenclatureBox =
-          Hive.box<Nomenclature>('nomenclature_box').values.toList();
-
-      int updateIndex = nomenclatureBox.indexWhere((n) => n.id == item.id);
-
-      await Hive.box<Nomenclature>('nomenclature_box').putAt(updateIndex, item);
+      await Hive.box<Nomenclature>('nomenclature_box').put(item.id, item);
 
       var productsBox = Hive.box<Product>('products_box');
       var allProducts = productsBox.values.toList();
 
-      for (int i = 0; i < allProducts.length; i++) {
-        var product = allProducts[i];
+      for (var product in allProducts) {
         if (product.category.id == item.id) {
           var updatedProduct = product.copyWith(category: item);
           await productsBox.put(product.id, updatedProduct);
@@ -76,16 +76,33 @@ class NomenclatureRepository implements Repository<Nomenclature> {
   }
 
   @override
-  Future<void> reorderList(int oldIndex, int newIndex) async {
+  void reorderList(int oldIndex, int newIndex) {
     try {
       var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
 
-      final oldItem = nomenclatureBox.get(oldIndex);
-      final newItem = nomenclatureBox.get(newIndex);
-      update(newItem!.copyWith(id: oldItem!.id));
-      update(oldItem.copyWith(id: newItem.id));
+      final oldItem =
+          nomenclatureBox.values.firstWhere((n) => n.order == oldIndex);
+      final newItem =
+          nomenclatureBox.values.firstWhere((n) => n.order == newIndex);
+
+      final oldOrder = oldItem.order;
+      final newOrder = newItem.order;
+
+      nomenclatureBox.put(oldItem.id, oldItem.copyWith(order: newOrder));
+      nomenclatureBox.put(newItem.id, newItem.copyWith(order: oldOrder));
     } catch (e) {
       throw Exception("Ошибка при перестановке: $e");
     }
+  }
+
+  List<Nomenclature> getFixedCategories(Box<Nomenclature> box) {
+    return box.values
+        .where((category) => category.order == 0 || category.order == 1)
+        .toList();
+  }
+
+  List<Nomenclature> getEditableCategories(Box<Nomenclature> box) {
+    return box.values.where((category) => category.order > 1).toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
   }
 }

@@ -1,5 +1,4 @@
 import 'package:bluetooth_app/bloc/repository.dart';
-import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -17,7 +16,7 @@ class ProductRepository implements Repository<Product> {
     try {
       var productBox = Hive.box<Product>('products_box');
 
-      productBox.add(item);
+      productBox.put(item.id, item);
     } catch (e) {
       throw Exception(e);
     }
@@ -34,23 +33,10 @@ class ProductRepository implements Repository<Product> {
   }
 
   @override
-  Future<List<Product>> getAll() async {
+  List<Product> getAll() {
     try {
       var productBox = Hive.box<Product>('products_box');
-      var nomenclatureBox = Hive.box<Nomenclature>('nomenclature_box');
-
       List<Product> products = productBox.values.toList();
-
-      for (var p in products) {
-        String d = "${p.category.id} => ";
-        Nomenclature n = nomenclatureBox
-            .toMap()
-            .entries
-            .firstWhere((m) => m.value.id == p.category.id)
-            .value;
-        print("$d ${n.id}");
-        update(p.copyWith(category: n));
-      }
       return products;
     } catch (e) {
       throw Exception(e);
@@ -60,11 +46,7 @@ class ProductRepository implements Repository<Product> {
   @override
   Future<bool> update(Product item) async {
     try {
-      var productBox = Hive.box<Product>('products_box').values.toList();
-
-      int updateIndex = productBox.indexWhere((n) => n.id == item.id);
-
-      await Hive.box<Product>('products_box').putAt(updateIndex, item);
+      await Hive.box<Product>('products_box').put(item.id, item);
       return true;
     } catch (e) {
       throw Exception(e);

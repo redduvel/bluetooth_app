@@ -70,12 +70,12 @@ class _DocumentsTabState extends State<DocumentsTab> {
       // Отделение категории "Архив" и "TAG" от остальных
       final archiveCategory = nomenclatures.firstWhere(
         (nomenclature) => nomenclature.name == 'Архив',
-        orElse: () => Nomenclature(id: '', name: '', isHide: false),
+        orElse: () => Nomenclature(order: -1, id: '', name: '', isHide: false),
       );
 
       final tagCategory = nomenclatures.firstWhere(
         (nomenclature) => nomenclature.name == 'TAG',
-        orElse: () => Nomenclature(id: '', name: '', isHide: false),
+        orElse: () => Nomenclature(order: -1, id: '', name: '', isHide: false),
       );
 
       otherNomenclatures = nomenclatures
@@ -162,57 +162,18 @@ class _DocumentsTabState extends State<DocumentsTab> {
               );
             }),
             onReorder: (oldIndex, newIndex) {
-              bloc.add(ReorderList<Nomenclature>(newIndex, oldIndex));
               setState(() {
+                final oldItem = otherNomenclatures[oldIndex];
+                final newItem = otherNomenclatures[newIndex];
+
+                bloc.add(
+                    ReorderList<Nomenclature>(oldItem.order, newItem.order));
+
                 var row = otherNomenclatures.removeAt(oldIndex);
                 otherNomenclatures.insert(newIndex, row);
               });
             },
           ),
-          /*SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final nomenclature = otherNomenclatures[index];
-              return ListTile(
-                key: ValueKey(nomenclature),
-                leading: nomenclature.isHide
-                    ? const Icon(Icons.visibility_off, size: 24)
-                    : const Icon(Icons.category),
-                title: Text(nomenclature.name),
-                trailing: PopupMenuButton(
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'edit':
-                        _showEditCategoryDialog(nomenclature);
-                        break;
-                      case 'hide':
-                        bloc.add(UpdateItem<Nomenclature>(
-                          nomenclature.copyWith(isHide: !nomenclature.isHide),
-                        ));
-                        break;
-                      case 'delete':
-                        _showDeleteConfirmationDialog(nomenclature);
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Text('Изменить'),
-                    ),
-                    PopupMenuItem(
-                      value: 'hide',
-                      child: Text(
-                          nomenclature.isHide ? 'Убрать из скрытых' : 'Скрыть'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Удалить'),
-                    ),
-                  ],
-                ),
-              );
-            }, childCount: otherNomenclatures.length),
-          ),*/
         ],
       );
     }
@@ -381,7 +342,10 @@ class _DocumentsTabState extends State<DocumentsTab> {
                         return;
                       }
                       bloc.add(AddItem<Nomenclature>(
-                        Nomenclature(name: nameController.text, isHide: false),
+                        Nomenclature(
+                            order: -1,
+                            name: nameController.text,
+                            isHide: false),
                       ));
                       nameController.clear();
                       Navigator.pop(context);

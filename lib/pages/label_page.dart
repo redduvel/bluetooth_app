@@ -379,9 +379,10 @@ class _LabelPageState extends State<LabelPage> {
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: Platform.isMacOS || Platform.isWindows ? 7 : 2,
-        childAspectRatio:
-            Platform.isMacOS || Platform.isWindows ? 3 / 4 : 1 / 1,),
+                crossAxisCount: Platform.isMacOS || Platform.isWindows ? 7 : 2,
+                childAspectRatio:
+                    Platform.isMacOS || Platform.isWindows ? 3 / 4 : 1 / 1,
+              ),
               itemBuilder: (context, index) {
                 final product = productsInCategory[index];
 

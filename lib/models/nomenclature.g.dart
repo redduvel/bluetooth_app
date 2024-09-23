@@ -18,20 +18,23 @@ class NomenclatureAdapter extends TypeAdapter<Nomenclature> {
     };
     return Nomenclature(
       id: fields[0] as String?,
-      name: fields[1] as String,
-      isHide: fields[2] as bool,
+      order: fields[1] as int,
+      name: fields[2] as String,
+      isHide: fields[3] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Nomenclature obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.order)
       ..writeByte(2)
+      ..write(obj.name)
+      ..writeByte(3)
       ..write(obj.isHide);
   }
 

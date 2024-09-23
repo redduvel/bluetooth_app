@@ -86,9 +86,9 @@ class GenericBloc<T> extends Bloc<GenericEvent<T>, GenericState<T>> {
       }
     });
 
-    on<ReorderList<T>>((event, emit) async {
+    on<ReorderList<T>>((event, emit) {
       try {
-        await repository.reorderList(event.newIndex, event.oldIndex);
+        repository.reorderList(event.newIndex, event.oldIndex);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));

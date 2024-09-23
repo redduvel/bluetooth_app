@@ -408,15 +408,19 @@ class _ProductsTabState extends State<ProductsTab> {
                 SliverToBoxAdapter(
                   child: Row(
                     children: [
-                      const AutoSizeText('Разрешить свободную маркировку?', maxFontSize: 22, minFontSize: 12,
-                       style: TextStyle(fontSize: 18),),
+                      const AutoSizeText(
+                        'Разрешить свободную маркировку?',
+                        maxFontSize: 22,
+                        minFontSize: 12,
+                        style: TextStyle(fontSize: 18),
+                      ),
                       Checkbox(
                           value: checkAllogFreeTime,
-                          
                           onChanged: (value) {
                             setState(
                               () {
-                                checkAllogFreeTime = value ?? !checkAllogFreeTime;
+                                checkAllogFreeTime =
+                                    value ?? !checkAllogFreeTime;
                               },
                             );
                           }),

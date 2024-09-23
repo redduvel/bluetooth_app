@@ -35,12 +35,12 @@ void main() async {
   await Hive.openBox('settings');
 
   if (Hive.box<Nomenclature>('nomenclature_box').get('archive') == null) {
-    var archive = Nomenclature(id: 'archive', name: 'Архив', isHide: false);
+    var archive = Nomenclature(order: 100000, id: 'archive', name: 'Архив', isHide: false);
     Hive.box<Nomenclature>('nomenclature_box').put(archive.id, archive);
   }
 
   if (Hive.box<Nomenclature>('nomenclature_box').get('tag') == null) {
-    var tag = Nomenclature(id: 'tag', name: 'TAG', isHide: false);
+    var tag = Nomenclature(order: 100001, id: 'tag', name: 'TAG', isHide: false);
     Hive.box<Nomenclature>('nomenclature_box').put(tag.id, tag);
   }
 
