@@ -131,6 +131,8 @@ class _ProductCardState extends State<ProductCard> {
 
     selectedCategory = widget.product.category;
 
+    bool allowFreeTime = widget.product.allowFreeTime;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showBarModalBottomSheet(
         backgroundColor: Colors.white,
@@ -144,6 +146,7 @@ class _ProductCardState extends State<ProductCard> {
             valueControllers,
             units,
             characteristics,
+            allowFreeTime
           );
         },
       );
@@ -158,6 +161,7 @@ class _ProductCardState extends State<ProductCard> {
     List<TextEditingController> valueControllers,
     List<MeasurementUnit> units,
     List<Characteristic> characteristics,
+    bool allowFreeTime
   ) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -199,6 +203,13 @@ class _ProductCardState extends State<ProductCard> {
                 ),
               ],
             )),
+            SliverToBoxAdapter(
+              child: Checkbox(value: allowFreeTime, onChanged: (value) {
+                setState(() {
+                  allowFreeTime = value!;
+                });
+              }),
+            ),
             const SliverToBoxAdapter(child: SizedBox(height: 10)),
             SliverToBoxAdapter(
               child: _buildSaveButton(
@@ -209,6 +220,7 @@ class _ProductCardState extends State<ProductCard> {
                 nameControllers,
                 valueControllers,
                 units,
+                allowFreeTime
               ),
             ),
           ],
@@ -365,6 +377,7 @@ class _ProductCardState extends State<ProductCard> {
     List<TextEditingController> nameControllers,
     List<TextEditingController> valueControllers,
     List<MeasurementUnit> units,
+    bool allowFreeTime
   ) {
     return ElevatedButton(
       onPressed: () {

@@ -21,7 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // INITIALIZE HIVE
-  await Hive.initFlutter();
+  await Hive.initFlutter('db2');
 
   Hive.registerAdapter(EmployeeAdapter());
   Hive.registerAdapter(ProductAdapter());
