@@ -52,7 +52,7 @@ class GenericBloc<T> extends Bloc<GenericEvent<T>, GenericState<T>> {
   GenericBloc(this.repository) : super(ItemsLoading<T>()) {
     on<LoadItems<T>>((event, emit) async {
       try {
-        final items = await repository.getAll();
+        final items = repository.getAll();
         emit(ItemsLoaded<T>(items));
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));

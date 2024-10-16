@@ -126,36 +126,36 @@ class ImageUtils {
     return file.readAsBytesSync();
   }
 
-  Future<pw.Document> generatePdf(int count,
-      PdfPageFormat format, String subtitle, String fullName,
+  Future<pw.Document> generatePdf(
+      int count, PdfPageFormat format, String subtitle, String fullName,
       {String? startDate, String? endDate}) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final ttf = await fontFromAssetBundle('assets/fonts/roboto.ttf');
 
     for (var i = 0; i < count; i++) {
       pdf.addPage(
-      pw.Page(
-        margin: const pw.EdgeInsets.all(2),
-        pageFormat: format,
-        build: (pw.Context context) {
-          return pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: pw.CrossAxisAlignment.center,
-            children: [
-              pw.Text(subtitle, style: pw.TextStyle(font: ttf, fontSize: 10)),
-              if (startDate != null)
-                pw.Text(startDate,
-                    style: pw.TextStyle(font: ttf, fontSize: 10)),
-              if (endDate != null)
-                pw.Text(endDate, style: pw.TextStyle(font: ttf, fontSize: 10)),
-              pw.Text(fullName, style: pw.TextStyle(font: ttf, fontSize: 10))
-            ],
-          );
-        },
-      ),
-    );
+        pw.Page(
+          margin: const pw.EdgeInsets.all(2),
+          pageFormat: format,
+          build: (pw.Context context) {
+            return pw.Column(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Text(subtitle, style: pw.TextStyle(font: ttf, fontSize: 10)),
+                if (startDate != null)
+                  pw.Text(startDate,
+                      style: pw.TextStyle(font: ttf, fontSize: 10)),
+                if (endDate != null)
+                  pw.Text(endDate,
+                      style: pw.TextStyle(font: ttf, fontSize: 10)),
+                pw.Text(fullName, style: pw.TextStyle(font: ttf, fontSize: 10))
+              ],
+            );
+          },
+        ),
+      );
     }
-    
 
     return pdf;
   }

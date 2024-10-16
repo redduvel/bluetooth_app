@@ -7,11 +7,16 @@ import 'package:bluetooth_app/bloc/repositories/employee.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/nomenclature.repository.dart';
 import 'package:bluetooth_app/bloc/repositories/product.repository.dart';
 import 'package:bluetooth_app/bloc/search_engine/search.bloc.dart';
+import 'package:bluetooth_app/clean/features/admin/presentation/admin_screen.dart';
+import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
+import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
+import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/dashboard_screen.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
 import 'package:bluetooth_app/models/characteristic.dart';
 import 'package:bluetooth_app/models/employee.dart';
 import 'package:bluetooth_app/models/nomenclature.dart';
 import 'package:bluetooth_app/models/product.dart';
-import 'package:bluetooth_app/pages/home_page.dart';
+//import 'package:bluetooth_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -30,40 +35,38 @@ void main() async {
   Hive.registerAdapter(MeasurementUnitAdapter());
 
   await Hive.openBox<Employee>('employee_box');
-  final b = await Hive.openBox<Nomenclature>('nomenclature_box');
+  await Hive.openBox<Nomenclature>('nomenclature_box');
   await Hive.openBox<Product>('products_box');
   await Hive.openBox('settings');
 
   if (Hive.box<Nomenclature>('nomenclature_box').get('archive') == null) {
-    var archive = Nomenclature(order: 100000, id: 'archive', name: 'Архив', isHide: false);
+    var archive = Nomenclature(
+        order: 100000, id: 'archive', name: 'Архив', isHide: false);
     Hive.box<Nomenclature>('nomenclature_box').put(archive.id, archive);
   }
 
   if (Hive.box<Nomenclature>('nomenclature_box').get('tag') == null) {
-    var tag = Nomenclature(order: 100001, id: 'tag', name: 'TAG', isHide: false);
+    var tag =
+        Nomenclature(order: 100001, id: 'tag', name: 'TAG', isHide: false);
     Hive.box<Nomenclature>('nomenclature_box').put(tag.id, tag);
   }
 
   // Инициализация менеджера окна
-  if (Platform.isWindows || Platform.isMacOS) {
-  await windowManager.ensureInitialized();
-    
-    // Настройки окна
-    WindowOptions windowOptions = const WindowOptions(
-      size: Size(800, 600),
-      center: true,
-      backgroundColor: Colors.transparent,
-      titleBarStyle: TitleBarStyle.hidden,
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.setFullScreen(true);
-      windowManager.show();
-    });
-  }
+  // if (Platform.isWindows || Platform.isMacOS) {
+  // await windowManager.ensureInitialized();
 
-  for (var i in b.toMap().entries.toList()) {
-    print("${i.key} | ${i.value.name} | ${i.value.id}");
-  }
+  //   // Настройки окна
+  //   WindowOptions windowOptions = const WindowOptions(
+  //     size: Size(800, 600),
+  //     center: true,
+  //     backgroundColor: Colors.transparent,
+  //     titleBarStyle: TitleBarStyle.hidden,
+  //   );
+  //   windowManager.waitUntilReadyToShow(windowOptions, () async {
+  //     await windowManager.setFullScreen(true);
+  //     windowManager.show();
+  //   });
+  // }
 
   // RUN APP
   runApp(const App());
@@ -105,14 +108,18 @@ class App extends StatelessWidget {
         BlocProvider(create: (context) {
           return GenericSearchBloc<Nomenclature>(
               Hive.box('nomenclature_box'), nomenclatureSearchCondition);
+        }),
+
+        // NEW BLOCS
+
+        BlocProvider(create: (context) {
+          return NavigationBloc(InitialState(const DashboardScreen()));
         })
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
           showSemanticsDebugger: false,
           debugShowCheckedModeBanner: false,
-          theme: ThemeData.from(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange)),
-          home: const HomePage()),
+          home: HomeScreen()),
     );
   }
 }
