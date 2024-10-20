@@ -39,21 +39,25 @@ class _NavigationPageState extends State<NavigationPage> {
       },
       child: Container(
         color: AppColors.surface,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: widget.controls.map((c) {
-            return Column(
-              children: c.map((w) {
-                return PrimaryButtonIcon(
-                  toPage: w.toPage,
-                  text: w.text,
-                  icon: w.icon,
-                  onPressed: () => bloc.add(NavigateTo(w.toPage)),
-                  selected: currentPage.runtimeType == w.toPage.runtimeType,
-                );
-              }).toList(),
-            );
-          }).toList(),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: widget.controls.map((c) {
+              return Column(
+                children: c.map((w) {
+                  return PrimaryButtonIcon(
+                    toPage: w.toPage,
+                    text: w.text,
+                    icon: w.icon,
+                    width: w.width,
+                    onPressed: () => bloc.add(NavigateTo(w.toPage)),
+                    selected: currentPage.runtimeType == w.toPage.runtimeType,
+                  );
+                }).toList(),
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

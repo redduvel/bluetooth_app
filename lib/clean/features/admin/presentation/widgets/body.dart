@@ -1,5 +1,6 @@
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
+import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/category_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/dashboard_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/product_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
@@ -41,7 +42,7 @@ class _AdminBodyState extends State<AdminBody> {
                     icon: Icons.dashboard,
                   ),
                   PrimaryButtonIcon(
-                    toPage: const SettingsScreen(),
+                    toPage: const CategoryScreen(),
                     text: 'Категории',
                     icon: Icons.category,
                   ),
@@ -63,7 +64,8 @@ class _AdminBodyState extends State<AdminBody> {
                 ]
               ],
             )),
-        const Flexible(flex: 532 + 310, fit: FlexFit.tight, child: ContainerPage()),
+        const Flexible(
+            flex: 532 + 310, fit: FlexFit.tight, child: ContainerPage()),
         // Flexible(
         //     flex: 310,
         //     fit: FlexFit.tight,

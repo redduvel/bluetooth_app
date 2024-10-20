@@ -3,9 +3,12 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  app_links
+  cbl_flutter_ce
   file_selector_windows
   printing
   screen_retriever
+  url_launcher_windows
   window_manager
 )
 

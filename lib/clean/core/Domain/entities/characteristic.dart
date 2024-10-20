@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part 'generated/characteristic.g.dart';
+part 'characteristic.g.dart';
 
 @HiveType(typeId: 3)
 enum MeasurementUnit {
@@ -25,17 +25,14 @@ String getLocalizedMeasurementUnit(MeasurementUnit unit) {
   }
 }
 
-@HiveType(typeId: 4)
-class Characteristic {
+@HiveType(typeId: 3)
+class Characteristic extends HiveObject {
   @HiveField(0)
   final String name;
-
   @HiveField(1)
   final String shortName;
-
   @HiveField(2)
   final int value;
-
   @HiveField(3)
   final MeasurementUnit unit;
 
@@ -45,6 +42,7 @@ class Characteristic {
     required this.unit,
   }) : shortName = _generateShortName(name);
 
+  // Генерация короткого имени
   static String _generateShortName(String name) {
     List<String> words = name.split(' ');
 
@@ -55,6 +53,27 @@ class Characteristic {
     return name.length <= 3
         ? name.toLowerCase()
         : '${name.substring(0, 3).toLowerCase()}.';
+  }
+
+  // Сериализация в JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'value': value,
+      'unit': unit
+          .toString()
+          .split('.')
+          .last, // Преобразование MeasurementUnit в строку
+    };
+  }
+
+  // Десериализация из JSON
+  factory Characteristic.fromJson(Map<String, dynamic> json) {
+    return Characteristic(
+      name: json['name'],
+      value: json['value'],
+      unit: MeasurementUnit.values.firstWhere((e) => e.name == json['unit']),
+    );
   }
 
   @override
