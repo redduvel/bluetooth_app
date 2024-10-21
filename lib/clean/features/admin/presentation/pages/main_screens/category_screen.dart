@@ -4,10 +4,11 @@ import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
+import 'package:bluetooth_app/clean/features/admin/presentation/widgets/category_listtile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:universal_io/io.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -19,21 +20,17 @@ class CategoryScreen extends StatefulWidget {
 class _CategoryScreenState extends State<CategoryScreen> {
   late DBBloc<Category> bloc;
   TextEditingController nameController = TextEditingController();
-  TextEditingController editController = TextEditingController();
-  List<Category> otherNomenclatures = [];
-  bool valid = false;
+  List<Category> otherCategories = [];
 
   @override
   void initState() {
     bloc = context.read<DBBloc<Category>>()..add(LoadItems<Category>());
-    bloc = context.read<DBBloc<Category>>()..add(Sync<Category>());
     super.initState();
   }
 
   @override
   void dispose() {
     nameController.dispose();
-    editController.dispose();
     super.dispose();
   }
 
@@ -44,7 +41,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
       body: BlocBuilder<DBBloc<Category>, DBState<Category>>(
         builder: (context, state) {
           if (state is ItemsLoaded<Category>) {
-            return _buildNomenclatureList(state.items);
+            return _buildCategories(state.items);
+          }
+
+          if (state is ItemsLoading<Category>) {
+            return _buildCategories([]);
           }
 
           if (state is ItemOperationFailed<Category>) {
@@ -59,34 +60,46 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-  Widget _buildNomenclatureList(List<Category> nomenclatures) {
+  Widget _buildCategories(List<Category> categories) {
     // Отделение категории "Архив" и "TAG" от остальных
-    final archiveCategory = nomenclatures.firstWhere(
-      (nomenclature) => nomenclature.name == 'Архив',
+    final archiveCategory = categories.firstWhere(
+      (c) => c.name == 'Архив',
       orElse: () => Category(order: -1, id: '', name: '', isHide: false),
     );
 
-    final tagCategory = nomenclatures.firstWhere(
-      (nomenclature) => nomenclature.name == 'TAG',
+    final tagCategory = categories.firstWhere(
+      (c) => c.name == 'TAG',
       orElse: () => Category(order: -1, id: '', name: '', isHide: false),
     );
 
-    otherNomenclatures = nomenclatures
-        .where((nomenclature) =>
-            nomenclature.name != 'Архив' && nomenclature.name != 'TAG')
+    otherCategories = categories
+        .where((c) =>
+            c.name != 'Архив' && c.name != 'TAG')
         .toList();
 
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-                backgroundColor: AppColors.white,
-
+          backgroundColor: AppColors.white,
           title: Text(
             'Управление категориями',
             style: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
           ),
           centerTitle: false,
           automaticallyImplyLeading: false,
+          actions: [
+                        if (Platform.isMacOS || Platform.isWindows)
+            PrimaryButtonIcon(
+              text: 'Синхронизировать',
+              icon: Icons.sync,
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              selected: true,
+              onPressed: () => bloc.add(Sync<Category>()),
+            ),
+
+            if (Platform.isAndroid || Platform.isIOS)
+            IconButton(onPressed: () => bloc.add(Sync<Category>()), icon: Icon(Icons.sync))
+          ],
         ),
         SliverToBoxAdapter(
           child: PrimaryTextField(
@@ -98,14 +111,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           sliver: SliverToBoxAdapter(
             child: PrimaryButtonIcon(
-              toPage: const SettingsScreen(),
               selected: true,
               text: 'Добавить',
               icon: Icons.add,
               onPressed: () {
                 bloc.add(AddItem(Category(
-                  order: 1,
-                    name: nameController.text, isHide: false)));
+                    order: 1, name: nameController.text, isHide: false)));
               },
             ),
           ),
@@ -121,129 +132,68 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: _buildNomenclatureTile(archiveCategory, false,
-                icon: Icons.archive),
+            child: _buildCategoryTile(archiveCategory, Icons.archive),
           ),
           SliverToBoxAdapter(
-            child: _buildNomenclatureTile(tagCategory, false, icon: Icons.tag),
+            child: _buildCategoryTile(tagCategory, Icons.tag),
           ),
           const SliverToBoxAdapter(
             child: Divider(),
           ),
         ],
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              'Пользовательские:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        if (otherCategories.isNotEmpty) ...[
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Пользовательские:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
-        ),
-        ReorderableSliverList(
-          delegate: ReorderableSliverChildBuilderDelegate(
-              childCount: otherNomenclatures.length, (context, index) {
-            final nomenclature = otherNomenclatures[index];
+          ReorderableSliverList(
+            delegate: ReorderableSliverChildBuilderDelegate(
+                childCount: otherCategories.length, (context, index) {
+              final category = otherCategories[index];
 
-            return ListTile(
-              key: ValueKey(nomenclature),
-              leading: nomenclature.isHide
-                  ? const Icon(Icons.visibility_off, size: 24)
-                  : const Icon(Icons.category),
-              title: Text(nomenclature.name),
-              trailing: PopupMenuButton(
-                onSelected: (value) {
-                  switch (value) {
-                    case 'edit':
-                      //_showEditCategoryDialog(nomenclature);
-                      break;
-                    case 'hide':
-                      bloc.add(UpdateItem<Category>(
-                        nomenclature.copyWith(isHide: !nomenclature.isHide),
-                      ));
-                      break;
-                    case 'delete':
-                      bloc.add(DeleteItem<Category>(nomenclature.id));
-                      //_showDeleteConfirmationDialog(nomenclature);
-                      break;
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: Text('Изменить'),
-                  ),
-                  PopupMenuItem(
-                    value: 'hide',
-                    child: Text(
-                        nomenclature.isHide ? 'Убрать из скрытых' : 'Скрыть'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Text('Удалить'),
-                  ),
-                ],
-              ),
-            );
-          }),
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              final oldItem = otherNomenclatures[oldIndex];
-              final newItem = otherNomenclatures[newIndex];
+              return CategoryListTile(category: category, bloc: bloc);
+            }),
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                final oldItem = otherCategories[oldIndex];
+                final newItem = otherCategories[newIndex];
 
-              bloc.add(ReorderList<Category>(oldItem.order!, newItem.order!));
+                bloc.add(
+                    ReorderList<Category>(oldItem.order, newItem.order, true));
 
-              var row = otherNomenclatures.removeAt(oldIndex);
-              otherNomenclatures.insert(newIndex, row);
-            });
-          },
-        ),
+                var row = otherCategories.removeAt(oldIndex);
+                otherCategories.insert(newIndex, row);
+              });
+            },
+          ),
+        ],
+        if (categories.isEmpty)
+        const SliverPadding(
+          padding: EdgeInsets.symmetric(vertical: 15),
+          sliver: SliverToBoxAdapter(
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.greenOnSurface,),
+            ),
+          ),
+        )
       ],
     );
   }
 
-  ListTile _buildNomenclatureTile(Category nomenclature, bool showTools,
-      {IconData? icon}) {
+  
+  ListTile _buildCategoryTile(Category nomenclature, IconData? icon) {
     return ListTile(
       key: ValueKey(nomenclature.id),
       leading: nomenclature.isHide
           ? const Icon(Icons.visibility_off, size: 24)
           : Icon(icon ?? Icons.category),
       title: Text(nomenclature.name),
-      trailing: showTools
-          ? PopupMenuButton(
-              onSelected: (value) {
-                // switch (value) {
-                //   case 'edit':
-                //     _showEditCategoryDialog(nomenclature);
-                //     break;
-                //   case 'hide':
-                //     bloc.add(UpdateItem<Nomenclature>(
-                //       nomenclature.copyWith(isHide: !nomenclature.isHide),
-                //     ));
-                //     break;
-                //   case 'delete':
-                //     _showDeleteConfirmationDialog(nomenclature);
-                //     break;
-                // }
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Text('Изменить'),
-                ),
-                PopupMenuItem(
-                  value: 'hide',
-                  child: Text(
-                      nomenclature.isHide ? 'Убрать из скрытых' : 'Скрыть'),
-                ),
-                const PopupMenuItem(
-                  value: 'delete',
-                  child: Text('Удалить'),
-                ),
-              ],
-            )
-          : null,
+      
     );
   }
 

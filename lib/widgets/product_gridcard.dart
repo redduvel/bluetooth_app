@@ -361,17 +361,17 @@ class _ProductGridItemState extends State<ProductGridItem> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  context.read<PrinterBloc>().add(PrintLabel(
-                        product: widget.product,
-                        employee: context
-                            .read<GenericBloc<Employee>>()
-                            .repository
-                            .currentItem,
-                        startDate:
-                            adjustmentType ? customEndDate : DateTime.now(),
-                        characteristicIndex: selectedCharacteristic,
-                        count: controller.text,
-                      ));
+                  // context.read<PrinterBloc>().add(PrintLabel(
+                  //       product: widget.product,
+                  //       employee: context
+                  //           .read<GenericBloc<Employee>>()
+                  //           .repository
+                  //           .currentItem,
+                  //       startDate:
+                  //           adjustmentType ? customEndDate : DateTime.now(),
+                  //       characteristicIndex: selectedCharacteristic,
+                  //       count: controller.text,
+                  //     ));
                 },
                 child: const Text('Печатать'),
               ),

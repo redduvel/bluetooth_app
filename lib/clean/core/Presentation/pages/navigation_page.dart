@@ -46,14 +46,18 @@ class _NavigationPageState extends State<NavigationPage> {
             children: widget.controls.map((c) {
               return Column(
                 children: c.map((w) {
-                  return PrimaryButtonIcon(
-                    toPage: w.toPage,
-                    text: w.text,
-                    icon: w.icon,
-                    width: w.width,
-                    onPressed: () => bloc.add(NavigateTo(w.toPage)),
-                    selected: currentPage.runtimeType == w.toPage.runtimeType,
-                  );
+                  if (w.toPage != null) {
+                    return PrimaryButtonIcon(
+                      toPage: w.toPage,
+                      text: w.text,
+                      icon: w.icon,
+                      width: double.infinity,
+                      onPressed: () => bloc.add(NavigateTo(w.toPage!)),
+                      selected: currentPage.runtimeType == w.toPage.runtimeType,
+                    );
+                  } else {
+                    return w;
+                  }
                 }).toList(),
               );
             }).toList(),

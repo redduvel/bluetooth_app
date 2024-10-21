@@ -1,11 +1,16 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_clock.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class PrimaryAppBar extends StatefulWidget implements PreferredSizeWidget {
-  List<IconButton>? buttons = [];
-  PrimaryAppBar({super.key, this.buttons});
+  List<Widget>? buttons = [];
+  final String title;
+  final TextStyle? titleStyle;
+  
+  PrimaryAppBar({super.key, this.buttons, required this.title, this.titleStyle});
 
   @override
   State<PrimaryAppBar> createState() => _PrimaryAppBarState();
@@ -29,8 +34,8 @@ class _PrimaryAppBarState extends State<PrimaryAppBar> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Печать этикеток',
-                  style: AppTextStyles.labelMedium18.copyWith(fontSize: 32),
+                  widget.title,
+                  style: widget.titleStyle ?? AppTextStyles.labelMedium18.copyWith(fontSize: 32),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -43,62 +48,7 @@ class _PrimaryAppBarState extends State<PrimaryAppBar> {
                     ...widget.buttons!.map((button) => button)
                   ],
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          border: Border.all(
-                            color: AppColors.secondaryText,
-                          ),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: const Text(
-                        '10',
-                        style: AppTextStyles.bodySmall12,
-                      ),
-                    ),
-                    const Text(
-                      ':',
-                      style: AppTextStyles.bodySmall12,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          border: Border.all(
-                            color: AppColors.secondaryText,
-                          ),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: const Text(
-                        '10',
-                        style: AppTextStyles.bodySmall12,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                          color: AppColors.greenOnSurface,
-                          border: Border.all(
-                            color: AppColors.secondaryText,
-                          ),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Text(
-                        'PM',
-                        style: AppTextStyles.bodySmall12
-                            .copyWith(color: AppColors.white),
-                      ),
-                    ),
-                    const Text(
-                      '11/05/2024',
-                      style: AppTextStyles.bodyMedium16,
-                    ),
-                  ],
-                )
+                const PrimaryClock()
               ],
             ),
           )),

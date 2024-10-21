@@ -76,6 +76,7 @@ class _CharacteristicsWidgetState extends State<CharacteristicsWidget> {
                         Expanded(
                           flex: 1,
                           child: DropdownButton<MeasurementUnit>(
+                            dropdownColor: AppColors.white,
                             value: widget.units[index],
                             padding: EdgeInsets.zero,
                             onChanged: (newUnit) {

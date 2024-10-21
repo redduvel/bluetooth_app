@@ -1,13 +1,28 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
+import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
+import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/label_template_widget.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
+import 'package:bluetooth_app/clean/features/printing/Domain/usecase/printing_usecase.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/clock_widget.dart';
+import 'package:bluetooth_app/core/constants/ui_const.dart';
+import 'package:bluetooth_app/models/employee.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:universal_io/io.dart';
 
 class ProductWidget extends StatefulWidget {
   final Product product;
+  final DBBloc<Product> bloc;
 
-  const ProductWidget({super.key, required this.product});
+  const ProductWidget({super.key, required this.product, required this.bloc});
 
   @override
   State<ProductWidget> createState() => _ProductWidgetState();
@@ -16,39 +31,40 @@ class ProductWidget extends StatefulWidget {
 class _ProductWidgetState extends State<ProductWidget> {
   Color backgroundColor = AppColors.surface;
 
+  TextEditingController customPrintController = TextEditingController();
+  int count = 1;
+  late TextEditingController controller;
+
+  DateTime customEndDate = DateTime.now();
+  DateTime startDate = DateTime.now();
+  DateTime adjustmentDateTime = DateTime.now();
+  int selectedCharacteristic = 0;
+
+  @override
+  void initState() {
+    controller = TextEditingController(text: '$count');
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onHover: (value) {
         setState(() {
           if (value) {
-            
-          backgroundColor = AppColors.onSurface;
-          }else {
+            backgroundColor = AppColors.onSurface;
+          } else {
             backgroundColor = AppColors.surface;
           }
         });
       },
       onTap: () {
-        showDialog(context: context, builder: (context) => Dialog(
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Text(
-                  'Печать этикетки: ${widget.product.title}',
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.w500),
-                ),
-              ),
-              const SliverToBoxAdapter(child: Divider()),
-              SliverToBoxAdapter(child: LabelTemplateWidget(product: widget.product))
-              
-            ],
-          ),
-        ));
+        _showPrintBottomSheet(context);
+        
       },
       child: Container(
-        width: 200,
+        width: (Platform.isMacOS || Platform.isWindows) ? 200 : (MediaQuery.of(context).size.width - 20 - 16)/2,
         height: 175,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -75,7 +91,49 @@ class _ProductWidgetState extends State<ProductWidget> {
                     )
                   ],
                 ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+                PopupMenuButton(
+                  position: PopupMenuPosition.under,
+                  color: AppColors.white,
+                  itemBuilder: (context) {
+                    return [
+                      const PopupMenuItem(
+                          child: Text(
+                        'Изменить данные',
+                        style: AppTextStyles.bodyMedium16,
+                      )),
+                      const PopupMenuItem(
+                          child: Text(
+                        'Изменить оформление',
+                        style: AppTextStyles.bodyMedium16,
+                      )),
+                      PopupMenuItem(
+                        child: Text(
+                          widget.product.isHide
+                              ? 'Убрать из скрытых'
+                              : 'Скрыть',
+                          style: AppTextStyles.bodyMedium16,
+                        ),
+                        onTap: () {
+                          context
+                              .read<DBBloc<Product>>()
+                              .add(UpdateItem<Product>(
+                                widget.product
+                                    .copyWith(isHide: !widget.product.isHide),
+                              ));
+                        },
+                      ),
+                      PopupMenuItem(
+                        child: const Text('Удалить',
+                            style: AppTextStyles.bodyMedium16),
+                        onTap: () {
+                          context
+                              .read<DBBloc<Product>>()
+                              .add(DeleteItem<Product>(widget.product.id));
+                        },
+                      ),
+                    ];
+                  },
+                )
               ],
             ),
             Column(
@@ -83,15 +141,311 @@ class _ProductWidgetState extends State<ProductWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: widget.product.characteristics.map((c) {
-                  return Text(c.toString(), style: AppTextStyles.bodyMedium16,);
-      
-                }).toList()
-            )
-                
+                  return Text(
+                    c.toString(),
+                    style: AppTextStyles.bodyMedium16,
+                  );
+                }).toList())
           ],
         ),
       ),
     );
   }
-}
 
+  void _showPrintBottomSheet(BuildContext context) {
+    widget.bloc.repository.currentItem = widget.product;
+    if (widget.product.characteristics.isNotEmpty) {
+      if (selectedCharacteristic >= widget.product.characteristics.length) {
+        setState(() {
+          selectedCharacteristic = 0;
+        });
+      }
+      setState(() {
+        adjustmentDateTime = startDate;
+        adjustmentDateTime = PrintingUsecase.setAdjustmentTime(
+            adjustmentDateTime,
+            widget.product.characteristics[selectedCharacteristic]);
+      });
+    }
+    showDialog(
+      context: context,
+      builder: (context) {
+        return _buildPrintBottomSheetContent(context);
+      },
+    ).whenComplete(() {
+      startDate = DateTime.now();
+      customEndDate = DateTime.now();
+      adjustmentDateTime = DateTime.now();
+    });
+  }
+
+  Widget _buildPrintBottomSheetContent(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Dialog(
+          backgroundColor: AppColors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4)
+          ),
+          child: CustomScrollView(
+            shrinkWrap: (Platform.isIOS || Platform.isAndroid),
+            slivers: [
+              SliverAppBar(
+                backgroundColor: AppColors.white,
+                automaticallyImplyLeading: false,
+                title: Text(
+                  'Печать этикетки: ${widget.product.title}',
+                  style: AppTextStyles.labelMedium18
+                      .copyWith(fontSize: 22, fontWeight: FontWeight.w500),
+                ),
+              ),
+              if (widget.product.characteristics.isNotEmpty)
+                _buildLabelTemplate(context, widget.product,
+                    context.read<DBBloc<User>>().repository.currentItem, false,
+                    startDate: startDate),
+              if (widget.product.characteristics.isEmpty)
+                _buildEmptyLabelTemplate(
+                  context,
+                  widget.product,
+                  context.read<DBBloc<User>>().repository.currentItem,
+                ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 10),
+              ),
+              if (widget.product.characteristics.isNotEmpty)
+                _buildChoiceChips(setState),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 10),
+              ),
+              _buildPrintQuantityButton(context, false),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildChoiceChips(void Function(void Function()) setState) {
+    if (widget.product.characteristics.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+
+    return SliverToBoxAdapter(
+      child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.start,
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
+          spacing: 5,
+          runSpacing: -3,
+          children:
+              List.generate(widget.product.characteristics.length, (index) {
+            Characteristic c = widget.product.characteristics[index];
+            return _buildChoiceChip(c, setState, index);
+          })),
+    );
+  }
+
+  Widget _buildChoiceChip(
+      Characteristic c, void Function(void Function()) setState, int index) {
+    int thisIndex = index;
+    return ChoiceChip(
+      backgroundColor: AppColors.white,
+      selectedColor: AppColors.greenSurface,
+      checkmarkColor: AppColors.greenOnSurface,
+      label: Text(c.name),
+      selected: selectedCharacteristic == thisIndex,
+      onSelected: (value) {
+        setState(() {
+          selectedCharacteristic = thisIndex;
+          adjustmentDateTime =
+              PrintingUsecase.setAdjustmentTime(customEndDate, c);
+        });
+      },
+    );
+  }
+
+  Widget _buildPrintQuantityButton(BuildContext context, bool adjustmentType) {
+    return SliverToBoxAdapter(
+      child: StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: PrimaryButtonIcon(
+                      onPressed: () {
+                        setState(() {
+                          if (count > 1) {
+                            count--;
+                            controller.text = '$count';
+                          }
+                        });
+                      },
+                      text: '',
+                      alignment: Alignment.center,
+                      icon: Icons.remove,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 3,
+                    child: PrimaryTextField(
+                      controller: controller,
+                      textAlign: TextAlign.center,
+                      width: 300,
+                      
+                      hintText: 'Количество этикеток',
+                      onSubmitted: (value) {
+                        setState(() {
+                          final parsedValue = int.tryParse(value);
+                          if (parsedValue != null && parsedValue > 0) {
+                            count = parsedValue;
+                          } else {
+                            controller.text = '$count';
+                          }
+                        });
+                      },
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: PrimaryButtonIcon(
+                      onPressed: () {
+                        setState(() {
+                          count++;
+                          controller.text = '$count';
+                        });
+                      },
+                      text: '',
+                      icon: Icons.add,
+                    ),
+                  ),
+                ],
+              ),
+              PrimaryButtonIcon(
+                text: 'Печатать',
+                icon: Icons.print,
+                selected: true,
+                onPressed: () {
+                  context.read<PrinterBloc>().add(PrintLabel(
+                        product: widget.product,
+                        employee: Employee(fullName: 'fullName'),
+                        startDate:
+                            adjustmentType ? customEndDate : DateTime.now(),
+                        characteristicIndex: selectedCharacteristic,
+                        count: controller.text,
+                      ));
+                },
+              ),
+             
+              
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildLabelTemplate(
+      BuildContext context, Product product, User employee, bool customDate,
+      {DateTime? startDate}) {
+    return SliverToBoxAdapter(
+        child: Container(
+      height: 20 * 8,
+      padding: const EdgeInsets.all(5),
+      margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width /
+              (Platform.isMacOS || Platform.isMacOS ? 2.5 : 6)),
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          border: Border.all(color: Colors.black, width: 2),
+          color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          AutoSizeText(
+            product.subtitle,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            maxLines: 1,
+            maxFontSize: 22,
+            minFontSize: 14,
+          ),
+          if (widget.product.characteristics.isNotEmpty)
+            customDate
+                ? AutoSizeText(
+                    DateFormat('yyyy-MM-dd HH:mm').format(customEndDate),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    
+                    maxFontSize: 22,
+                    minFontSize: 14,
+                  )
+                : ClockWidget(
+                    startDate: startDate!,
+                    characteristic: null,
+                  ),
+          if (widget.product.characteristics.isNotEmpty)
+            customDate
+                ? AutoSizeText(
+                    DateFormat('yyyy-MM-dd HH:mm').format(adjustmentDateTime),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    maxFontSize: 22,
+                    minFontSize: 14,
+                  )
+                : ClockWidget(
+                    key: ValueKey(selectedCharacteristic),
+                    startDate: adjustmentDateTime,
+                    characteristic:
+                        widget.product.characteristics[selectedCharacteristic]),
+          AutoSizeText(
+            employee.fullName,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            maxLines: 1,
+            maxFontSize: 22,
+            minFontSize: 14,
+          )
+        ],
+      ),
+    ));
+  }
+
+  Widget _buildEmptyLabelTemplate(
+      BuildContext context, Product product, User employee) {
+    return SliverToBoxAdapter(
+        child: Container(
+      height: 20 * 8,
+      padding: const EdgeInsets.all(5),
+      margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width /
+              (Platform.isMacOS || Platform.isWindows
+                  ? UIConst.desktop_labelTemplate_horMarginFacotr
+                  : UIConst.mobile_labelTemplate_horMarginFactor)),
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          border: Border.all(color: Colors.black, width: 2),
+          color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            product.subtitle,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            employee.fullName,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          )
+        ],
+      ),
+    ));
+  }
+}

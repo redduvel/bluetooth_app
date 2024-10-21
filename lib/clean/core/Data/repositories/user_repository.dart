@@ -16,8 +16,52 @@ class UserRepository implements IRepository<User> {
   UserRepository({required this.repositoryName});
 
   @override
-  Future<void> sync() async {
-    try {} catch (e) {}
+  Future<List<User>> sync() async {
+    try {
+      List<User> localData = getAll();
+
+      RemoteDB.database
+          .from(repositoryName)
+          .select()
+          .asStream()
+          .listen((List<Map<String, dynamic>> data) async {
+        List<User> remoteData = [];
+
+        remoteData = data.map((map) {
+          return User.fromJson(map);
+        }).toList();
+
+        final localUserMap = {for (User user in localData) user.id: user};
+
+        final supabaseUserMap = {for (User user in remoteData) user.id: user};
+
+        for (User user in remoteData) {
+          if (localUserMap.containsKey(user.id)) {
+            final localCategory = localUserMap[user.id];
+            if (localCategory != user) {
+              await update(user);
+            }
+          } else {
+            await save(user);
+          }
+        }
+
+        for (var user in localData) {
+          if (!supabaseUserMap.containsKey(user.id)) {
+            await delete(user.id);
+          }
+        }
+      });
+      
+      await Future.delayed(const Duration(seconds: 1)).whenComplete(() {
+        localData = getAll();
+      });
+
+      return localData;
+    } catch (e) {
+      Exception(e);
+      return [];
+    }
   }
 
   @override
@@ -35,7 +79,7 @@ class UserRepository implements IRepository<User> {
   @override
   Future<void> save(User item, {bool sync = false}) async {
     try {
-      var userBox = Hive.box<User>('employee_box');
+      var userBox = Hive.box<User>('users');
       await userBox.put(item.id, item).whenComplete(() async {
         if (sync) {
           await RemoteDB.database.from(repositoryName).insert(item.toJson());
@@ -49,10 +93,14 @@ class UserRepository implements IRepository<User> {
   @override
   Future<bool> update(User item, {bool sync = false}) async {
     try {
-      await Hive.box<User>(repositoryName).put(item.id, item).whenComplete(() async {
+      await Hive.box<User>(repositoryName)
+          .put(item.id, item)
+          .whenComplete(() async {
         if (sync) {
-          
-        await RemoteDB.database.from(repositoryName).update(item.toJson()).eq('id', item.id);
+          await RemoteDB.database
+              .from(repositoryName)
+              .update(item.toJson())
+              .eq('id', item.id);
         }
       });
       return true;
@@ -76,9 +124,10 @@ class UserRepository implements IRepository<User> {
   }
 
   @override
-  Future<void> reorderList(int newIndex, int oldIndex, {bool sync = false}) async {
+  Future<void> reorderList(int newIndex, int oldIndex,
+      {bool sync = false}) async {
     try {
-      //var employeeBox = Hive.box<Employee>('employee_box');
+      //var employeeBox = Hive.box<Employee>('users');
       //User employee = employeeBox.getAt(oldIndex)!;
       //employeeBox.deleteAt(oldIndex);
       //employeeBox.putAt(newIndex, employee);

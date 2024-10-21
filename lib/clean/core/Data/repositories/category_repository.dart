@@ -17,10 +17,9 @@ class CategoryRepository implements IRepository<Category> {
   CategoryRepository({required this.repositoryName});
 
   @override
-  Future<void> sync() async {
+  Future<List<Category>> sync() async {
     try {
       List<Category> localData = getAll();
-      List<Category> remoteData = [];
 
       RemoteDB.database
           .from(repositoryName)
@@ -28,6 +27,8 @@ class CategoryRepository implements IRepository<Category> {
           .eq('isHide', 'False')
           .asStream()
           .listen((List<Map<String, dynamic>> data) async {
+                  List<Category> remoteData = [];
+
         remoteData = data.map((map) {
           return Category.fromJson(map);
         }).toList();
@@ -57,8 +58,15 @@ class CategoryRepository implements IRepository<Category> {
           }
         }
       });
+      
+      await Future.delayed(const Duration(seconds: 1)).whenComplete(() {
+        localData = getAll();
+      });
+
+      return localData;
     } catch (e) {
       Exception(e);
+      return [];
     }
   }
 
@@ -173,7 +181,7 @@ class CategoryRepository implements IRepository<Category> {
 
   List<Category> getFixedCategories(Box<Category> box) {
     return box.values
-        .where((category) => category.order == 0 || category.order == 1)
+        .where((category) => category.order == 10000 || category.order == 10001)
         .toList();
   }
 

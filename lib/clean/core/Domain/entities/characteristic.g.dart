@@ -8,7 +8,7 @@ part of 'characteristic.dart';
 
 class CharacteristicAdapter extends TypeAdapter<Characteristic> {
   @override
-  final int typeId = 3;
+  final int typeId = 4;
 
   @override
   Characteristic read(BinaryReader reader) {

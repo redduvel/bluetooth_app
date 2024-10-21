@@ -1,13 +1,18 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
+enum ButtonType {
+  normal, 
+  warning,
+  delete
+}
 // ignore: must_be_immutable
 class PrimaryButtonIcon extends StatelessWidget {
   final String text;
   final IconData icon;
-  final Widget toPage;
+  final Widget? toPage;
+  final ButtonType? type;
 
   double? width;
   double? height;
@@ -21,8 +26,9 @@ class PrimaryButtonIcon extends StatelessWidget {
 
   PrimaryButtonIcon(
       {super.key,
-      required this.toPage,
+      this.toPage,
       this.onPressed,
+      this.type,
       required this.text,
       required this.icon,
       this.selected = false,
@@ -34,15 +40,29 @@ class PrimaryButtonIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = switch (type) {
+      ButtonType.normal => AppColors.surface,
+      ButtonType.warning => AppColors.yellowSurface,
+      ButtonType.delete => AppColors.redSurface,
+      null => AppColors.surface,
+    };
+
+    Color foregroundColor = switch (type) {
+      ButtonType.normal => AppColors.secondaryText,
+      ButtonType.warning => AppColors.yellowOnSurface,
+      ButtonType.delete => AppColors.redOnSurface,
+      null => AppColors.secondaryText,
+    };
+
     return SizedBox(
-      width: width ?? double.infinity,
-      height: height ?? 50,
+      width: width,
+      height: height,
       child: Padding(
         padding: padding ?? const EdgeInsets.symmetric(vertical: 5),
         child: ElevatedButton.icon(
           style: ButtonStyle(
               backgroundColor: WidgetStatePropertyAll(
-                  selected ? AppColors.primary : AppColors.surface),
+                  selected ? AppColors.primary : backgroundColor),
               //fixedSize:  WidgetStatePropertyAll(Size(width, height ?? 40)),
               side: const WidgetStatePropertyAll(BorderSide.none),
               alignment: alignment ?? Alignment.centerLeft,
@@ -56,10 +76,10 @@ class PrimaryButtonIcon extends StatelessWidget {
           label: Text(
             text,
             style: AppTextStyles.bodyMedium16.copyWith(
-                color: selected ? AppColors.text : AppColors.secondaryText),
+                color: selected ? AppColors.text : foregroundColor),
           ),
           icon: Icon(icon,
-              color: selected ? AppColors.text : AppColors.secondaryText),
+              color: selected ? AppColors.text : foregroundColor),
         ),
       ),
     );

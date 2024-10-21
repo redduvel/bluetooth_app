@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
+import 'package:bluetooth_app/clean/features/printing/Domain/usecase/printing_usecase.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
+import 'package:bluetooth_app/services/image_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/services.dart';
-import 'package:bluetooth_app/services/image_utils.dart';
 import 'package:bluetooth_app/tools/extra.dart';
 import 'package:intl/intl.dart';
-import 'package:bluetooth_app/bloc/printer/printer.event.dart';
-import 'package:bluetooth_app/bloc/printer/printer.state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pdf/pdf.dart';
@@ -199,7 +199,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           Map<String, dynamic> img;
 
           if (event.product.characteristics.isNotEmpty) {
-            endTime = DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
+            endTime = DateFormat('yyyy-MM-dd HH:mm').format(PrintingUsecase.setAdjustmentTime(
                 event.startDate,
                 event.product.characteristics[event.characteristicIndex]));
             img = await ImageUtils().createLabelWithText(
@@ -224,7 +224,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
             ...'PRINT $count\r\n'.codeUnits,
           ]);
 
-          characteristic!.splitWritee(Uint8List.fromList(buffer), timeout: 15);
+          characteristic!.splitWritee(Uint8List.fromList(buffer));
         }
       }
     } else if (universal_io.Platform.isMacOS ||
@@ -234,7 +234,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       String endTime = '';
 
       if (event.product.characteristics.isNotEmpty) {
-        endTime = DateFormat('yyyy-MM-dd HH:mm').format(_setAdjustmentTime(
+        endTime = DateFormat('yyyy-MM-dd HH:mm').format(PrintingUsecase.setAdjustmentTime(
             event.startDate,
             event.product.characteristics[event.characteristicIndex]));
       }
@@ -260,15 +260,3 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   }
 }
 
-DateTime _setAdjustmentTime(DateTime startTime, Characteristic characteristic) {
-  switch (characteristic.unit) {
-    case MeasurementUnit.hours:
-      return startTime.add(Duration(hours: characteristic.value));
-    case MeasurementUnit.minutes:
-      return startTime.add(Duration(minutes: characteristic.value));
-    case MeasurementUnit.days:
-      return startTime.add(Duration(days: characteristic.value));
-    default:
-      throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
-  }
-}

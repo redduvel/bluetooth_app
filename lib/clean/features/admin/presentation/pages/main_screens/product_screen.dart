@@ -1,19 +1,20 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
+import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_appBar.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_appbar.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/cubit/dropdown_controller.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/allow_free_marking_widget.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/characteristics_widget.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/selected_category_widget.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/product_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_io/io.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -107,19 +108,59 @@ class _ProductScreenState extends State<ProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: PrimaryAppBar(
-        buttons: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  showTools = !showTools;
-                });
-              },
-              icon: const Icon(Icons.add)),
-        ],
-      ),
+      appBar: (Platform.isMacOS || Platform.isWindows)
+          ? PrimaryAppBar(
+              title: 'Управление продуктами',
+              titleStyle: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
+              buttons: [
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        showTools = !showTools;
+                      });
+                    },
+                    icon: Icon(
+                        showTools ? Icons.keyboard_arrow_down : Icons.add)),
+                BlocBuilder<DBBloc<Product>, DBState<Product>>(
+                    builder: (context, state) {
+                  if (state is ItemsLoaded<Product>) {
+                    return IconButton(
+                        onPressed: () => bloc.add(Sync<Product>()),
+                        icon: const Icon(Icons.sync));
+                  }
+                  if (state is ItemsLoading<Product>) {
+                    return const CircularProgressIndicator(
+                        color: AppColors.greenOnSurface);
+                  }
+
+                  return const SizedBox.shrink();
+                }),
+              ],
+            )
+          : null,
       body: CustomScrollView(
         slivers: [
+          if (Platform.isIOS || Platform.isAndroid)
+            SliverAppBar(
+              backgroundColor: AppColors.white,
+              title: Text(
+                'Управление продуктами',
+                style: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
+              ),
+              centerTitle: false,
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                    onPressed: () => setState(
+                          () => showTools = !showTools,
+                        ),
+                    icon: Icon(
+                        showTools ? Icons.keyboard_arrow_down : Icons.add)),
+                IconButton(
+                    onPressed: () => bloc.add(Sync<Product>()),
+                    icon: const Icon(Icons.sync))
+              ],
+            ),
           if (showTools) ...[
             SliverPadding(
                 padding: const EdgeInsets.all(8),
@@ -137,13 +178,25 @@ class _ProductScreenState extends State<ProductScreen> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               sliver: SliverToBoxAdapter(
-                  child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SelectedCategoryWidget(controller: categoryController),
-                  AllowFreeMarkingWidget(allowFreeMarking: checkAllowFreeTime)
-                ],
-              )),
+                  child: (Platform.isMacOS || Platform.isWindows)
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            SelectedCategoryWidget(
+                                controller: categoryController),
+                            AllowFreeMarkingWidget(
+                                allowFreeMarking: checkAllowFreeTime)
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            SelectedCategoryWidget(
+                                controller: categoryController),
+                            AllowFreeMarkingWidget(
+                                allowFreeMarking: checkAllowFreeTime)
+                          ],
+                        )),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 10)),
             SliverPadding(
@@ -162,8 +215,8 @@ class _ProductScreenState extends State<ProductScreen> {
                 child: PrimaryButtonIcon(
                   onPressed: createProduct,
                   icon: Icons.add,
+                  selected: true,
                   alignment: Alignment.center,
-                  toPage: const SettingsScreen(),
                   text: 'Добавить',
                 ),
               ),
@@ -173,7 +226,7 @@ class _ProductScreenState extends State<ProductScreen> {
             padding: const EdgeInsets.all(8),
             sliver: SliverToBoxAdapter(
                 child: BlocBuilder<DBBloc<Product>, DBState<Product>>(
-                  bloc: bloc,
+              bloc: bloc,
               builder: (context, state) {
                 if (state is ItemsLoaded<Product>) {
                   final products = state.items;
@@ -183,18 +236,25 @@ class _ProductScreenState extends State<ProductScreen> {
                     children: products.map((p) {
                       return ProductWidget(
                         product: p,
+                        bloc: bloc,
                       );
                     }).toList(),
-                    
+                  );
+                }
+
+                if (state is ItemsLoading<Product>) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
                   );
                 }
 
                 if (state is ItemOperationFailed<Product>) {
-                  return Center(child: Text(state.error),
+                  return Center(
+                    child: Text(state.error),
                   );
                 }
 
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               },
             )),
           )

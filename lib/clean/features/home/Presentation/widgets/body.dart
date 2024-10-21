@@ -1,5 +1,4 @@
 import 'package:bluetooth_app/clean/core/Presentation/pages/container_page.dart';
-import 'package:bluetooth_app/clean/core/Presentation/pages/info_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/employee_screen.dart';
@@ -49,7 +48,6 @@ class _HomeBodyState extends State<HomeBody> {
               )),
         const Flexible(
             flex: 532 + 310, fit: FlexFit.tight, child: ContainerPage()),
-        Flexible(child: InfoPage())
       ],
     );
   }

@@ -1,5 +1,5 @@
 import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/models/employee.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:equatable/equatable.dart';
 
@@ -51,7 +51,7 @@ class SetSettings extends PrinterEvent {
 
 class PrintLabel extends PrinterEvent {
   final Product product;
-  final Employee employee;
+  final User employee;
   final DateTime startDate;
   final int characteristicIndex;
   final String count;

@@ -1,5 +1,4 @@
 // ignore: file_names
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RemoteDB {
@@ -30,22 +29,5 @@ class RemoteDB {
           print('Change received: ${payload.toString()}');
         })
     .subscribe();
-
-
-    RemoteDB.database
-        .from('products')
-        .select()
-        .eq('isHide', 'False')
-        .asStream()
-        .listen((List<Map<String, dynamic>> data) {
-          for (var p in data) {
-            RemoteDB.database.from('categories').select().eq('id', p['category']).asStream().listen((d) {
-              for (var b in d) {
-                p['category'] = b;
-                print(Product.fromJson(p));
-              }
-            });
-          }
-    });
   }
 }

@@ -1,3 +1,5 @@
+import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
+import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/clean/core/Data/datasource/local/local_db.dart';
 import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/category_repository.dart';
@@ -5,6 +7,8 @@ import 'package:bluetooth_app/clean/core/Data/repositories/product_repository.da
 import 'package:bluetooth_app/clean/core/Data/repositories/user_repository.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/dashboard_screen.dart';
@@ -16,6 +20,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  LocalDB.createDB();
 
   await RemoteDB.createDB();
   // Инициализация менеджера окна
@@ -59,23 +65,26 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => DropdownCubit<Category>()),
         BlocProvider(
           create: (context) {
-            return DBBloc(UserRepository(repositoryName: 'users'))..add(Init());
+            return DBBloc(UserRepository(repositoryName: 'users'))..add(LoadItems<User>());
           },
         ),
         BlocProvider(
           create: (context) {
-            return DBBloc(ProductRepository(repositoryName: 'products'))..add(Init());
+            return DBBloc(ProductRepository(repositoryName: 'products'))..add(LoadItems<Product>());
           },
         ),
         BlocProvider(
           create: (context) {
-            return DBBloc(CategoryRepository(repositoryName: 'categories'))..add(Init())
-              ..add(Init<Category>());
+            return DBBloc(CategoryRepository(repositoryName: 'categories'))..add(LoadItems<Category>());
+              
           },
         ),
         BlocProvider(create: (context) {
           return NavigationBloc(InitialState(const DashboardScreen()));
-        })
+        }),
+        BlocProvider(create: (context) {
+          return PrinterBloc()..add(CheckConnection());
+        }),
       ],
       child: const MaterialApp(
           showSemanticsDebugger: false,

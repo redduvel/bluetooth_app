@@ -5,8 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // ======EVENTS======
 abstract class DBEvent<T> {}
 
-class Init<T> extends DBEvent<T> {}
-
 class LoadItems<T> extends DBEvent<T> {}
 
 class AddItem<T> extends DBEvent<T> {
@@ -27,7 +25,8 @@ class DeleteItem<T> extends DBEvent<T> {
 class ReorderList<T> extends DBEvent<T> {
   final int newIndex;
   final int oldIndex;
-  ReorderList(this.newIndex, this.oldIndex);
+  final bool sync;
+  ReorderList(this.newIndex, this.oldIndex, this.sync);
 }
 
 class Sync<T> extends DBEvent<T> {
@@ -58,8 +57,8 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
   DBBloc(this.repository) : super(ItemsLoading<T>()) {
     on<Sync<T>>((event, emit) async {
       try {
-        await repository.sync().whenComplete(() {
-          add(LoadItems<T>());
+        await repository.sync().then((value) {
+          emit(ItemsLoaded<T>(value));
         });
       } catch (e) {
         emit(ItemOperationFailed(e.toString()));
@@ -68,7 +67,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
 
     on<LoadItems<T>>((event, emit) async {
       try {
-        final items = await repository.getAll();
+        final items = repository.getAll();
         emit(ItemsLoaded<T>(items));
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));
@@ -86,7 +85,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
 
     on<UpdateItem<T>>((event, emit) async {
       try {
-        await repository.update(event.item);
+        await repository.update(event.item, sync: true);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));
@@ -95,7 +94,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
 
     on<DeleteItem<T>>((event, emit) async {
       try {
-        await repository.delete(event.id);
+        await repository.delete(event.id, sync: true);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));
@@ -104,7 +103,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
 
     on<ReorderList<T>>((event, emit) {
       try {
-        repository.reorderList(event.newIndex, event.oldIndex);
+        repository.reorderList(event.newIndex, event.oldIndex, sync: event.sync);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));

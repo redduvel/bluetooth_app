@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SelectedCategoryWidget extends StatefulWidget {
   final DropdownCubit<Category> controller;
 
-   SelectedCategoryWidget({super.key, required this.controller});
+  const SelectedCategoryWidget({super.key, required this.controller});
 
   @override
   State<SelectedCategoryWidget> createState() => _SelectedCategoryWidgetState();
@@ -27,7 +27,6 @@ class _SelectedCategoryWidgetState extends State<SelectedCategoryWidget> {
           // }
 
           return DropdownMenu<Category>(
-            
             onSelected: (value) => setState(() {
               widget.controller.selectOption(value!);
             }),

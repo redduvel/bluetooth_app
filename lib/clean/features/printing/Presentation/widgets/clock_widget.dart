@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -61,9 +63,13 @@ class _ClockWidgetState extends State<ClockWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return AutoSizeText(
       _formatDateTime(_currentTime!),
-      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+      style: AppTextStyles.bodyMedium16
+          .copyWith(fontSize: 18, fontWeight: FontWeight.w500),
+      maxLines: 1,
+      maxFontSize: 22,
+      minFontSize: 16,
     );
   }
 }

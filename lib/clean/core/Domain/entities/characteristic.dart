@@ -25,7 +25,7 @@ String getLocalizedMeasurementUnit(MeasurementUnit unit) {
   }
 }
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 4)
 class Characteristic extends HiveObject {
   @HiveField(0)
   final String name;

@@ -68,7 +68,7 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
                     minFontSize: 14,
                   )
                 : ClockWidget(
-                    startDate: startDate!,
+                    startDate: startDate,
                     characteristic: null,
                   ),
           if (widget.product.characteristics.isNotEmpty)

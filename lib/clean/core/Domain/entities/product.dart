@@ -60,8 +60,8 @@ class Product extends HiveObject {
       'id': id,
       'title': title,
       'subtitle': subtitle,
-      'characteristics': characteristics.map((c) => c.toJson()).toList(),
-      'category': category.toJson(),
+      'characteristics': {"c": characteristics.map((c) => c.toJson()).toList()},
+      'category': category.id,
       'isHide': isHide,
       'allowFreeMarking': allowFreeTime,
     };
@@ -73,7 +73,7 @@ class Product extends HiveObject {
       id: json['id'],
       title: json['title'],
       subtitle: json['subtitle'],
-      characteristics: (json['characteristics']['c'] as List)
+      characteristics: (json['characteristics']["c"] as List)
           .map((c) => Characteristic.fromJson(c))
           .toList(),
       category: Category.fromJson(json['category']),
