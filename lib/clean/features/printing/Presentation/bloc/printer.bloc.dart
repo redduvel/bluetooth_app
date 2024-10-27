@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:bluetooth_app/clean/features/printing/Domain/usecase/generate_img.dart';
 import 'package:bluetooth_app/clean/features/printing/Domain/usecase/printing_usecase.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
-import 'package:bluetooth_app/services/image_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/services.dart';
-import 'package:bluetooth_app/tools/extra.dart';
+import 'package:bluetooth_app/clean/core/tools/extra.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';

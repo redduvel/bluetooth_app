@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     text: 'Войти',
                     onPressed: () {
                       if (nameController.text == "1" && passwordController.text == '1') {
-                        context.read<NavigationBloc>().add(NavigateTo(CategoryScreen()));
+                        context.read<NavigationBloc>().add(NavigateTo(const CategoryScreen()));
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminScreen()));
                       }
                     },

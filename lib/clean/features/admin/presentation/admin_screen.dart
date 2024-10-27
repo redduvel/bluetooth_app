@@ -24,7 +24,7 @@ class AdminScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
       ),
-      body: AdminBody(),
+      body: const AdminBody(),
       drawer: (Platform.isAndroid || Platform.isIOS)
           ? Drawer(
               child: NavigationPage(
@@ -65,7 +65,7 @@ class AdminScreen extends StatelessWidget {
                         text: 'Выйти',
                         width: double.infinity,
                         onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
                           context.read<NavigationBloc>().add(NavigateTo(const LoginScreen()));
                         },
                         icon: Icons.logout)

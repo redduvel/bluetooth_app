@@ -1,9 +1,11 @@
-import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
-import 'package:bluetooth_app/bloc/printer/printer.event.dart';
-import 'package:bluetooth_app/bloc/printer/printer.state.dart';
+
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
-import 'package:bluetooth_app/widgets/text_feild.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -65,28 +67,32 @@ class _PrintingSettingPageState extends State<PrintingSettingPage> {
                                 TextEditingController(
                                     text:  printerBloc.labelGap);
                             return AlertDialog(
-                              title: const Text('Настройки этикетки'),
+                              title: const Text('Настройка этикетки', style: AppTextStyles.labelMedium18,),
+                              backgroundColor: AppColors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4)
+                              ),
+                              contentPadding: const EdgeInsets.all(2),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  TextInput(
+                                  PrimaryTextField(
                                       controller: heightController,
                                       hintText: '20',
-                                      labelText: 'Высота этикетки (mm)'),
-                                  TextInput(
+                                      width: double.infinity,
+                                      ),
+                                  PrimaryTextField(
                                       controller: widthController,
                                       hintText: '30',
-                                      labelText: 'Ширина этикетки (mm)'),
-                                  TextInput(
+                                      width: double.infinity,),
+                                  PrimaryTextField(
                                       controller: gapController,
                                       hintText: '2',
-                                      labelText:
-                                          'Расстояние между этикетками (mm)'),
+                                      width: double.infinity,),
                                 ],
                               ),
                               actions: [
-                                ElevatedButton(
-                                    onPressed: () {
+                                PrimaryButtonIcon(text: 'Сохранить', icon: Icons.save, onPressed: () {
                                        printerBloc.add(SetSettings(
                                           height: heightController.text,
                                           width: widthController.text,
@@ -96,8 +102,8 @@ class _PrintingSettingPageState extends State<PrintingSettingPage> {
                                               content: Text(
                                                   'Настройки этикетки изменены!')));
                                       Navigator.pop(context);
-                                    },
-                                    child: const Text('Подтвердить'))
+                                    },)
+                                
                               ],
                             );
                           });

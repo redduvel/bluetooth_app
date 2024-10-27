@@ -1,6 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
-import 'package:bluetooth_app/bloc/printer/printer.event.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
@@ -10,12 +8,15 @@ import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:bluetooth_app/clean/features/printing/Domain/usecase/printing_usecase.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/clock_widget.dart';
-import 'package:bluetooth_app/core/constants/ui_const.dart';
-import 'package:bluetooth_app/models/employee.dart';
+import 'package:bluetooth_app/clean/core/constants/ui_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:universal_io/io.dart';
 
 class ProductWidget extends StatefulWidget {
@@ -333,7 +334,7 @@ class _ProductWidgetState extends State<ProductWidget> {
                 onPressed: () {
                   context.read<PrinterBloc>().add(PrintLabel(
                         product: widget.product,
-                        employee: Employee(fullName: 'fullName'),
+                        employee: context.read<DBBloc<User>>().repository.currentItem,
                         startDate:
                             adjustmentType ? customEndDate : DateTime.now(),
                         characteristicIndex: selectedCharacteristic,
@@ -448,4 +449,95 @@ class _ProductWidgetState extends State<ProductWidget> {
       ),
     ));
   }
+
+  // для печати с отложенной датой
+  void _showScheduleBottomSheet(BuildContext context) {
+    if (selectedCharacteristic >= widget.product.characteristics.length) {
+      setState(() {
+        selectedCharacteristic = 0;
+      });
+    }
+    if (widget.product.characteristics.isNotEmpty) {
+      setState(() {
+        adjustmentDateTime = startDate;
+        adjustmentDateTime = PrintingUsecase.setAdjustmentTime(adjustmentDateTime,
+            widget.product.characteristics[selectedCharacteristic]);
+      });
+    }
+    showBarModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SizedBox(
+            height: MediaQuery.of(context).size.height - 50,
+            child: _buildScheduleBottomSheetContent(context));
+      },
+    ).whenComplete(() {
+      startDate = DateTime.now();
+      customEndDate = DateTime.now();
+      adjustmentDateTime = DateTime.now();
+    });
+  }
+
+  Widget _buildScheduleBottomSheetContent(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Text(
+                  'Печать этикетки: ${widget.product.title}',
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w500),
+                ),
+              ),
+              const SliverToBoxAdapter(child: Divider()),
+              _buildLabelTemplate(
+                  context,
+                  widget.product,
+                  context.read<DBBloc<User>>().repository.currentItem,
+                  true),
+              const SliverToBoxAdapter(child: Divider()),
+              if (widget.product.characteristics.isNotEmpty)
+                _buildChoiceChips(setState),
+              const SliverToBoxAdapter(child: Divider()),
+              _buildDatePickerButton(context, setState),
+              const SliverToBoxAdapter(child: Divider()),
+              _buildPrintQuantityButton(context, true),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDatePickerButton(
+      BuildContext context, void Function(void Function()) setState) {
+    return SliverToBoxAdapter(
+      child: ElevatedButton(
+        onPressed: () {
+          DatePicker.showDateTimePicker(context,
+              showTitleActions: true,
+              minTime: DateTime(2024, 1, 1),
+              maxTime: DateTime(2100, 12, 29), onConfirm: (date) {
+            setState(() {
+              customEndDate = date;
+            });
+          }, onChanged: (time) {
+            setState(() {
+              customEndDate = time;
+
+              adjustmentDateTime =PrintingUsecase.setAdjustmentTime(
+                  time, widget.product.characteristics[selectedCharacteristic]);
+            });
+          }, currentTime: customEndDate, locale: LocaleType.ru);
+        },
+        child: const Text('Выбрать дату отсчета'),
+      ),
+    );
+  }
+
+  
+
 }

@@ -98,7 +98,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ),
 
             if (Platform.isAndroid || Platform.isIOS)
-            IconButton(onPressed: () => bloc.add(Sync<Category>()), icon: Icon(Icons.sync))
+            IconButton(onPressed: () => bloc.add(Sync<Category>()), icon: const Icon(Icons.sync))
           ],
         ),
         SliverToBoxAdapter(

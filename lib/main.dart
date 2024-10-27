@@ -1,5 +1,4 @@
-import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
-import 'package:bluetooth_app/bloc/printer/printer.event.dart';
+
 import 'package:bluetooth_app/clean/core/Data/datasource/local/local_db.dart';
 import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/category_repository.dart';
@@ -14,6 +13,8 @@ import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navig
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/dashboard_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/cubit/dropdown_controller.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
 //import 'package:bluetooth_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -65,17 +66,17 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => DropdownCubit<Category>()),
         BlocProvider(
           create: (context) {
-            return DBBloc(UserRepository(repositoryName: 'users'))..add(LoadItems<User>());
+            return DBBloc(UserRepository(repositoryName: 'users'))..add(Sync<User>());
           },
         ),
         BlocProvider(
           create: (context) {
-            return DBBloc(ProductRepository(repositoryName: 'products'))..add(LoadItems<Product>());
+            return DBBloc(ProductRepository(repositoryName: 'products'))..add(Sync<Product>());
           },
         ),
         BlocProvider(
           create: (context) {
-            return DBBloc(CategoryRepository(repositoryName: 'categories'))..add(LoadItems<Category>());
+            return DBBloc(CategoryRepository(repositoryName: 'categories'))..add(Sync<Category>());
               
           },
         ),

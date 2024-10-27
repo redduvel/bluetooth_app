@@ -1,5 +1,4 @@
-import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
-import 'package:bluetooth_app/bloc/printer/printer.state.dart';
+
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
@@ -7,6 +6,8 @@ import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/employee_screen.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/category_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
@@ -48,7 +49,7 @@ class _PrintingScreenState extends State<PrintingScreen> {
                 }
 
                 return IconButton(
-                  onPressed: () => context.read<NavigationBloc>().add(NavigateTo(PrintingSettingPage())),
+                  onPressed: () => context.read<NavigationBloc>().add(NavigateTo(const PrintingSettingPage())),
                   icon: Icon(
                     context.read<PrinterBloc>().connectedDevice != null
                         ? Icons.print
@@ -91,7 +92,7 @@ class _PrintingScreenState extends State<PrintingScreen> {
                     text: 'Выйти',
                     width: double.infinity,
                     onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
                       context
                           .read<NavigationBloc>()
                           .add(NavigateTo(const EmployeeScreen()));

@@ -1,10 +1,10 @@
-import 'package:bluetooth_app/bloc/printer/printer.bloc.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_appbar.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/product_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +37,7 @@ class _PrintingPageState extends State<PrintingPage> {
       backgroundColor: AppColors.white,
       appBar: (Platform.isMacOS || Platform.isWindows)
           ? PrimaryAppBar(
-              title: 'Управление продуктами',
+              title: 'Печать маркировок',
               titleStyle: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
               buttons: [
                 BlocBuilder<DBBloc<Product>, DBState<Product>>(
@@ -63,7 +63,7 @@ class _PrintingPageState extends State<PrintingPage> {
             SliverAppBar(
               backgroundColor: AppColors.white,
               title: Text(
-                'Управление продуктами',
+                'Печать маркировок',
                 style: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
               ),
               centerTitle: false,

@@ -71,7 +71,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             ),
 
             if (Platform.isAndroid || Platform.isIOS)
-            IconButton(onPressed: () => bloc.add(Sync<User>()), icon: Icon(Icons.sync))
+            IconButton(onPressed: () => bloc.add(Sync<User>()), icon: const Icon(Icons.sync))
           ],
         ),
         SliverToBoxAdapter(
