@@ -1,7 +1,8 @@
-import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class LocalDB {
@@ -17,10 +18,13 @@ class LocalDB {
     Hive.registerAdapter(CategoryAdapter());
     Hive.registerAdapter(CharacteristicAdapter());
     Hive.registerAdapter(MeasurementUnitAdapter());
+    Hive.registerAdapter(MarkingStatusAdapter());
+    Hive.registerAdapter(MarkingAdapter());
 
     await Hive.openBox<User>('users');
     await Hive.openBox<Category>('categories');
     await Hive.openBox<Product>('products');
+    await Hive.openBox<Marking>('markings');
     await Hive.openBox('settings');
   }
 }

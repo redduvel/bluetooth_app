@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

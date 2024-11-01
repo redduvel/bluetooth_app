@@ -1,7 +1,7 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:flutter/material.dart';

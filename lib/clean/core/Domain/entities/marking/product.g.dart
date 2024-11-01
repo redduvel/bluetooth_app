@@ -24,13 +24,14 @@ class ProductAdapter extends TypeAdapter<Product> {
       category: fields[4] as Category,
       isHide: fields[5] as bool,
       allowFreeTime: fields[6] as bool,
+      backgroundColor: fields[7] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Product obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class ProductAdapter extends TypeAdapter<Product> {
       ..writeByte(5)
       ..write(obj.isHide)
       ..writeByte(6)
-      ..write(obj.allowFreeTime);
+      ..write(obj.allowFreeTime)
+      ..writeByte(7)
+      ..write(obj.backgroundColor);
   }
 
   @override

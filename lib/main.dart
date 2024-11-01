@@ -1,13 +1,13 @@
-
 import 'package:bluetooth_app/clean/core/Data/datasource/local/local_db.dart';
 import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/category_repository.dart';
+import 'package:bluetooth_app/clean/core/Data/repositories/marking_repositore.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/product_repository.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/user_repository.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/dashboard_screen.dart';
@@ -66,18 +66,25 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => DropdownCubit<Category>()),
         BlocProvider(
           create: (context) {
-            return DBBloc(UserRepository(repositoryName: 'users'))..add(Sync<User>());
+            return DBBloc(UserRepository(repositoryName: 'users'))
+              ..add(Sync<User>());
           },
         ),
         BlocProvider(
           create: (context) {
-            return DBBloc(ProductRepository(repositoryName: 'products'))..add(Sync<Product>());
+            return DBBloc(ProductRepository(repositoryName: 'products'))
+              ..add(Sync<Product>());
           },
         ),
         BlocProvider(
           create: (context) {
-            return DBBloc(CategoryRepository(repositoryName: 'categories'))..add(Sync<Category>());
-              
+            return DBBloc(CategoryRepository(repositoryName: 'categories'))
+              ..add(Sync<Category>());
+          },
+        ),
+        BlocProvider(
+          create: (context) {
+            return DBBloc(MarkingRepositore(repositoryName: 'markings'));
           },
         ),
         BlocProvider(create: (context) {

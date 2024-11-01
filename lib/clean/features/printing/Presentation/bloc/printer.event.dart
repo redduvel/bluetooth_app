@@ -1,5 +1,5 @@
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:equatable/equatable.dart';
 

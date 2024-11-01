@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/clock_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

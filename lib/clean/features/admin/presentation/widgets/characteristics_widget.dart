@@ -1,5 +1,5 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';

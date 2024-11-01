@@ -22,18 +22,20 @@ class Product extends HiveObject {
   final bool isHide;
   @HiveField(6)
   final bool allowFreeTime;
+  @HiveField(7) // Новое поле для локального хранения
+  int? backgroundColor;
 
-  Product(
-      {String? id,
-      required this.title,
-      required this.subtitle,
-      required this.characteristics,
-      required this.category,
-      required this.isHide,
-      required this.allowFreeTime})
-      : id = id ?? IdGenerator.generate();
+  Product({
+    String? id,
+    required this.title,
+    required this.subtitle,
+    required this.characteristics,
+    required this.category,
+    required this.isHide,
+    required this.allowFreeTime,
+    this.backgroundColor, // Инициализация цвета
+  }) : id = id ?? IdGenerator.generate();
 
-  // Метод для копирования объекта
   Product copyWith({
     String? id,
     String? title,
@@ -41,7 +43,8 @@ class Product extends HiveObject {
     List<Characteristic>? characteristics,
     Category? category,
     bool? isHide,
-    bool? allowFreeTime
+    bool? allowFreeTime,
+    int? backgroundColor, // Обновление цвета
   }) {
     return Product(
       id: id ?? this.id,
@@ -50,11 +53,11 @@ class Product extends HiveObject {
       characteristics: characteristics ?? this.characteristics,
       category: category ?? this.category,
       isHide: isHide ?? this.isHide,
-      allowFreeTime: allowFreeTime ?? this.allowFreeTime
+      allowFreeTime: allowFreeTime ?? this.allowFreeTime,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
     );
   }
 
-  // Метод для сериализации в JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -64,10 +67,10 @@ class Product extends HiveObject {
       'category': category.id,
       'isHide': isHide,
       'allowFreeMarking': allowFreeTime,
+      // backgroundColor не добавляется в JSON для удаленной базы
     };
   }
 
-  // Метод для десериализации из JSON
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'],
@@ -79,6 +82,12 @@ class Product extends HiveObject {
       category: Category.fromJson(json['category']),
       isHide: json['isHide'],
       allowFreeTime: json['allowFreeMarking'],
+      // backgroundColor не загружается из JSON удаленной базы
     );
+  }
+
+  Product setColor(int color) {
+    backgroundColor = color;
+    return this;
   }
 }

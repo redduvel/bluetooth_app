@@ -1,4 +1,4 @@
-import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 
 class PrintingUsecase {
   static DateTime setAdjustmentTime(

@@ -1,9 +1,9 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_appbar.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
@@ -184,8 +184,8 @@ class _ProductScreenState extends State<ProductScreen> {
                           children: [
                             SelectedCategoryWidget(
                                 controller: categoryController),
-                            AllowFreeMarkingWidget(
-                                allowFreeMarking: checkAllowFreeTime)
+                            CheckBox(
+                                value: checkAllowFreeTime, title: 'Разрешить свободную маркировку?',)
                           ],
                         )
                       : Column(
@@ -193,8 +193,8 @@ class _ProductScreenState extends State<ProductScreen> {
                           children: [
                             SelectedCategoryWidget(
                                 controller: categoryController),
-                            AllowFreeMarkingWidget(
-                                allowFreeMarking: checkAllowFreeTime)
+                            CheckBox(
+                                value: checkAllowFreeTime, title: 'Разрешить свободную маркировку?',)
                           ],
                         )),
             ),

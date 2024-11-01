@@ -3,32 +3,33 @@ import 'package:flutter/material.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 // ignore: must_be_immutable
-class AllowFreeMarkingWidget extends StatefulWidget {
-  late bool allowFreeMarking;
-  AllowFreeMarkingWidget({super.key, required this.allowFreeMarking});
+class CheckBox extends StatefulWidget {
+  final String title;
+  late bool value;
+  CheckBox({super.key, required this.value, required this.title});
 
   @override
-  State<AllowFreeMarkingWidget> createState() => _AllowFreeMarkingWidgetState();
+  State<CheckBox> createState() => _CheckBoxState();
 }
 
-class _AllowFreeMarkingWidgetState extends State<AllowFreeMarkingWidget> {
+class _CheckBoxState extends State<CheckBox> {
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Разрешить свободную маркировку?',
+        Text(
+          widget.title,
           style: AppTextStyles.labelMedium18,
         ),
         const SizedBox(
           width: 10,
         ),
         RoundCheckBox(
-          isChecked: widget.allowFreeMarking,
+          isChecked: widget.value,
           onTap: (selected) {
           setState(() {
-            widget.allowFreeMarking = !widget.allowFreeMarking;
+            widget.value = !widget.value;
           });
         }),
       ],

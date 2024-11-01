@@ -2,9 +2,10 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/characteristic.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:bluetooth_app/clean/features/printing/Domain/usecase/printing_usecase.dart';
@@ -30,6 +31,8 @@ class ProductWidget extends StatefulWidget {
 }
 
 class _ProductWidgetState extends State<ProductWidget> {
+  bool saveMarking = false;
+
   Color backgroundColor = AppColors.surface;
 
   TextEditingController customPrintController = TextEditingController();
@@ -62,14 +65,17 @@ class _ProductWidgetState extends State<ProductWidget> {
       },
       onTap: () {
         _showPrintBottomSheet(context);
-        
       },
       child: Container(
-        width: (Platform.isMacOS || Platform.isWindows) ? 200 : (MediaQuery.of(context).size.width - 20 - 16)/2,
+        width: (Platform.isMacOS || Platform.isWindows)
+            ? 200
+            : (MediaQuery.of(context).size.width - 20 - 16) / 2,
         height: 175,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-            color: backgroundColor, borderRadius: BorderRadius.circular(8)),
+            color: Color(widget.product.backgroundColor ??
+                AppColors.secondaryButton.value),
+            borderRadius: BorderRadius.circular(8)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,11 +108,59 @@ class _ProductWidgetState extends State<ProductWidget> {
                         'Изменить данные',
                         style: AppTextStyles.bodyMedium16,
                       )),
-                      const PopupMenuItem(
-                          child: Text(
-                        'Изменить оформление',
-                        style: AppTextStyles.bodyMedium16,
-                      )),
+                      PopupMenuItem(
+                        child: const Text(
+                          'Изменить оформление',
+                          style: AppTextStyles.bodyMedium16,
+                        ),
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => Dialog(
+                                    backgroundColor: AppColors.surface,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4)),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(25),
+                                      child: Wrap(
+                                        spacing: 10,
+                                        runSpacing: 10,
+                                        children: List.generate(
+                                            AppColors.backgroundColors.length,
+                                            (index) {
+                                          Color backgroundColor =
+                                              AppColors.backgroundColors[index];
+
+                                          return InkWell(
+                                            onTap: () {
+                                              widget.product.setColor(
+                                                  backgroundColor.value);
+                                              widget.bloc.add(UpdateItem(
+                                                  widget.product.copyWith(
+                                                      backgroundColor:
+                                                          backgroundColor
+                                                              .value)));
+                                              Navigator.pop(context);
+                                            },
+                                            child: Card(
+                                              color: backgroundColor,
+                                              child: Container(
+                                                width: 150,
+                                                height: 150,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  color: backgroundColor,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    ),
+                                  ));
+                        },
+                      ),
                       PopupMenuItem(
                         child: Text(
                           widget.product.isHide
@@ -184,42 +238,66 @@ class _ProductWidgetState extends State<ProductWidget> {
     return StatefulBuilder(
       builder: (context, setState) {
         return Dialog(
+          
           backgroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4)
-          ),
-          child: CustomScrollView(
-            shrinkWrap: (Platform.isIOS || Platform.isAndroid),
-            slivers: [
-              SliverAppBar(
-                backgroundColor: AppColors.white,
-                automaticallyImplyLeading: false,
-                title: Text(
-                  'Печать этикетки: ${widget.product.title}',
-                  style: AppTextStyles.labelMedium18
-                      .copyWith(fontSize: 22, fontWeight: FontWeight.w500),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          child: Center(
+
+            child: CustomScrollView(
+              shrinkWrap: (Platform.isIOS || Platform.isAndroid),
+              slivers: [
+                SliverAppBar(
+                  backgroundColor: AppColors.white,
+                  automaticallyImplyLeading: false,
+                  title: Text(
+                    'Печать этикетки: ${widget.product.title}',
+                    style: AppTextStyles.labelMedium18
+                        .copyWith(fontSize: 22, fontWeight: FontWeight.w500),
+                  ),
                 ),
-              ),
-              if (widget.product.characteristics.isNotEmpty)
-                _buildLabelTemplate(context, widget.product,
-                    context.read<DBBloc<User>>().repository.currentItem, false,
-                    startDate: startDate),
-              if (widget.product.characteristics.isEmpty)
-                _buildEmptyLabelTemplate(
-                  context,
-                  widget.product,
-                  context.read<DBBloc<User>>().repository.currentItem,
+                if (widget.product.characteristics.isNotEmpty)
+                  _buildLabelTemplate(context, widget.product,
+                      context.read<DBBloc<User>>().repository.currentItem, false,
+                      startDate: startDate),
+                if (widget.product.characteristics.isEmpty)
+                  _buildEmptyLabelTemplate(
+                    context,
+                    widget.product,
+                    context.read<DBBloc<User>>().repository.currentItem,
+                  ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 10),
                 ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 10),
-              ),
-              if (widget.product.characteristics.isNotEmpty)
-                _buildChoiceChips(setState),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 10),
-              ),
-              _buildPrintQuantityButton(context, false),
-            ],
+                if (widget.product.characteristics.isNotEmpty)
+                  _buildChoiceChips(setState),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 10),
+                ),
+                SliverToBoxAdapter(
+                  child: Center(
+                      child: SizedBox(
+                        width: 300,
+                        child: CheckboxListTile(
+                            value: saveMarking,
+                            checkColor: AppColors.white,
+                            activeColor: AppColors.primary,
+                            
+                            onChanged: (value) {
+                              setState(() {
+                                saveMarking = value ?? !saveMarking;
+                              });
+                            },
+                            title: const Text('Сохранить в журнал?', style: AppTextStyles.bodyMedium16,),),
+                      )),
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 10,
+                  ),
+                ),
+                _buildPrintQuantityButton(context, false),
+              ],
+            ),
           ),
         );
       },
@@ -297,7 +375,6 @@ class _ProductWidgetState extends State<ProductWidget> {
                       controller: controller,
                       textAlign: TextAlign.center,
                       width: 300,
-                      
                       hintText: 'Количество этикеток',
                       onSubmitted: (value) {
                         setState(() {
@@ -332,9 +409,24 @@ class _ProductWidgetState extends State<ProductWidget> {
                 icon: Icons.print,
                 selected: true,
                 onPressed: () {
+                  if (saveMarking) {
+                    context.read<DBBloc<Marking>>().add(AddItem(Marking(
+                        product: widget.product,
+                        user:
+                            context.read<DBBloc<User>>().repository.currentItem,
+                        category: widget.product.category,
+                        startDate:
+                            adjustmentType ? customEndDate : DateTime.now(),
+                        endDate: PrintingUsecase.setAdjustmentTime(
+                            adjustmentType ? customEndDate : DateTime.now(),
+                            widget.product
+                                .characteristics[selectedCharacteristic]),
+                        count: count)));
+                  }
                   context.read<PrinterBloc>().add(PrintLabel(
                         product: widget.product,
-                        employee: context.read<DBBloc<User>>().repository.currentItem,
+                        employee:
+                            context.read<DBBloc<User>>().repository.currentItem,
                         startDate:
                             adjustmentType ? customEndDate : DateTime.now(),
                         characteristicIndex: selectedCharacteristic,
@@ -342,8 +434,6 @@ class _ProductWidgetState extends State<ProductWidget> {
                       ));
                 },
               ),
-             
-              
             ],
           );
         },
@@ -383,7 +473,6 @@ class _ProductWidgetState extends State<ProductWidget> {
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w500),
                     maxLines: 1,
-                    
                     maxFontSize: 22,
                     minFontSize: 14,
                   )
@@ -460,7 +549,8 @@ class _ProductWidgetState extends State<ProductWidget> {
     if (widget.product.characteristics.isNotEmpty) {
       setState(() {
         adjustmentDateTime = startDate;
-        adjustmentDateTime = PrintingUsecase.setAdjustmentTime(adjustmentDateTime,
+        adjustmentDateTime = PrintingUsecase.setAdjustmentTime(
+            adjustmentDateTime,
             widget.product.characteristics[selectedCharacteristic]);
       });
     }
@@ -493,11 +583,8 @@ class _ProductWidgetState extends State<ProductWidget> {
                 ),
               ),
               const SliverToBoxAdapter(child: Divider()),
-              _buildLabelTemplate(
-                  context,
-                  widget.product,
-                  context.read<DBBloc<User>>().repository.currentItem,
-                  true),
+              _buildLabelTemplate(context, widget.product,
+                  context.read<DBBloc<User>>().repository.currentItem, true),
               const SliverToBoxAdapter(child: Divider()),
               if (widget.product.characteristics.isNotEmpty)
                 _buildChoiceChips(setState),
@@ -528,7 +615,7 @@ class _ProductWidgetState extends State<ProductWidget> {
             setState(() {
               customEndDate = time;
 
-              adjustmentDateTime =PrintingUsecase.setAdjustmentTime(
+              adjustmentDateTime = PrintingUsecase.setAdjustmentTime(
                   time, widget.product.characteristics[selectedCharacteristic]);
             });
           }, currentTime: customEndDate, locale: LocaleType.ru);
@@ -537,7 +624,4 @@ class _ProductWidgetState extends State<ProductWidget> {
       ),
     );
   }
-
-  
-
 }

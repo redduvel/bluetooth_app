@@ -1,6 +1,6 @@
 import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repository.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/category.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class CategoryRepository implements IRepository<Category> {

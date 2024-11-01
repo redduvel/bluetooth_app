@@ -1,6 +1,6 @@
 import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repository.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class ProductRepository implements IRepository<Product> {
@@ -39,8 +39,9 @@ class ProductRepository implements IRepository<Product> {
 
             for (Product product in remoteData) {
               if (localProductMap.containsKey(product.id)) {
-                final localCategory = localProductMap[product.id];
-                if (localCategory != product) {
+                final localProduct = localProductMap[product.id];
+                if (localProduct != product) {
+                  product.backgroundColor = localProduct!.backgroundColor;
                   await update(product);
                 }
               } else {
