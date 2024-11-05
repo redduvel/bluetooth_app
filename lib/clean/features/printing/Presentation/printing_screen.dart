@@ -9,6 +9,7 @@ import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/employ
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/category_page.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/body.dart';
@@ -73,8 +74,8 @@ class _PrintingScreenState extends State<PrintingScreen> {
                   icon: Icons.egg_alt,
                 ),
                 PrimaryButtonIcon(
-                  toPage: const CategoryPage(),
-                  text: 'Категории',
+                  toPage: const DashboardPage(),
+                  text: 'Журнал',
                   icon: Icons.category,
                 ),
                 PrimaryButtonIcon(

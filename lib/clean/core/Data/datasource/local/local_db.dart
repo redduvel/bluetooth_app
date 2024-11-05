@@ -11,7 +11,7 @@ class LocalDB {
   static LocalDB get instance => _instance ??= LocalDB._();
 
   static void createDB() async {
-    await Hive.initFlutter('db3');
+    await Hive.initFlutter('db5');
 
     Hive.registerAdapter(UserAdapter());
     Hive.registerAdapter(ProductAdapter());
@@ -21,10 +21,10 @@ class LocalDB {
     Hive.registerAdapter(MarkingStatusAdapter());
     Hive.registerAdapter(MarkingAdapter());
 
+    await Hive.openBox<Marking>('markings');
     await Hive.openBox<User>('users');
     await Hive.openBox<Category>('categories');
     await Hive.openBox<Product>('products');
-    await Hive.openBox<Marking>('markings');
     await Hive.openBox('settings');
   }
 }

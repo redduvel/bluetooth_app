@@ -1,5 +1,6 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
 import 'package:flutter/material.dart';
 
 enum MarkerStatus { normal, warning, timeIsUp, none }
@@ -58,7 +59,30 @@ DataCell _createStatus(MarkerStatus status) {
   }
 }
 
-Widget _createTimeOut(MarkerStatus status, int dayOut) {
+MarkerStatus calculateTimeStatus(DateTime startDate, DateTime endDate) {
+  final currentTime = DateTime.now();
+
+  if (currentTime.isBefore(startDate)) {
+    return MarkerStatus.normal;
+  }
+
+  if (currentTime.isAfter(endDate)) {
+    return MarkerStatus.timeIsUp;
+  }
+
+  final totalDuration = endDate.difference(startDate).inMilliseconds;
+  final elapsedDuration = currentTime.difference(startDate).inMilliseconds;
+  final remainingPercentage = 1 - (elapsedDuration / totalDuration);
+
+  if (remainingPercentage >= 0.5) {
+    return MarkerStatus.normal;
+  } else {
+    return MarkerStatus.warning;
+  }
+}
+
+Widget _createTimeOut(
+    MarkerStatus status, int dayOut, DateTime startDate, DateTime endDate) {
   Color surface = switch (status) {
     MarkerStatus.normal => AppColors.greenSurface,
     MarkerStatus.warning => AppColors.yellowSurface,
@@ -80,23 +104,70 @@ Widget _createTimeOut(MarkerStatus status, int dayOut) {
       ),
       padding: const EdgeInsets.all(4),
       child: Text(
-        '$dayOut суток',
+        calculateRemainingTime(startDate, endDate),
         style:
             AppTextStyles.bodyMedium16.copyWith(color: onSurface, fontSize: 12),
       ));
 }
 
-DataRow createDataRow(String name, MarkerStatus status, double progressValue,
-    double percent, int dayOut, int count) {
+double calculateRemainingPercentage(DateTime startDate, DateTime endDate) {
+  final currentTime = DateTime.now();
+
+  if (currentTime.isBefore(startDate)) {
+    // Если текущая дата еще до начала периода, возвращаем 100%
+    return 100.0;
+  }
+
+  if (currentTime.isAfter(endDate)) {
+    // Если текущая дата после окончания периода, возвращаем 0%
+    return 0.0;
+  }
+
+  // Вычисляем процент оставшегося времени
+  final totalDuration = endDate.difference(startDate).inMilliseconds;
+  final elapsedDuration = currentTime.difference(startDate).inMilliseconds;
+  final remainingPercentage =
+      ((totalDuration - elapsedDuration) / totalDuration) * 100;
+
+  return remainingPercentage;
+}
+
+String calculateRemainingTime(DateTime startDate, DateTime endDate) {
+  final currentTime = DateTime.now();
+
+  // Если текущее время до начала периода, считаем оставшееся время с начала
+  DateTime effectiveStartDate =
+      currentTime.isBefore(startDate) ? startDate : currentTime;
+
+  // Если текущее время уже после конца периода, возвращаем "0 минут"
+  if (currentTime.isAfter(endDate)) {
+    return "0 минут";
+  }
+
+  final remainingDuration = endDate.difference(effectiveStartDate);
+
+  if (remainingDuration.inDays >= 1) {
+    // Если осталось больше или равно 1 дню
+    return "${remainingDuration.inDays} дней";
+  } else if (remainingDuration.inHours >= 1) {
+    // Если осталось меньше 1 дня, но больше или равно 1 часа
+    return "${remainingDuration.inHours} часов";
+  } else {
+    // Если осталось меньше часа, выводим минуты
+    return "${remainingDuration.inMinutes} минут";
+  }
+}
+
+DataRow createDataRow(Marking m) {
   return DataRow(cells: [
     DataCell(Text(
-      name,
+      m.product.title,
       overflow: TextOverflow.ellipsis,
       style: AppTextStyles.bodyMedium16,
     )),
-    _createStatus(status),
+    _createStatus(calculateTimeStatus(m.startDate, m.endDate)),
     DataCell(Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Stack(
           children: [
@@ -105,7 +176,7 @@ DataRow createDataRow(String name, MarkerStatus status, double progressValue,
                 borderRadius: BorderRadius.circular(10),
                 color: AppColors.surface,
               ),
-              width: 100,
+              width: 100 / 2,
               height: 4,
             ),
             Container(
@@ -113,7 +184,7 @@ DataRow createDataRow(String name, MarkerStatus status, double progressValue,
                 borderRadius: BorderRadius.circular(10),
                 color: AppColors.text,
               ),
-              width: progressValue,
+              width: calculateRemainingPercentage(m.startDate, m.endDate) / 2,
               height: 4,
             ),
           ],
@@ -121,13 +192,16 @@ DataRow createDataRow(String name, MarkerStatus status, double progressValue,
         const SizedBox(
           width: 5,
         ),
-        Text('$percent%'),
-        const SizedBox(
+        Text(
+            '${calculateRemainingPercentage(m.startDate, m.endDate).toStringAsFixed(0)}%'),
+        SizedBox(
           width: 5,
         ),
-        _createTimeOut(status, dayOut),
+        _createTimeOut(calculateTimeStatus(m.startDate, m.endDate), 100,
+          m.startDate, m.endDate),
       ],
     )),
-    DataCell(Text('$count')),
+    
+    DataCell(Text('${m.count}')),
   ]);
 }

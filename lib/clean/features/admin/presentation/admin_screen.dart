@@ -4,7 +4,7 @@ import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navig
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/category_screen.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/dashboard_screen.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/employee_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/product_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
@@ -31,7 +31,7 @@ class AdminScreen extends StatelessWidget {
               controls: [
                 [
                   PrimaryButtonIcon(
-                    toPage: const DashboardScreen(),
+                    toPage: const DashboardPage(),
                     text: 'Доска (демо версия журнала)',
                     width: double.infinity,
                     icon: Icons.dashboard,

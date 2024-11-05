@@ -5,6 +5,7 @@ import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/employee_screen.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/category_page.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
 import 'package:flutter/material.dart';
@@ -36,8 +37,8 @@ class _PrintingBodyState extends State<PrintingBody> {
                       icon: Icons.egg_alt,
                     ),
                     PrimaryButtonIcon(
-                      toPage: const CategoryPage(),
-                      text: 'Категории',
+                      toPage: const DashboardPage(),
+                      text: 'Журнал',
                       icon: Icons.category,
                     ),
                     PrimaryButtonIcon(

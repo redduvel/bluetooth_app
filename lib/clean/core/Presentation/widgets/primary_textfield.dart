@@ -9,6 +9,7 @@ class PrimaryTextField extends StatelessWidget {
   final EdgeInsets? margin;
   final IconData? icon;
   final void Function(String)? onSubmitted;
+  final void Function(String)? onChanged;
   final TextInputType? keyboardType;
   final TextAlign? textAlign;
 
@@ -18,7 +19,7 @@ class PrimaryTextField extends StatelessWidget {
       required this.width,
       required this.hintText,
       this.margin,
-      this.icon, this.onSubmitted, this.keyboardType, this.textAlign, });
+      this.icon, this.onSubmitted, this.keyboardType, this.textAlign, this.onChanged, });
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +32,7 @@ class PrimaryTextField extends StatelessWidget {
           keyboardType: keyboardType,
           controller: controller,
           onSubmitted: onSubmitted,
+          onChanged: onChanged,
           decoration: InputDecoration(
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(

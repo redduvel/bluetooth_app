@@ -8,9 +8,10 @@ import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/dashboard_screen.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/cubit/dropdown_controller.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
@@ -88,7 +89,7 @@ class App extends StatelessWidget {
           },
         ),
         BlocProvider(create: (context) {
-          return NavigationBloc(InitialState(const DashboardScreen()));
+          return NavigationBloc(InitialState(const DashboardPage()));
         }),
         BlocProvider(create: (context) {
           return PrinterBloc()..add(CheckConnection());

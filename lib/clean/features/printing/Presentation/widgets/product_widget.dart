@@ -88,9 +88,13 @@ class _ProductWidgetState extends State<ProductWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      widget.product.title,
-                      style: AppTextStyles.labelMedium18,
+                    SizedBox(
+                      width: 100,
+                      child: Text(
+                        widget.product.title,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.labelMedium18,
+                      ),
                     ),
                     Text(
                       widget.product.category.name,
@@ -145,8 +149,8 @@ class _ProductWidgetState extends State<ProductWidget> {
                                             child: Card(
                                               color: backgroundColor,
                                               child: Container(
-                                                width: 150,
-                                                height: 150,
+                                                width: 100,
+                                                height: 100,
                                                 decoration: BoxDecoration(
                                                   borderRadius:
                                                       BorderRadius.circular(4),
@@ -238,11 +242,9 @@ class _ProductWidgetState extends State<ProductWidget> {
     return StatefulBuilder(
       builder: (context, setState) {
         return Dialog(
-          
           backgroundColor: AppColors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           child: Center(
-
             child: CustomScrollView(
               shrinkWrap: (Platform.isIOS || Platform.isAndroid),
               slivers: [
@@ -256,8 +258,11 @@ class _ProductWidgetState extends State<ProductWidget> {
                   ),
                 ),
                 if (widget.product.characteristics.isNotEmpty)
-                  _buildLabelTemplate(context, widget.product,
-                      context.read<DBBloc<User>>().repository.currentItem, false,
+                  _buildLabelTemplate(
+                      context,
+                      widget.product,
+                      context.read<DBBloc<User>>().repository.currentItem,
+                      false,
                       startDate: startDate),
                 if (widget.product.characteristics.isEmpty)
                   _buildEmptyLabelTemplate(
@@ -276,19 +281,22 @@ class _ProductWidgetState extends State<ProductWidget> {
                 SliverToBoxAdapter(
                   child: Center(
                       child: SizedBox(
-                        width: 300,
-                        child: CheckboxListTile(
-                            value: saveMarking,
-                            checkColor: AppColors.white,
-                            activeColor: AppColors.primary,
-                            
-                            onChanged: (value) {
-                              setState(() {
-                                saveMarking = value ?? !saveMarking;
-                              });
-                            },
-                            title: const Text('Сохранить в журнал?', style: AppTextStyles.bodyMedium16,),),
-                      )),
+                    width: 300,
+                    child: CheckboxListTile(
+                      value: saveMarking,
+                      checkColor: AppColors.white,
+                      activeColor: AppColors.primary,
+                      onChanged: (value) {
+                        setState(() {
+                          saveMarking = value ?? !saveMarking;
+                        });
+                      },
+                      title: const Text(
+                        'Сохранить в журнал?',
+                        style: AppTextStyles.bodyMedium16,
+                      ),
+                    ),
+                  )),
                 ),
                 const SliverToBoxAdapter(
                   child: SizedBox(
@@ -376,6 +384,16 @@ class _ProductWidgetState extends State<ProductWidget> {
                       textAlign: TextAlign.center,
                       width: 300,
                       hintText: 'Количество этикеток',
+                      onChanged: (value) {
+                        setState(() {
+                          final parsedValue = int.tryParse(value);
+                          if (parsedValue != null && parsedValue > 0) {
+                            count = parsedValue;
+                          } else {
+                            controller.text = '$count';
+                          }
+                        });
+                      },
                       onSubmitted: (value) {
                         setState(() {
                           final parsedValue = int.tryParse(value);
