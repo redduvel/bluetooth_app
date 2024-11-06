@@ -1,4 +1,4 @@
-
+import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
@@ -37,63 +37,69 @@ class _PrintingSettingPageState extends State<PrintingSettingPage> {
         return CustomScrollView(
           slivers: [
             if (Platform.isIOS || Platform.isAndroid)
-            SliverAppBar(
-              
-              backgroundColor: AppColors.white,
-              title: Text(
-                'Управление принтером',
-                style: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
-              ),
-              centerTitle: false,
-              automaticallyImplyLeading: false,
-              actions: [
-                IconButton(
-                    onPressed: () {
-                      printerBloc.add(InitializePrinter());
-                    },
-                    icon: const Icon(Icons.refresh)),
-                IconButton(
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            TextEditingController heightController =
-                                TextEditingController(
-                                    text:  printerBloc.labelHeigth);
-                            TextEditingController widthController =
-                                TextEditingController(
-                                    text:  printerBloc.labelWidth);
-                            TextEditingController gapController =
-                                TextEditingController(
-                                    text:  printerBloc.labelGap);
-                            return AlertDialog(
-                              title: const Text('Настройка этикетки', style: AppTextStyles.labelMedium18,),
-                              backgroundColor: AppColors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4)
-                              ),
-                              contentPadding: const EdgeInsets.all(2),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  PrimaryTextField(
+              SliverAppBar(
+                backgroundColor: AppColors.white,
+                title: Text(
+                  'Управление принтером',
+                  style: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
+                ),
+                centerTitle: false,
+                automaticallyImplyLeading: false,
+                actions: [
+                  IconButton(
+                      onPressed: () {
+                        printerBloc.add(InitializePrinter());
+                      },
+                      icon: const Icon(Icons.refresh)),
+                  IconButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              TextEditingController heightController =
+                                  TextEditingController(
+                                      text: printerBloc.labelHeigth);
+                              TextEditingController widthController =
+                                  TextEditingController(
+                                      text: printerBloc.labelWidth);
+                              TextEditingController gapController =
+                                  TextEditingController(
+                                      text: printerBloc.labelGap);
+                              return AlertDialog(
+                                title: const Text(
+                                  'Настройка этикетки',
+                                  style: AppTextStyles.labelMedium18,
+                                ),
+                                backgroundColor: AppColors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4)),
+                                contentPadding: const EdgeInsets.all(2),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    PrimaryTextField(
                                       controller: heightController,
                                       hintText: '20',
                                       width: double.infinity,
-                                      ),
-                                  PrimaryTextField(
+                                    ),
+                                    PrimaryTextField(
                                       controller: widthController,
                                       hintText: '30',
-                                      width: double.infinity,),
-                                  PrimaryTextField(
+                                      width: double.infinity,
+                                    ),
+                                    PrimaryTextField(
                                       controller: gapController,
                                       hintText: '2',
-                                      width: double.infinity,),
-                                ],
-                              ),
-                              actions: [
-                                PrimaryButtonIcon(text: 'Сохранить', icon: Icons.save, onPressed: () {
-                                       printerBloc.add(SetSettings(
+                                      width: double.infinity,
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  PrimaryButtonIcon(
+                                    text: 'Сохранить',
+                                    icon: Icons.save,
+                                    onPressed: () {
+                                      printerBloc.add(SetSettings(
                                           height: heightController.text,
                                           width: widthController.text,
                                           gap: gapController.text));
@@ -101,17 +107,16 @@ class _PrintingSettingPageState extends State<PrintingSettingPage> {
                                           .showSnackBar(const SnackBar(
                                               content: Text(
                                                   'Настройки этикетки изменены!')));
-                                      Navigator.pop(context);
-                                    },)
-                                
-                              ],
-                            );
-                          });
-                    },
-                    icon: const Icon(Icons.settings))
-              ],
-            ),
-            
+                                      context.router.popForced();
+                                    },
+                                  )
+                                ],
+                              );
+                            });
+                      },
+                      icon: const Icon(Icons.settings))
+                ],
+              ),
             if (state is PrinterLoading)
               const SliverToBoxAdapter(
                 child: Center(
@@ -154,5 +159,4 @@ class _PrintingSettingPageState extends State<PrintingSettingPage> {
       ),
     );
   }
-
 }

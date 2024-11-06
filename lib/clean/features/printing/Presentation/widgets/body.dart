@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/container_page.dart';
@@ -65,7 +66,7 @@ class _PrintingBodyState extends State<PrintingBody> {
                         text: 'Выйти',
                         width: double.infinity,
                         onPressed: () {
-                          Navigator.pop(context);
+                          context.router.popForced();
                           context
                               .read<NavigationBloc>()
                               .add(NavigateTo(const EmployeeScreen()));

@@ -1,3 +1,6 @@
+import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
@@ -15,12 +18,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_io/io.dart';
 
+@RoutePage()
 class AdminScreen extends StatelessWidget {
+  static const String path = '/admin';
   const AdminScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.surface,
       ),
@@ -62,13 +67,15 @@ class AdminScreen extends StatelessWidget {
                       width: double.infinity,
                       icon: Icons.settings),
                   PrimaryButtonIcon(
-                        text: 'Выйти',
-                        width: double.infinity,
-                        onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-                          context.read<NavigationBloc>().add(NavigateTo(const LoginScreen()));
-                        },
-                        icon: Icons.logout)
+                      text: 'Выйти',
+                      width: double.infinity,
+                      onPressed: () {
+                        context.router.replace(const HomeRoute());
+                        context
+                            .read<NavigationBloc>()
+                            .add(NavigateTo(const LoginScreen()));
+                      },
+                      icon: Icons.logout)
                 ]
               ],
             ))

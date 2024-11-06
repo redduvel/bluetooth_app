@@ -21,6 +21,8 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'clean/config/routes/app_router.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -97,10 +99,11 @@ class App extends StatelessWidget {
           return PrinterBloc()..add(CheckConnection());
         }),
       ],
-      child: const MaterialApp(
-          showSemanticsDebugger: false,
-          debugShowCheckedModeBanner: false,
-          home: HomeScreen()),
+      child: MaterialApp.router(
+        showSemanticsDebugger: false,
+        debugShowCheckedModeBanner: false,
+        routerConfig: AppRouter().config(),
+      ),
     );
   }
 }

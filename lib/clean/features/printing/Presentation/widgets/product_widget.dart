@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
@@ -144,7 +145,7 @@ class _ProductWidgetState extends State<ProductWidget> {
                                                       backgroundColor:
                                                           backgroundColor
                                                               .value)));
-                                              Navigator.pop(context);
+                                              context.router.popForced();
                                             },
                                             child: Card(
                                               color: backgroundColor,

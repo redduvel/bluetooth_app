@@ -40,7 +40,9 @@ class _HomeBodyState extends State<HomeBody> {
                         text: 'Настройки',
                         icon: Icons.settings),
                     PrimaryButtonIcon(
-                        toPage: const LoginScreen(),
+                        onPressed: () {
+                          exit(0);
+                        },
                         text: 'Закрыть',
                         icon: Icons.close)
                   ]

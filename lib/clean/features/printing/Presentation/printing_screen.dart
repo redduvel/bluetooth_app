@@ -1,3 +1,6 @@
+import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
@@ -17,7 +20,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:universal_io/io.dart';
 
+@RoutePage()
 class PrintingScreen extends StatefulWidget {
+  static const String path = '/printing';
   const PrintingScreen({super.key});
 
   @override
@@ -30,7 +35,16 @@ class _PrintingScreenState extends State<PrintingScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.surface,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context
+                .read<NavigationBloc>()
+                .add(NavigateTo(const DashboardPage()));
+            context.router.popForced();
+          },
+        ),
         actions: [
           if (Platform.isAndroid || Platform.isIOS)
             BlocBuilder<PrinterBloc, PrinterState>(
@@ -100,10 +114,7 @@ class _PrintingScreenState extends State<PrintingScreen> {
                       text: 'Выйти',
                       width: double.infinity,
                       onPressed: () {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
+                        context.router.replace(const HomeRoute());
                         context
                             .read<NavigationBloc>()
                             .add(NavigateTo(const EmployeeScreen()));

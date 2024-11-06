@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
@@ -8,7 +9,9 @@ import 'package:universal_io/io.dart';
 
 import 'widgets/body.dart';
 
+@RoutePage()
 class HomeScreen extends StatefulWidget {
+  static const String path = '/';
   const HomeScreen({super.key});
 
   @override

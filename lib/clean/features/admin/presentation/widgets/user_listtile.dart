@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
@@ -65,13 +66,13 @@ class _UserListTileState extends State<UserListTile> {
               icon: Icons.close,
               type: ButtonType.normal,
               onPressed: () {
-                Navigator.pop(context);
+                context.router.popForced();
               },
             ),
             PrimaryButtonIcon(
               onPressed: () {
                 widget.bloc.add(DeleteItem<User>(user.id));
-                Navigator.pop(context);
+                context.router.popForced();
               },
               text: 'Удалить',
               type: ButtonType.delete,
@@ -113,7 +114,7 @@ class _UserListTileState extends State<UserListTile> {
                       user.copyWith(id: user.id, fullName: editController.text),
                     ));
                     editController.clear();
-                    Navigator.pop(context);
+                    context.router.popForced();
                   },
                 )
               ],

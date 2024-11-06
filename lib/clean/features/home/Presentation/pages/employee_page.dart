@@ -1,3 +1,5 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
@@ -48,8 +50,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       onTap: () {
                         context.read<DBBloc<User>>().repository.currentItem = state.items[index];
                         context.read<UserCubit>().setUser(CurrentUser.employee);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PrintingScreen()));
                         context.read<NavigationBloc>().add(NavigateTo(const PrintingPage()));
+
+                        context.router.push(const PrintingRoute());
+
                       },
                     );
                   }, childCount: state.items.length))

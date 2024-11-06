@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
@@ -10,7 +11,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 class CategoryListTile extends StatefulWidget {
   final Category category;
   final DBBloc<Category> bloc;
-  const CategoryListTile({super.key, required this.category, required this.bloc});
+  const CategoryListTile(
+      {super.key, required this.category, required this.bloc});
 
   @override
   State<CategoryListTile> createState() => _CategoryListTileState();
@@ -51,7 +53,8 @@ class _CategoryListTileState extends State<CategoryListTile> {
           ),
           PopupMenuItem(
             value: 'hide',
-            child: Text(widget.category.isHide ? 'Убрать из скрытых' : 'Скрыть'),
+            child:
+                Text(widget.category.isHide ? 'Убрать из скрытых' : 'Скрыть'),
           ),
           const PopupMenuItem(
             value: 'delete',
@@ -90,7 +93,7 @@ class _CategoryListTileState extends State<CategoryListTile> {
               icon: Icons.close,
               type: ButtonType.normal,
               onPressed: () {
-                Navigator.pop(context);
+                context.router.popForced();
               },
             ),
             if (relatedProducts.isNotEmpty) ...[
@@ -103,7 +106,7 @@ class _CategoryListTileState extends State<CategoryListTile> {
                     productsBox.delete(product.id);
                   }
                   widget.bloc.add(DeleteItem<Category>(category.id));
-                  Navigator.pop(context);
+                  context.router.popForced();
                 },
               ),
               PrimaryButtonIcon(
@@ -122,7 +125,7 @@ class _CategoryListTileState extends State<CategoryListTile> {
                   widget.bloc.add(DeleteItem<Category>(category.id));
 
                   if (context.mounted) {
-                    Navigator.pop(context);
+                    context.router.popForced();
                   }
                 },
               ),
@@ -133,7 +136,7 @@ class _CategoryListTileState extends State<CategoryListTile> {
                     productsBox.delete(product.id);
                   }
                   widget.bloc.add(DeleteItem<Category>(category.id));
-                  Navigator.pop(context);
+                  context.router.popForced();
                 },
                 text: 'Удалить',
                 type: ButtonType.delete,
@@ -175,7 +178,7 @@ class _CategoryListTileState extends State<CategoryListTile> {
                           id: category.id, name: editController.text),
                     ));
                     editController.clear();
-                    Navigator.pop(context);
+                    context.router.popForced();
                   },
                 )
               ],
