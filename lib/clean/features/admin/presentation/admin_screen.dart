@@ -10,7 +10,7 @@ import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_scree
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/body.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/login_screen.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_io/io.dart';

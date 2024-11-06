@@ -5,6 +5,7 @@ import 'package:bluetooth_app/clean/core/Data/repositories/marking_repositore.da
 import 'package:bluetooth_app/clean/core/Data/repositories/product_repository.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/user_repository.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
+import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
@@ -64,6 +65,7 @@ class App extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // NEW BLOCS
+        BlocProvider(create: (_) => UserCubit()),
         BlocProvider(create: (_) => DropdownCubit<Category>()),
         BlocProvider(
           create: (context) {

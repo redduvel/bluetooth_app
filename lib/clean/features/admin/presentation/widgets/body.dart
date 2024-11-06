@@ -8,7 +8,7 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboa
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/employee_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/product_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/login_screen.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_io/io.dart';

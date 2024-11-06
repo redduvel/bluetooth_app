@@ -1,6 +1,7 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
+import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
@@ -46,6 +47,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
                         context.read<DBBloc<User>>().repository.currentItem = state.items[index];
+                        context.read<UserCubit>().setUser(CurrentUser.employee);
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const PrintingScreen()));
                         context.read<NavigationBloc>().add(NavigateTo(const PrintingPage()));
                       },

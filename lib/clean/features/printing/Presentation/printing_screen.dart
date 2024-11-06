@@ -1,17 +1,16 @@
-
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/employee_screen.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
-import 'package:bluetooth_app/clean/features/printing/Presentation/pages/category_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/pages/template_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,9 +25,6 @@ class PrintingScreen extends StatefulWidget {
 }
 
 class _PrintingScreenState extends State<PrintingScreen> {
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +46,9 @@ class _PrintingScreenState extends State<PrintingScreen> {
                 }
 
                 return IconButton(
-                  onPressed: () => context.read<NavigationBloc>().add(NavigateTo(const PrintingSettingPage())),
+                  onPressed: () => context
+                      .read<NavigationBloc>()
+                      .add(NavigateTo(const PrintingSettingPage())),
                   icon: Icon(
                     context.read<PrinterBloc>().connectedDevice != null
                         ? Icons.print
@@ -67,43 +65,54 @@ class _PrintingScreenState extends State<PrintingScreen> {
       body: const PrintingBody(),
       drawer: (Platform.isAndroid || Platform.isIOS)
           ? Drawer(
-              child: NavigationPage(controls: [[
-                PrimaryButtonIcon(
-                  toPage: const PrintingPage(),
-                  text: 'Продукты',
-                  icon: Icons.egg_alt,
-                ),
-                PrimaryButtonIcon(
-                  toPage: const DashboardPage(),
-                  text: 'Журнал',
-                  icon: Icons.category,
-                ),
-                PrimaryButtonIcon(
-                  toPage: const PrintingSettingPage(),
-                  text: 'Настройка принтера',
-                  icon: Icons.print,
-                )
-              ], [
-                PrimaryButtonIcon(
-                  text: 'Настройки',
-                  icon: Icons.settings,
-                  width: double.infinity,
-                ),
-                PrimaryButtonIcon(
-                    text: 'Выйти',
+              child: NavigationPage(controls: [
+                [
+                  PrimaryButtonIcon(
+                    toPage: const DashboardPage(),
+                    text: 'Журнал',
+                    icon: Icons.dashboard,
+                  ),
+                  PrimaryButtonIcon(
+                    toPage: const TemplatePage(),
+                    text: 'Шаблоны',
+                    icon: Icons.edit_document,
+                  ),
+                ],
+                [
+                  PrimaryButtonIcon(
+                    toPage: const PrintingPage(),
+                    text: 'Продукты',
+                    icon: Icons.egg_alt,
+                  ),
+                  PrimaryButtonIcon(
+                    toPage: const PrintingSettingPage(),
+                    text: 'Настройка принтера',
+                    icon: Icons.print,
+                  )
+                ],
+                [
+                  PrimaryButtonIcon(
+                    text: 'Настройки',
+                    icon: Icons.settings,
                     width: double.infinity,
-                    onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-                      context
-                          .read<NavigationBloc>()
-                          .add(NavigateTo(const EmployeeScreen()));
-                    },
-                    icon: Icons.logout)
-              ]]),
+                  ),
+                  PrimaryButtonIcon(
+                      text: 'Выйти',
+                      width: double.infinity,
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()));
+                        context
+                            .read<NavigationBloc>()
+                            .add(NavigateTo(const EmployeeScreen()));
+                      },
+                      icon: Icons.logout)
+                ]
+              ]),
             )
           : null,
     );
   }
-
-  
 }

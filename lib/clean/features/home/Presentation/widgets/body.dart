@@ -1,8 +1,8 @@
 import 'package:bluetooth_app/clean/core/Presentation/pages/container_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/employee_screen.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/pages/tabs/login_screen.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 

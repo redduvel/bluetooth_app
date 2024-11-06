@@ -1,4 +1,5 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
+import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
@@ -42,6 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       if (nameController.text == "1" && passwordController.text == '1') {
                         context.read<NavigationBloc>().add(NavigateTo(const CategoryScreen()));
+                        context.read<UserCubit>().setUser(CurrentUser.admin);
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminScreen()));
                       }
                     },

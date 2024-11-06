@@ -12,7 +12,7 @@ import 'package:bluetooth_app/clean/features/printing/Domain/usecase/printing_us
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/clock_widget.dart';
-import 'package:bluetooth_app/clean/core/constants/ui_const.dart';
+import 'package:bluetooth_app/clean/config/constants/ui_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
