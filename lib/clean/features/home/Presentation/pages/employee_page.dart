@@ -8,7 +8,6 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product_page.dart';
-import 'package:bluetooth_app/clean/features/printing/Presentation/printing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,12 +47,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       leading: const Icon(Icons.person),
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
-                        context.read<DBBloc<User>>().repository.currentItem = state.items[index];
+                        context.read<DBBloc<User>>().repository.currentItem =
+                            state.items[index];
                         context.read<UserCubit>().setUser(CurrentUser.employee);
-                        context.read<NavigationBloc>().add(NavigateTo(const PrintingPage()));
+                        context
+                            .read<NavigationBloc>()
+                            .add(NavigateTo(const PrintingPage()));
 
                         context.router.push(const PrintingRoute());
-
                       },
                     );
                   }, childCount: state.items.length))

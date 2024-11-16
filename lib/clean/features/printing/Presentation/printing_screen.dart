@@ -1,4 +1,3 @@
-import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
@@ -6,7 +5,6 @@ import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navig
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';

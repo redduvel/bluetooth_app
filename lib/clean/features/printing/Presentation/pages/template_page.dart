@@ -1,9 +1,7 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
-import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:select2dot1/select2dot1.dart';
 import 'package:universal_io/io.dart';
 
@@ -20,8 +18,8 @@ class _TemplatePageState extends State<TemplatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: CustomScrollView(
+        backgroundColor: AppColors.white,
+        body: CustomScrollView(
           slivers: [
             if (Platform.isIOS || Platform.isAndroid)
               SliverAppBar(
@@ -68,7 +66,8 @@ class _TemplatePageState extends State<TemplatePage> {
                         textFieldStyle: AppTextStyles.bodySmall12,
                       ),
                       searchEmptyInfoModalSettings:
-                          const SearchEmptyInfoModalSettings(text: 'Нет результатов'),
+                          const SearchEmptyInfoModalSettings(
+                              text: 'Нет результатов'),
                       onChanged: (value) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           setState(() {
@@ -110,7 +109,7 @@ class _TemplatePageState extends State<TemplatePage> {
             )),
             SliverPadding(
               padding: const EdgeInsets.all(15),
-              sliver:  SliverList(
+              sliver: SliverList(
                   delegate: SliverChildListDelegate([
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -147,10 +146,20 @@ class _TemplatePageState extends State<TemplatePage> {
                                 itemBuilder: (context) {
                                   return [
                                     const PopupMenuItem(
-                                        child: Text('Изменить данные', style: AppTextStyles.bodyMedium16,)),
+                                        child: Text(
+                                      'Изменить данные',
+                                      style: AppTextStyles.bodyMedium16,
+                                    )),
                                     const PopupMenuItem(
-                                        child: Text('Изменить оформление', style: AppTextStyles.bodyMedium16,)),
-                                    const PopupMenuItem(child: Text('Удалить', style: AppTextStyles.bodyMedium16,)),
+                                        child: Text(
+                                      'Изменить оформление',
+                                      style: AppTextStyles.bodyMedium16,
+                                    )),
+                                    const PopupMenuItem(
+                                        child: Text(
+                                      'Удалить',
+                                      style: AppTextStyles.bodyMedium16,
+                                    )),
                                   ];
                                 },
                               )
@@ -206,7 +215,6 @@ class _TemplatePageState extends State<TemplatePage> {
               ])),
             )
           ],
-        )
-    );
+        ));
   }
 }

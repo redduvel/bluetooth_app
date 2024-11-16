@@ -5,7 +5,6 @@ import 'package:bluetooth_app/clean/core/Presentation/pages/container_page.dart'
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
-import 'package:bluetooth_app/clean/features/printing/Presentation/pages/category_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
