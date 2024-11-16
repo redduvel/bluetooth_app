@@ -7,20 +7,46 @@ part 'template.g.dart';
 @HiveType(typeId: 7)
 class Template extends HiveObject {
   @HiveField(0)
-  String id;
+  final String id;
+
   @HiveField(1)
-  String name;
+  final List<Product> listProducts;
+
   @HiveField(2)
-  List<Product> products;
+  final String title;
 
-  Template({
-    String? id,
-    required this.name,
-    required this.products
-  }) : id = id ?? IdGenerator.generate();
+  Template({String? id, required this.listProducts, required this.title})
+      : id = id ?? IdGenerator.generate();
 
-
-  Template copyWith({String? id, String? name, List<Product>? products}) {
-    return Template(id: id ?? this.id, name: name ?? this.name, products: products ?? this.products);
+  Template copyWith({String? id, List<Product>? listProducts, String? title}) {
+    return Template(
+        id: id ?? this.id,
+        listProducts: listProducts ?? this.listProducts,
+        title: title ?? this.title);
   }
+
+  // Метод для сериализации в JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'listProducts': listProducts,
+      'title': title,
+    };
+  }
+
+  // Метод для десериализации из JSON
+  factory Template.fromJson(Map<String, dynamic> json) {
+    return Template(
+      id: json['id'],
+      listProducts: json['listProducts'],
+      title: json['title'],
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is Template && other.id == id);
+
+  @override
+  int get hashCode => id.hashCode;
 }

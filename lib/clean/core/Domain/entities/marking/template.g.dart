@@ -18,8 +18,8 @@ class TemplateAdapter extends TypeAdapter<Template> {
     };
     return Template(
       id: fields[0] as String?,
-      name: fields[1] as String,
-      products: (fields[2] as List).cast<Product>(),
+      listProducts: (fields[1] as List).cast<Product>(),
+      title: fields[2] as String,
     );
   }
 
@@ -30,9 +30,9 @@ class TemplateAdapter extends TypeAdapter<Template> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.listProducts)
       ..writeByte(2)
-      ..write(obj.products);
+      ..write(obj.title);
   }
 
   @override

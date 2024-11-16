@@ -30,7 +30,6 @@ class TemplateRepository implements IRepository<Template> {
     try {
       var templateBox = Hive.box<Template>(repositoryName);
       List<Template> templates = templateBox.values.toList();
-
       return templates;
     } catch (e) {
       throw Exception(e);
@@ -38,49 +37,36 @@ class TemplateRepository implements IRepository<Template> {
   }
 
   @override
-  Future<void> reorderList(int newIndex, int oldIndex, {bool sync = false}) {
-    // TODO: implement reorderList
-    throw UnimplementedError();
-  }
+  Future<void> reorderList(int newIndex, int oldIndex,
+      {bool sync = false}) async {}
 
   @override
-  Future<void> save(Template model, {bool sync = false}) async {
+  Future<void> save(Template template, {bool sync = false}) async {
     try {
       var templateBox = Hive.box<Template>(repositoryName);
-      await templateBox.put(model.id, model);
+
+      await templateBox.put(template.id, template);
     } catch (e) {
       throw Exception(e);
     }
   }
 
   @override
-  List<Template> search(String query) {
+  Future<List<Template>> sync() async {
     try {
-      final data = getAll();
-
-      final searchResult = data.where((d) {
-        final itemName = d.name.toLowerCase();
-        final input = query.toLowerCase();
-
-        return itemName.contains(input);
-      }).toList();
-
-      return searchResult;
+      var templateBox = Hive.box<Template>(repositoryName);
+      List<Template> templates = templateBox.values.toList();
+      return templates;
     } catch (e) {
       throw Exception(e);
     }
   }
 
   @override
-  Future<List<Template>> sync() {
-    // TODO: implement sync
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> update(Template model, {bool sync = false}) async {
+  Future<bool> update(Template template, {bool sync = false}) async {
     try {
-      await Hive.box<Template>(repositoryName).put(model.id, model);
+      await Hive.box<Template>(repositoryName).put(template.id, template);
+      return true;
     } catch (e) {
       throw Exception(e);
     }
