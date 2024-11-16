@@ -52,7 +52,10 @@ class _NavigationPageState extends State<NavigationPage> {
                       text: w.text,
                       icon: w.icon,
                       width: double.infinity,
-                      onPressed: () => bloc.add(NavigateTo(w.toPage!)),
+                      onPressed: () {
+                        bloc.add(NavigateTo(w.toPage!));
+                        Navigator.pop(context);
+                      },
                       selected: currentPage.runtimeType == w.toPage.runtimeType,
                     );
                   } else {

@@ -71,7 +71,7 @@ class _ProductWidgetState extends State<ProductWidget> {
         width: (Platform.isMacOS || Platform.isWindows)
             ? 200
             : (MediaQuery.of(context).size.width - 20 - 16) / 2,
-        height: 175,
+        height: 200,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
             color: Color(widget.product.backgroundColor ??
@@ -205,7 +205,13 @@ class _ProductWidgetState extends State<ProductWidget> {
                     c.toString(),
                     style: AppTextStyles.bodyMedium16,
                   );
-                }).toList())
+                }).toList()),
+            Row(
+              children: [
+                PrimaryButtonIcon(text: 'Печать', icon: Icons.print,),
+                PrimaryButtonIcon(text: 'Печать', icon: Icons.print,),
+              ],
+            )
           ],
         ),
       ),

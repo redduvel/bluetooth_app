@@ -39,6 +39,9 @@ class _PrintingPageState extends State<PrintingPage> {
           ? PrimaryAppBar(
               title: 'Печать маркировок',
               titleStyle: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
+              onSearch: (query) {
+                context.read<DBBloc<Product>>().add(Search(query));
+              },
               buttons: [
                 BlocBuilder<DBBloc<Product>, DBState<Product>>(
                     builder: (context, state) {

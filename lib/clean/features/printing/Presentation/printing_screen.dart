@@ -34,15 +34,15 @@ class _PrintingScreenState extends State<PrintingScreen> {
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            context
-                .read<NavigationBloc>()
-                .add(NavigateTo(const DashboardPage()));
-            context.router.popForced();
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     context
+        //         .read<NavigationBloc>()
+        //         .add(NavigateTo(const DashboardPage()));
+        //     context.router.popForced();
+        //   },
+        // ),
         actions: [
           if (Platform.isAndroid || Platform.isIOS)
             BlocBuilder<PrinterBloc, PrinterState>(

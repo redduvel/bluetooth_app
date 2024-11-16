@@ -59,6 +59,12 @@ class MarkingRepositore implements IRepository<Marking> {
   }
 
   @override
+  List<Marking> search(String query) {
+    // TODO: implement search
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> update(Marking model, {bool sync = false}) async {
     try {
       await Hive.box<Marking>(repositoryName).put(model.id, model);

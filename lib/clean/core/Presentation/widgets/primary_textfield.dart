@@ -13,18 +13,23 @@ class PrimaryTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final TextAlign? textAlign;
 
-  const PrimaryTextField(
-      {super.key,
-      required this.controller,
-      required this.width,
-      required this.hintText,
-      this.margin,
-      this.icon, this.onSubmitted, this.keyboardType, this.textAlign, this.onChanged, });
+  const PrimaryTextField({
+    super.key,
+    required this.controller,
+    required this.width,
+    required this.hintText,
+    this.margin,
+    this.icon,
+    this.onSubmitted,
+    this.keyboardType,
+    this.textAlign,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width:  width,
+      width: width,
       child: Padding(
         padding: margin ?? const EdgeInsets.all(8.0),
         child: TextField(

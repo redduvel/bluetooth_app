@@ -60,7 +60,7 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
           if (widget.product.characteristics.isNotEmpty)
             customDate
                 ? AutoSizeText(
-                    DateFormat('yyyy-MM-dd HH:mm').format(customEndDate),
+                    DateFormat('dd.MM.yy HH:mm').format(customEndDate),
                     style: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w500),
                     maxLines: 1,
@@ -74,7 +74,7 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
           if (widget.product.characteristics.isNotEmpty)
             customDate
                 ? AutoSizeText(
-                    DateFormat('yyyy-MM-dd HH:mm').format(adjustmentDateTime),
+                    DateFormat('dd.MM.yy HH:mm').format(adjustmentDateTime),
                     style: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w500),
                     maxLines: 1,

@@ -4,6 +4,7 @@ import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
+import 'package:bluetooth_app/clean/features/settings/Presentation/application_settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
+       
       ),
       body: const HomeBody(),
       drawer: (Platform.isAndroid || Platform.isIOS)
@@ -43,11 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               [
                 PrimaryButtonIcon(
-                    toPage: const LoginScreen(),
+                    toPage: const ApplicationSettingsScreen(),
                     text: 'Настройки',
                     icon: Icons.settings),
                 PrimaryButtonIcon(
-                    toPage: const LoginScreen(),
+                  type: ButtonType.delete,
+                  width: double.infinity,
+                    onPressed: () => exit(0),
                     text: 'Закрыть',
                     icon: Icons.close)
               ]

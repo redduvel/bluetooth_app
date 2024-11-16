@@ -9,11 +9,11 @@ import 'package:printing/printing.dart';
 import 'package:image/image.dart' as img;
 
 class ImageUtils {
-  Future<Map<String, dynamic>> createLabelWithText(String product, String name,
+  Future<Map<String, dynamic>> createLabelWithText(String product, String name, double width, double height,
       {String? startDate, String? endDate}) async {
     const int dpi = 203;
-    const double widthMm = 30.0;
-    const double heightMm = 20.0;
+    double widthMm = width;
+    double heightMm = height;
     final int widthPx = (widthMm * dpi / 25.4).round();
     final int heightPx = (heightMm * dpi / 25.4).round();
     final recorder = ui.PictureRecorder();

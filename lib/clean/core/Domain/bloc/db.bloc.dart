@@ -33,6 +33,12 @@ class Sync<T> extends DBEvent<T> {
   
 }
 
+class Search<T> extends DBEvent<T> {
+  final String query;
+
+  Search(this.query);
+}
+
 
 
 // ======STATES======
@@ -63,7 +69,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
       } catch (e) {
         emit(ItemOperationFailed(e.toString()));
       }
-    },);
+    });
 
     on<LoadItems<T>>((event, emit) async {
       try {
@@ -107,6 +113,14 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));
+      }
+    });
+
+    on<Search<T>>((event, emit) {
+      try {
+        emit(ItemsLoaded(repository.search(event.query)));
+      } catch (e) {
+        emit(ItemOperationFailed(e.toString()));
       }
     });
   }

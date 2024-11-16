@@ -8,6 +8,7 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -59,6 +60,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     );
                   }, childCount: state.items.length))
                 ],
+              );
+            }
+
+            if (state is ItemsLoading<User>) {
+              return const Center(
+                child: CupertinoActivityIndicator(
+                  color: AppColors.primary,
+                ),
               );
             }
 

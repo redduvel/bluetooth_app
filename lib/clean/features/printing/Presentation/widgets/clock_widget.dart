@@ -58,7 +58,7 @@ class _ClockWidgetState extends State<ClockWidget> {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+    return DateFormat('dd.MM.yy HH:mm').format(dateTime);
   }
 
   @override

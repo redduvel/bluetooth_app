@@ -9,8 +9,9 @@ class PrimaryAppBar extends StatefulWidget implements PreferredSizeWidget {
   List<Widget>? buttons = [];
   final String title;
   final TextStyle? titleStyle;
+  final void Function(String query) onSearch;
   
-  PrimaryAppBar({super.key, this.buttons, required this.title, this.titleStyle});
+  PrimaryAppBar({super.key, this.buttons, required this.title, this.titleStyle, required this.onSearch});
 
   @override
   State<PrimaryAppBar> createState() => _PrimaryAppBarState();
@@ -20,6 +21,12 @@ class PrimaryAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _PrimaryAppBarState extends State<PrimaryAppBar> {
+  TextEditingController searchController = TextEditingController();
+
+  void onSearch(String query) {
+    widget.onSearch(query);
+  }
+
   @override
   AppBar build(BuildContext context) {
     return AppBar(
@@ -41,9 +48,12 @@ class _PrimaryAppBarState extends State<PrimaryAppBar> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     PrimaryTextField(
-                        controller: TextEditingController(),
-                        width: 500,
-                        hintText: 'Поиск продуктов'),
+                      onChanged: (value) {
+                        onSearch(value);
+                      },
+                      controller: searchController,
+                      width: 500,
+                      hintText: 'Поиск продуктов'),
                     if (widget.buttons != null)
                     ...widget.buttons!.map((button) => button)
                   ],

@@ -135,4 +135,10 @@ class UserRepository implements IRepository<User> {
       throw Exception(e);
     }
   }
+
+  @override
+  List<User> search(String query) {
+    // TODO: implement search
+    throw UnimplementedError();
+  }
 }

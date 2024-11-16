@@ -193,21 +193,21 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       if (state is PrinterConnected) {
         if (characteristic != null) {
           String startTime =
-              DateFormat('yyyy-MM-dd HH:mm').format(event.startDate);
+              DateFormat('dd.MM.yy HH:mm').format(event.startDate);
           String endTime = '';
           String count = event.count;
           Map<String, dynamic> img;
 
           if (event.product.characteristics.isNotEmpty) {
-            endTime = DateFormat('yyyy-MM-dd HH:mm').format(PrintingUsecase.setAdjustmentTime(
+            endTime = DateFormat('dd.MM.yy HH:mm').format(PrintingUsecase.setAdjustmentTime(
                 event.startDate,
                 event.product.characteristics[event.characteristicIndex]));
             img = await ImageUtils().createLabelWithText(
-                event.product.subtitle, event.employee.fullName,
+                event.product.subtitle, event.employee.fullName, double.tryParse(labelWidth) ?? 30, double.tryParse(labelHeigth) ?? 20,
                 startDate: startTime, endDate: endTime);
           } else {
             img = await ImageUtils().createLabelWithText(
-                event.product.subtitle, event.employee.fullName);
+                event.product.subtitle, event.employee.fullName, double.tryParse(labelWidth) ?? 30, double.tryParse(labelHeigth) ?? 20);
           }
 
           final List<List<int>> data = img['data'];
