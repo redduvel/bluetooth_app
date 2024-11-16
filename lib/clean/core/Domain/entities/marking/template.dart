@@ -5,7 +5,7 @@ import 'product.dart';
 
 part 'template.g.dart';
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 7)
 class Template extends HiveObject {
   @HiveField(0)
   final String id;

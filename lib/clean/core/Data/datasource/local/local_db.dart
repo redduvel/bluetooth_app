@@ -21,13 +21,13 @@ class LocalDB {
     Hive.registerAdapter(MeasurementUnitAdapter());
     Hive.registerAdapter(MarkingStatusAdapter());
     Hive.registerAdapter(MarkingAdapter());
-    //Hive.registerAdapter(TemplateAdapter());
+    Hive.registerAdapter(TemplateAdapter());
 
     await Hive.openBox<Marking>('markings');
     await Hive.openBox<User>('users');
     await Hive.openBox<Category>('categories');
     await Hive.openBox<Product>('products');
-    //await Hive.openBox<Template>('templates');
+    await Hive.openBox<Template>('templates');
     await Hive.openBox('settings');
   }
 }

@@ -3,11 +3,13 @@ import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/category_repository.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/marking_repositore.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/product_repository.dart';
+import 'package:bluetooth_app/clean/core/Data/repositories/template_repository.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/user_repository.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
@@ -69,6 +71,12 @@ class App extends StatelessWidget {
         // NEW BLOCS
         BlocProvider(create: (_) => UserCubit()),
         BlocProvider(create: (_) => DropdownCubit<Category>()),
+        BlocProvider(
+          create: (context) {
+            return DBBloc(TemplateRepository(repositoryName: 'templates'))
+              ..add(Sync<Template>());
+          },
+        ),
         BlocProvider(
           create: (context) {
             return DBBloc(UserRepository(repositoryName: 'users'))

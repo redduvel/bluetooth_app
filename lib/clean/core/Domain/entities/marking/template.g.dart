@@ -8,7 +8,7 @@ part of 'template.dart';
 
 class TemplateAdapter extends TypeAdapter<Template> {
   @override
-  final int typeId = 5;
+  final int typeId = 7;
 
   @override
   Template read(BinaryReader reader) {
