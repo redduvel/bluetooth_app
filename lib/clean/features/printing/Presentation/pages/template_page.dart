@@ -1,10 +1,14 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
-import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
+import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_appBar.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:select2dot1/select2dot1.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:universal_io/io.dart';
 
 class TemplatePage extends StatefulWidget {
@@ -15,13 +19,37 @@ class TemplatePage extends StatefulWidget {
 }
 
 class _TemplatePageState extends State<TemplatePage> {
+  TextEditingController nameController = TextEditingController();
+  MultiSelectController<Product> productsController =
+      MultiSelectController<Product>();
   List<String> selectBooks = [];
+
+  bool showTools = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: CustomScrollView(
+        backgroundColor: AppColors.white,
+        appBar: (Platform.isMacOS || Platform.isWindows)
+            ? PrimaryAppBar(
+                title: 'Управление шаблонами',
+                titleStyle: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
+                onSearch: (query) {
+                  context.read<DBBloc<Product>>().add(Search<Product>(query));
+                },
+                buttons: [
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          showTools = !showTools;
+                        });
+                      },
+                      icon: Icon(
+                          showTools ? Icons.keyboard_arrow_down : Icons.add)),
+                ],
+              )
+            : null,
+        body: CustomScrollView(
           slivers: [
             if (Platform.isIOS || Platform.isAndroid)
               SliverAppBar(
@@ -33,180 +61,223 @@ class _TemplatePageState extends State<TemplatePage> {
                 centerTitle: false,
                 automaticallyImplyLeading: false,
                 actions: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+                  IconButton(
+                      onPressed: () => setState(() {
+                            showTools = !showTools;
+                          }),
+                      icon: !showTools ? const Icon(Icons.add) : const Icon(Icons.arrow_drop_down)),
                 ],
               ),
-            SliverToBoxAdapter(
-                child: Column(
-              children: [
-                PrimaryTextField(
-                    controller: TextEditingController(),
-                    width: 800,
-                    margin: const EdgeInsets.symmetric(horizontal: 15),
-                    hintText: 'Название'),
-                Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Select2dot1(
-                      pillboxSettings: PillboxSettings(
-                          defaultDecoration: BoxDecoration(
-                              border: Border.all(color: AppColors.black),
-                              borderRadius: BorderRadius.circular(5)),
-                          activeDecoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppColors.primary,
-                              ),
-                              borderRadius: BorderRadius.circular(5))),
-                      doneButtonModalSettings: DoneButtonModalSettings(
-                          title: 'Выбрать',
-                          iconColor: AppColors.primary,
-                          buttonDecoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(5))),
-                      isSearchable: true,
-                      searchBarModalSettings: const SearchBarModalSettings(
-                        textFieldStyle: AppTextStyles.bodySmall12,
+            if (showTools)
+              SliverPadding(
+                  padding: const EdgeInsets.all(8),
+                  sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                    PrimaryTextField(
+                        controller: nameController,
+                        width: 500,
+                        hintText: 'Название'),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: BlocBuilder<DBBloc<Product>, DBState<Product>>(
+                          builder: (context, state) {
+                            if (state is ItemsLoaded<Product>) {
+                              return MultiDropdown<Product>(
+                                fieldDecoration: FieldDecoration(
+                                    hintText: 'Выбор продуктов',
+                                    hintStyle: AppTextStyles.bodyMedium16
+                                        .copyWith(
+                                            color: AppColors.secondaryText),
+                                    borderRadius: 4,
+                                    backgroundColor: AppColors.inputSurface,
+                                    border: const OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                      color: AppColors.secondaryButton,
+                                    )),
+                                    focusedBorder: const OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: AppColors.secondaryText))),
+                                dropdownDecoration: DropdownDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                dropdownItemDecoration:
+                                    const DropdownItemDecoration(
+                                        selectedTextColor:
+                                            AppColors.greenOnSurface,
+                                        selectedBackgroundColor:
+                                            AppColors.greenSurface,
+                                        disabledTextColor:
+                                            AppColors.secondaryText,
+                                        disabledBackgroundColor:
+                                            AppColors.secondaryButton),
+                                searchEnabled: true,
+                                searchDecoration: SearchFieldDecoration(
+                                  hintText: 'Поиск по названию',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                      borderSide: const BorderSide(
+                                          color: AppColors.secondaryButton)),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                      borderSide: const BorderSide(
+                                          color: AppColors.secondaryText)),
+                                ),
+                                items: state.items.map((a) {
+                                  return DropdownItem<Product>(
+                                      label: a.title, value: a);
+                                }).toList(),
+                                controller: productsController,
+                              );
+                            }
+
+                            if (state is ItemOperationFailed) {
+                              return 
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.inputSurface,
+                                  border: Border.all(
+                                    color: AppColors.secondaryButton,
+                                    
+                                  ),
+                                  borderRadius: BorderRadius.circular(4)
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text('Ошибка загрузки данных', style: AppTextStyles.bodyMedium16,),
+                              );
+                            }
+
+                            return Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.inputSurface,
+                                  border: Border.all(
+                                    color: AppColors.secondaryButton,
+                                    
+                                  ),
+                                  borderRadius: BorderRadius.circular(4)
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text('Идет загрузка данных...', style: AppTextStyles.bodyMedium16,),
+                              );
+                          },
+                        )),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: PrimaryButtonIcon(
+                        text: 'Добавить',
+                        icon: Icons.add,
+                        selected: true,
+                        onPressed: () {
+                          context.read<DBBloc<Template>>().add(
+                              AddItem<Template>(Template(
+                                  name: nameController.text,
+                                  products: productsController.selectedItems
+                                      .map((v) => v.value)
+                                      .toList())));
+                        },
                       ),
-                      searchEmptyInfoModalSettings:
-                          const SearchEmptyInfoModalSettings(text: 'Нет результатов'),
-                      onChanged: (value) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          setState(() {
-                            selectBooks =
-                                value.map((v) => v.value as String).toList();
-                          });
-                        });
-                      },
-                      dropdownModalSettings: const DropdownModalSettings(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(5),
-                                topRight: Radius.circular(5)),
-                          ),
-                          backgroundColor: AppColors.onSurface),
-                      titleModalSettings: const TitleModalSettings(
-                          title: 'Выберете продукты',
-                          titleTextStyle: AppTextStyles.labelMedium18),
-                      selectDataController: SelectDataController(data: [
-                        const SingleCategoryModel(singleItemCategoryList: [
-                          SingleItemCategoryModel(
-                              nameSingleItem: 'Продукт 1', value: 'Product 1'),
-                          SingleItemCategoryModel(
-                              nameSingleItem: 'Продукт 2', value: 'Product 2'),
-                          SingleItemCategoryModel(
-                              nameSingleItem: 'Продукт 3', value: 'Product 3'),
-                          SingleItemCategoryModel(
-                              nameSingleItem: 'Продукт 4', value: 'Product 4'),
-                          SingleItemCategoryModel(
-                              nameSingleItem: 'Продукт 5', value: 'Product 5'),
-                          SingleItemCategoryModel(
-                              nameSingleItem: 'Продукт 6', value: 'Product 6'),
-                          SingleItemCategoryModel(
-                              nameSingleItem: 'Продукт 7', value: 'Product 7'),
-                        ])
-                      ])),
-                )
-              ],
-            )),
+                    )
+                  ]))),
             SliverPadding(
               padding: const EdgeInsets.all(15),
-              sliver:  SliverList(
-                  delegate: SliverChildListDelegate([
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: AppColors.blueOnSurface),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Название шаблона',
-                            style: AppTextStyles.labelMedium18
-                                .copyWith(color: AppColors.surface),
-                          ),
-                          Row(
-                            children: [
-                              IconButton(
-                                  iconSize: 20,
-                                  style: const ButtonStyle(
-                                      padding: WidgetStatePropertyAll(
-                                          EdgeInsets.zero)),
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.print,
-                                    color: AppColors.white,
-                                  )),
-                              PopupMenuButton(
-                                position: PopupMenuPosition.under,
-                                color: AppColors.white,
-                                itemBuilder: (context) {
-                                  return [
-                                    const PopupMenuItem(
-                                        child: Text('Изменить данные', style: AppTextStyles.bodyMedium16,)),
-                                    const PopupMenuItem(
-                                        child: Text('Изменить оформление', style: AppTextStyles.bodyMedium16,)),
-                                    const PopupMenuItem(child: Text('Удалить', style: AppTextStyles.bodyMedium16,)),
-                                  ];
-                                },
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Wrap(
-                          spacing: 5,
-                          children: List.generate(10, (index) {
-                            return Chip(
-                                padding: const EdgeInsets.all(2.5),
-                                labelPadding: const EdgeInsets.all(0),
-                                label: Text(
-                                  'Продукт 1',
-                                  style: AppTextStyles.bodyMedium16
-                                      .copyWith(fontSize: 12),
-                                ));
-                          }),
+              sliver: BlocBuilder<DBBloc<Template>, DBState<Template>>(
+                builder: (context, state) {
+                  if (state is ItemsLoaded<Template>) {
+                    return SliverList(
+                        delegate: SliverChildListDelegate(state.items.map((t) {
+                      return Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: AppColors.blueOnSurface),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  t.name,
+                                  style: AppTextStyles.labelMedium18
+                                      .copyWith(color: AppColors.surface),
+                                ),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                        iconSize: 20,
+                                        style: const ButtonStyle(
+                                            padding: WidgetStatePropertyAll(
+                                                EdgeInsets.zero)),
+                                        onPressed: () {},
+                                        icon: const Icon(
+                                          Icons.print,
+                                          color: AppColors.white,
+                                        )),
+                                    PopupMenuButton(
+                                      position: PopupMenuPosition.under,
+                                      iconColor: AppColors.white,
+                                      color: AppColors.white,
+                                      itemBuilder: (context) {
+                                        return [
+                                          const PopupMenuItem(
+                                              child: Text(
+                                            'Изменить данные',
+                                            style: AppTextStyles.bodyMedium16,
+                                          )),
+                                          const PopupMenuItem(
+                                              child: Text(
+                                            'Удалить',
+                                            style: AppTextStyles.bodyMedium16,
+                                          )),
+                                        ];
+                                      },
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Wrap(
+                                spacing: 5,
+                                children: 
+                                  t.products.map((p) {
+                                   return Chip(
+                                      padding: const EdgeInsets.all(2.5),
+                                      labelPadding: const EdgeInsets.all(0),
+                                      backgroundColor: AppColors.inputSurface,
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(color: AppColors.secondaryText),
+                                        borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      label: Text(
+                                        p.title,
+                                        style: AppTextStyles.bodyMedium16
+                                            .copyWith(fontSize: 12),
+                                      ));
+                                  }).toList()
+                                
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: AppColors.blueOnSurface),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Название шаблона',
-                        style: AppTextStyles.labelMedium18
-                            .copyWith(color: AppColors.surface),
+                      );
+                    }).toList()));
+                  }
+
+                  if (state is ItemOperationFailed<Template>) {
+                    return SliverToBoxAdapter(
+                      child: Center(
+                        child: Text(state.error),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Wrap(
-                        spacing: 5,
-                        children: List.generate(4, (index) {
-                          return const Chip(label: Text('Продукт 1'));
-                        }),
-                      )
-                    ],
-                  ),
-                )
-              ])),
+                    );
+                  }
+
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                },
+              ),
             )
           ],
-        )
-    );
+        ));
   }
 }

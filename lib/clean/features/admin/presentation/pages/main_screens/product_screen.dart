@@ -112,6 +112,9 @@ class _ProductScreenState extends State<ProductScreen> {
           ? PrimaryAppBar(
               title: 'Управление продуктами',
               titleStyle: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
+              onSearch: (query) {
+                context.read<DBBloc<Product>>().add(Search(query));
+              },
               buttons: [
                 IconButton(
                     onPressed: () {
@@ -150,6 +153,7 @@ class _ProductScreenState extends State<ProductScreen> {
               centerTitle: false,
               automaticallyImplyLeading: false,
               actions: [
+
                 IconButton(
                     onPressed: () => setState(
                           () => showTools = !showTools,

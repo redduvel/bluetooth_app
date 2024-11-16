@@ -27,7 +27,7 @@ class CategoryRepository implements IRepository<Category> {
           .eq('isHide', 'False')
           .asStream()
           .listen((List<Map<String, dynamic>> data) async {
-                  List<Category> remoteData = [];
+        List<Category> remoteData = [];
 
         remoteData = data.map((map) {
           return Category.fromJson(map);
@@ -58,7 +58,7 @@ class CategoryRepository implements IRepository<Category> {
           }
         }
       });
-      
+
       await Future.delayed(const Duration(seconds: 1)).whenComplete(() {
         localData = getAll();
       });
@@ -188,5 +188,19 @@ class CategoryRepository implements IRepository<Category> {
   List<Category> getEditableCategories(Box<Category> box) {
     return box.values.where((category) => category.order > 1).toList()
       ..sort((a, b) => a.order.compareTo(b.order));
+  }
+
+  @override
+  List<Category> search(String query) {
+    final data = getAll();
+
+    final searchResult = data.where((d) {
+      final itemName = d.name.toLowerCase();
+      final input = query.toLowerCase();
+
+      return itemName.contains(input);
+    }).toList();
+
+    return searchResult;
   }
 }

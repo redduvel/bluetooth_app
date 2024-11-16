@@ -194,7 +194,7 @@ DataRow createDataRow(Marking m) {
         ),
         Text(
             '${calculateRemainingPercentage(m.startDate, m.endDate).toStringAsFixed(0)}%'),
-        SizedBox(
+        const SizedBox(
           width: 5,
         ),
         _createTimeOut(calculateTimeStatus(m.startDate, m.endDate), 100,

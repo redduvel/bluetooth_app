@@ -3,18 +3,17 @@ import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/category_repository.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/marking_repositore.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/product_repository.dart';
+import 'package:bluetooth_app/clean/core/Data/repositories/template_repository.dart';
 import 'package:bluetooth_app/clean/core/Data/repositories/user_repository.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/cubit/dropdown_controller.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
 //import 'package:bluetooth_app/pages/home_page.dart';
@@ -66,38 +65,21 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // NEW BLOCS
         BlocProvider(create: (_) => UserCubit()),
         BlocProvider(create: (_) => DropdownCubit<Category>()),
-        BlocProvider(
-          create: (context) {
-            return DBBloc(UserRepository(repositoryName: 'users'))
-              ..add(Sync<User>());
-          },
+        BlocProvider(create: (_) => DBBloc(UserRepository(repositoryName: 'users'))
+              ..add(Sync<User>()),
         ),
-        BlocProvider(
-          create: (context) {
-            return DBBloc(ProductRepository(repositoryName: 'products'))
-              ..add(Sync<Product>());
-          },
+        BlocProvider(create: (_) => DBBloc(ProductRepository(repositoryName: 'products'))
+              ..add(Sync<Product>()),
         ),
-        BlocProvider(
-          create: (context) {
-            return DBBloc(CategoryRepository(repositoryName: 'categories'))
-              ..add(Sync<Category>());
-          },
+        BlocProvider(create: (_) => DBBloc(CategoryRepository(repositoryName: 'categories'))
+              ..add(Sync<Category>()),
         ),
-        BlocProvider(
-          create: (context) {
-            return DBBloc(MarkingRepositore(repositoryName: 'markings'));
-          },
-        ),
-        BlocProvider(create: (context) {
-          return NavigationBloc(InitialState(const DashboardPage()));
-        }),
-        BlocProvider(create: (context) {
-          return PrinterBloc()..add(CheckConnection());
-        }),
+        BlocProvider(create: (_) => DBBloc(MarkingRepositore(repositoryName: 'markings'))),
+        BlocProvider(create: (_) => DBBloc(TemplateRepository(repositoryName: 'templates'))),
+        BlocProvider(create: (_) => NavigationBloc(InitialState(const DashboardPage()))),
+        BlocProvider(create: (_) => PrinterBloc()..add(CheckConnection())),
       ],
       child: MaterialApp.router(
         showSemanticsDebugger: false,

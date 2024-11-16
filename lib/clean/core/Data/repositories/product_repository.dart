@@ -137,4 +137,22 @@ class ProductRepository implements IRepository<Product> {
       throw Exception(e);
     }
   }
+
+  @override
+  List<Product> search(String query) {
+    try {
+      final data = getAll();
+
+      final searchResult = data.where((d) {
+        final itemName = d.title.toLowerCase();
+        final input = query.toLowerCase();
+
+        return itemName.contains(input);
+      }).toList();
+
+      return searchResult;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 }

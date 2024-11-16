@@ -1,4 +1,3 @@
-import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
@@ -7,15 +6,18 @@ import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navig
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/category_screen.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/employee_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/product_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/body.dart';
-import 'package:bluetooth_app/clean/features/home/Presentation/home_screen.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:universal_io/io.dart';
 
 @RoutePage()
@@ -28,6 +30,36 @@ class AdminScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.surface,
+         actions: [
+          if(Platform.isAndroid || Platform.isIOS)
+          BlocBuilder<PrinterBloc, PrinterState>(
+              builder: (context, state) {
+                if (state is PrinterLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: SpinKitFadingCircle(
+                      color: Colors.orange,
+                      size: 25.0,
+                    ),
+                  );
+                }
+
+                return IconButton(
+                  onPressed: () => context
+                      .read<NavigationBloc>()
+                      .add(NavigateTo(const PrintingSettingPage())),
+                  icon: Icon(
+                    context.read<PrinterBloc>().connectedDevice != null
+                        ? Icons.print
+                        : Icons.print_disabled,
+                    color: context.read<PrinterBloc>().connectedDevice != null
+                        ? Colors.green
+                        : Colors.red,
+                  ),
+                );
+              },
+            ),
+        ],
       ),
       body: const AdminBody(),
       drawer: (Platform.isAndroid || Platform.isIOS)

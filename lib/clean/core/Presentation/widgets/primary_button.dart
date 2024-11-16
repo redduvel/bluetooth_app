@@ -14,6 +14,8 @@ class PrimaryButtonIcon extends StatelessWidget {
   final Widget? toPage;
   final ButtonType? type;
 
+  TextStyle? textStyle;
+
   double? width;
   double? height;
 
@@ -32,6 +34,7 @@ class PrimaryButtonIcon extends StatelessWidget {
       required this.text,
       required this.icon,
       this.selected = false,
+      this.textStyle,
       this.width,
       this.height,
       this.radius,
