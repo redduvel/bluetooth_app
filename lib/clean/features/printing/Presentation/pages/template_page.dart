@@ -1,16 +1,13 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
-import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
-import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
-import 'package:universal_io/io.dart';
+import 'package:select2dot1/select2dot1.dart';
 
 class TemplatePage extends StatefulWidget {
   const TemplatePage({super.key});
@@ -29,8 +26,6 @@ class _TemplatePageState extends State<TemplatePage> {
     super.initState();
     _controller = TextEditingController();
   }
-
-  bool showTools = false;
 
   @override
   Widget build(BuildContext context) {
