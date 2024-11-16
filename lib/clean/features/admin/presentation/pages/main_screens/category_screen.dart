@@ -72,10 +72,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
       orElse: () => Category(order: -1, id: '', name: '', isHide: false),
     );
 
-    otherCategories = categories
-        .where((c) =>
-            c.name != 'Архив' && c.name != 'TAG')
-        .toList();
+    otherCategories =
+        categories.where((c) => c.name != 'Архив' && c.name != 'TAG').toList();
 
     return CustomScrollView(
       slivers: [
@@ -88,17 +86,18 @@ class _CategoryScreenState extends State<CategoryScreen> {
           centerTitle: false,
           automaticallyImplyLeading: false,
           actions: [
-                        if (Platform.isMacOS || Platform.isWindows)
-            PrimaryButtonIcon(
-              text: 'Синхронизировать',
-              icon: Icons.sync,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              selected: true,
-              onPressed: () => bloc.add(Sync<Category>()),
-            ),
-
+            if (Platform.isMacOS || Platform.isWindows)
+              PrimaryButtonIcon(
+                text: 'Синхронизировать',
+                icon: Icons.sync,
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                selected: true,
+                onPressed: () => bloc.add(Sync<Category>()),
+              ),
             if (Platform.isAndroid || Platform.isIOS)
-            IconButton(onPressed: () => bloc.add(Sync<Category>()), icon: const Icon(Icons.sync))
+              IconButton(
+                  onPressed: () => bloc.add(Sync<Category>()),
+                  icon: const Icon(Icons.sync))
           ],
         ),
         SliverToBoxAdapter(
@@ -173,19 +172,20 @@ class _CategoryScreenState extends State<CategoryScreen> {
           ),
         ],
         if (categories.isEmpty)
-        const SliverPadding(
-          padding: EdgeInsets.symmetric(vertical: 15),
-          sliver: SliverToBoxAdapter(
-            child: Center(
-              child: CircularProgressIndicator(color: AppColors.greenOnSurface,),
+          const SliverPadding(
+            padding: EdgeInsets.symmetric(vertical: 15),
+            sliver: SliverToBoxAdapter(
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.greenOnSurface,
+                ),
+              ),
             ),
-          ),
-        )
+          )
       ],
     );
   }
 
-  
   ListTile _buildCategoryTile(Category nomenclature, IconData? icon) {
     return ListTile(
       key: ValueKey(nomenclature.id),
@@ -193,7 +193,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
           ? const Icon(Icons.visibility_off, size: 24)
           : Icon(icon ?? Icons.category),
       title: Text(nomenclature.name),
-      
     );
   }
 
