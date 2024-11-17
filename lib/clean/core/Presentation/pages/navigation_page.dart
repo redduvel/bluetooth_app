@@ -54,7 +54,6 @@ class _NavigationPageState extends State<NavigationPage> {
                       width: double.infinity,
                       onPressed: () {
                         bloc.add(NavigateTo(w.toPage!));
-                        Navigator.pop(context);
                       },
                       selected: currentPage.runtimeType == w.toPage.runtimeType,
                     );
