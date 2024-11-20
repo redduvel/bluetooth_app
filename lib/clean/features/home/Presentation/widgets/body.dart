@@ -35,10 +35,10 @@ class _HomeBodyState extends State<HomeBody> {
                         icon: Icons.person_2)
                   ],
                   [
-                    PrimaryButtonIcon(
-                        toPage: const LoginScreen(),
-                        text: 'Настройки',
-                        icon: Icons.settings),
+                    // PrimaryButtonIcon(
+                    //     toPage: const LoginScreen(),
+                    //     text: 'Настройки',
+                    //     icon: Icons.settings),
                     PrimaryButtonIcon(
                         onPressed: () {
                           exit(0);
