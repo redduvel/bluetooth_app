@@ -92,11 +92,11 @@ class AdminScreen extends StatelessWidget {
                   )
                 ],
                 [
-                  PrimaryButtonIcon(
-                      toPage: const SettingsScreen(),
-                      text: 'Настройки',
-                      width: double.infinity,
-                      icon: Icons.settings),
+                  // PrimaryButtonIcon(
+                  //     toPage: const SettingsScreen(),
+                  //     text: 'Настройки',
+                  //     width: double.infinity,
+                  //     icon: Icons.settings),
                   PrimaryButtonIcon(
                       text: 'Выйти',
                       width: double.infinity,
