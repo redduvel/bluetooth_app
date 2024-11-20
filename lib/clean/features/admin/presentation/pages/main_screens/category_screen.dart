@@ -112,10 +112,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
               selected: true,
               text: 'Добавить',
               icon: Icons.add,
-              onPressed: () {
-                bloc.add(AddItem(Category(
-                    order: 1, name: nameController.text, isHide: false)));
-              },
+              onPressed: () => (nameController.text.isEmpty)
+                  ? null
+                  : bloc.add(AddItem(Category(
+                      order: 1, name: nameController.text, isHide: false))),
             ),
           ),
         ),
