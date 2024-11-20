@@ -3,6 +3,7 @@ import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
+import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/category_screen.dart';
@@ -30,9 +31,9 @@ class AdminScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.surface,
-         actions: [
-          if(Platform.isAndroid || Platform.isIOS)
-          BlocBuilder<PrinterBloc, PrinterState>(
+        actions: [
+          if (Platform.isAndroid || Platform.isIOS)
+            BlocBuilder<PrinterBloc, PrinterState>(
               builder: (context, state) {
                 if (state is PrinterLoading) {
                   return const Padding(
@@ -105,7 +106,7 @@ class AdminScreen extends StatelessWidget {
                         context.router.replace(const HomeRoute());
                         context
                             .read<NavigationBloc>()
-                            .add(NavigateTo(const LoginScreen()));
+                            .add(Started(const DashboardPage()));
                       },
                       icon: Icons.logout)
                 ]

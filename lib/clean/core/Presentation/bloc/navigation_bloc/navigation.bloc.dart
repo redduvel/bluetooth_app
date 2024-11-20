@@ -5,12 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
   dynamic currentPage;
 
-  NavigationBloc(super.initialState){
+  NavigationBloc(super.initialState) {
     on<NavigateTo>((event, emit) {
       currentPage = event.screen;
-      
+
       emit(ScreenState(event.screen));
     });
+
+    on<Started>((event, emit) {
+      currentPage = null;
+      emit(InitialState(event.screen));
+    });
   }
-  
 }

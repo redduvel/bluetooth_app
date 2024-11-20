@@ -9,3 +9,7 @@ abstract class NavigationEvent<T> {
 class NavigateTo extends NavigationEvent {
   NavigateTo(super.screen);
 }
+
+class Started extends NavigationEvent {
+  Started(super.screen);
+}

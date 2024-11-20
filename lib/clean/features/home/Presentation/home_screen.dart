@@ -29,14 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
       ),
-      body: BlocConsumer<HomeBloc, HomeState>(
-        builder: (context, state) => const HomeBody(),
-        listener: (context, state) => switch (state) {
-          Init() => (Platform.isAndroid || Platform.isIOS)
-              ? Scaffold.of(context).openDrawer()
-              : null,
-          _ => null,
-        },
+      body: BlocListener<HomeBloc, HomeState>(
+        listener: (context, state) => (Platform.isAndroid || Platform.isIOS)
+            ? Scaffold.of(context).openDrawer()
+            : null,
+        child: const HomeBody(),
       ),
       drawer: (Platform.isAndroid || Platform.isIOS)
           ? Drawer(
@@ -53,10 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icons.person_2)
               ],
               [
-                PrimaryButtonIcon(
-                    toPage: const ApplicationSettingsScreen(),
-                    text: 'Настройки',
-                    icon: Icons.settings),
+                // PrimaryButtonIcon(
+                //     toPage: const ApplicationSettingsScreen(),
+                //     text: 'Настройки',
+                //     icon: Icons.settings),
                 PrimaryButtonIcon(
                     type: ButtonType.delete,
                     width: double.infinity,

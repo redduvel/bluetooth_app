@@ -3,6 +3,7 @@ import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navig
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,19 +24,23 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void initState() {
     bloc = context.read<NavigationBloc>();
+    currentPage = null;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    print(currentPage);
     return BlocListener<NavigationBloc, NavigationState>(
       bloc: bloc,
       listener: (context, state) {
-        if (state is ScreenState) {
-          setState(() {
-            currentPage = state.screen;
-          });
-        }
+        return switch (state) {
+          ScreenState() => setState(() {
+              currentPage = state.screen;
+            }),
+          InitialState() => setState(() => currentPage = const DashboardPage()),
+          _ => null,
+        };
       },
       child: Container(
         color: AppColors.surface,

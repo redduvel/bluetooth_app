@@ -14,9 +14,8 @@ class _ContainerPageState extends State<ContainerPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NavigationBloc, NavigationState>(
-      builder: (context, state) {
-        return state.screen;
-      }
-    );
+        builder: (context, state) {
+      return state.screen;
+    });
   }
 }

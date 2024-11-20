@@ -35,39 +35,39 @@ class _AdminBodyState extends State<AdminBody> {
     return Row(
       children: [
         if (Platform.isMacOS || Platform.isWindows)
-        Flexible(
-            flex: 159,
-            fit: FlexFit.tight,
-            child: NavigationPage(
-              controls: [
-                [
-                  PrimaryButtonIcon(
-                    toPage: const DashboardPage(),
-                    text: 'Доска (демо версия журнала)',
-                    width: double.infinity,
-                    icon: Icons.dashboard,
-                  ),
-                  PrimaryButtonIcon(
-                    text: 'Сотрудники',
-                    icon: Icons.person,
-                    width: double.infinity,
-                    toPage: const EmployeeScreen(),
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const CategoryScreen(),
-                    text: 'Категории',
-                    width: double.infinity,
-                    icon: Icons.category,
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const ProductScreen(),
-                    text: 'Продукты',
-                    width: double.infinity,
-                    icon: Icons.egg,
-                  )
-                ],
-                [
-                  PrimaryButtonIcon(
+          Flexible(
+              flex: 159,
+              fit: FlexFit.tight,
+              child: NavigationPage(
+                controls: [
+                  [
+                    PrimaryButtonIcon(
+                      toPage: const DashboardPage(),
+                      text: 'Доска (демо версия журнала)',
+                      width: double.infinity,
+                      icon: Icons.dashboard,
+                    ),
+                    PrimaryButtonIcon(
+                      text: 'Сотрудники',
+                      icon: Icons.person,
+                      width: double.infinity,
+                      toPage: const EmployeeScreen(),
+                    ),
+                    PrimaryButtonIcon(
+                      toPage: const CategoryScreen(),
+                      text: 'Категории',
+                      width: double.infinity,
+                      icon: Icons.category,
+                    ),
+                    PrimaryButtonIcon(
+                      toPage: const ProductScreen(),
+                      text: 'Продукты',
+                      width: double.infinity,
+                      icon: Icons.egg,
+                    )
+                  ],
+                  [
+                    PrimaryButtonIcon(
                       toPage: const SettingsScreen(),
                       text: 'Настройки',
                       width: double.infinity,
@@ -105,7 +105,7 @@ class _AdminBodyState extends State<AdminBody> {
                           context.router.popForced();
                           context
                               .read<NavigationBloc>()
-                              .add(NavigateTo(const LoginScreen()));
+                              .add(Started(const DashboardPage()));
                         },
                         icon: Icons.logout)
                   ]
