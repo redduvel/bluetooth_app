@@ -89,6 +89,11 @@ class _PrintingScreenState extends State<PrintingScreen> {
                     text: 'Шаблоны',
                     icon: Icons.edit_document,
                   ),
+                  PrimaryButtonIcon(
+                    toPage: const EmployeeScreen(),
+                    text: 'Сотрудники',
+                    icon: Icons.person_2,
+                  ),
                 ],
                 [
                   PrimaryButtonIcon(
@@ -115,7 +120,7 @@ class _PrintingScreenState extends State<PrintingScreen> {
                         context.router.replace(const HomeRoute());
                         context
                             .read<NavigationBloc>()
-                            .add(NavigateTo(const EmployeeScreen()));
+                            .add(Started(const DashboardPage()));
                       },
                       icon: Icons.logout)
                 ]

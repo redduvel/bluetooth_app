@@ -5,7 +5,6 @@ import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dar
 import 'package:bluetooth_app/clean/features/home/Presentation/bloc/home/home.bloc.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
-import 'package:bluetooth_app/clean/features/settings/Presentation/application_settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_io/io.dart';

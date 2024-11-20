@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/container_page.dart';
@@ -42,6 +43,11 @@ class _PrintingBodyState extends State<PrintingBody> {
                       text: 'Шаблоны',
                       icon: Icons.edit_document,
                     ),
+                    PrimaryButtonIcon(
+                      toPage: const EmployeeScreen(),
+                      text: 'Сотрудники',
+                      icon: Icons.person_2,
+                    ),
                   ],
                   [
                     PrimaryButtonIcon(
@@ -65,10 +71,10 @@ class _PrintingBodyState extends State<PrintingBody> {
                         text: 'Выйти',
                         width: double.infinity,
                         onPressed: () {
-                          context.router.popForced();
+                          context.router.replace(const HomeRoute());
                           context
                               .read<NavigationBloc>()
-                              .add(NavigateTo(const EmployeeScreen()));
+                              .add(Started(const DashboardPage()));
                         },
                         icon: Icons.logout)
                   ]
