@@ -24,7 +24,6 @@ class CategoryRepository implements IRepository<Category> {
       RemoteDB.database
           .from(repositoryName)
           .select()
-          .eq('isHide', 'False')
           .asStream()
           .listen((List<Map<String, dynamic>> data) async {
         List<Category> remoteData = [];

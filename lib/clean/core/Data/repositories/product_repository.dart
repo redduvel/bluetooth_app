@@ -24,37 +24,37 @@ class ProductRepository implements IRepository<Product> {
 
       RemoteDB.database.from(repositoryName).select('''
         id, title, subtitle, characteristics, category!inner(id, name, isHide, order), allowFreeMarking, isHide
-        ''').eq('isHide', 'False').then((data) async {
-            for (var product in data) {
-              remoteData.add(Product.fromJson(product));
+        ''').then((data) async {
+        for (var product in data) {
+          remoteData.add(Product.fromJson(product));
+        }
+
+        final localProductMap = {
+          for (Product product in localData) product.id: product
+        };
+
+        final supabaseProductMap = {
+          for (Product product in remoteData) product.id: product
+        };
+
+        for (Product product in remoteData) {
+          if (localProductMap.containsKey(product.id)) {
+            final localProduct = localProductMap[product.id];
+            if (localProduct != product) {
+              product.backgroundColor = localProduct!.backgroundColor;
+              await update(product);
             }
+          } else {
+            await save(product);
+          }
+        }
 
-            final localProductMap = {
-              for (Product product in localData) product.id: product
-            };
-
-            final supabaseProductMap = {
-              for (Product product in remoteData) product.id: product
-            };
-
-            for (Product product in remoteData) {
-              if (localProductMap.containsKey(product.id)) {
-                final localProduct = localProductMap[product.id];
-                if (localProduct != product) {
-                  product.backgroundColor = localProduct!.backgroundColor;
-                  await update(product);
-                }
-              } else {
-                await save(product);
-              }
-            }
-
-            for (var category in localData) {
-              if (!supabaseProductMap.containsKey(category.id)) {
-                await delete(category.id);
-              }
-            }
-          });
+        for (var category in localData) {
+          if (!supabaseProductMap.containsKey(category.id)) {
+            await delete(category.id);
+          }
+        }
+      });
 
       await Future.delayed(const Duration(seconds: 1)).whenComplete(() {
         localData = getAll();

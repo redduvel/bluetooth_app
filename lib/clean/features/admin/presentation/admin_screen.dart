@@ -11,7 +11,6 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/employee_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/product_screen.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/body.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
 import 'package:flutter/material.dart';

@@ -47,7 +47,9 @@ class _PrintingPageState extends State<PrintingPage> {
                     builder: (context, state) {
                   if (state is ItemsLoaded<Product>) {
                     return IconButton(
-                        onPressed: () => context.read<DBBloc<Product>>().add(Sync<Product>()),
+                        onPressed: () => context
+                            .read<DBBloc<Product>>()
+                            .add(Sync<Product>()),
                         icon: const Icon(Icons.sync));
                   }
                   if (state is ItemsLoading<Product>) {
@@ -73,7 +75,8 @@ class _PrintingPageState extends State<PrintingPage> {
               automaticallyImplyLeading: false,
               actions: [
                 IconButton(
-                    onPressed: () => context.read<DBBloc<Product>>().add(Sync<Product>()),
+                    onPressed: () =>
+                        context.read<DBBloc<Product>>().add(Sync<Product>()),
                     icon: const Icon(Icons.sync))
               ],
             ),
@@ -83,11 +86,13 @@ class _PrintingPageState extends State<PrintingPage> {
               child: BlocBuilder<DBBloc<Category>, DBState<Category>>(
                   builder: (context, state) {
                 if (state is ItemsLoaded<Category>) {
+                  List<Category> categories =
+                      state.items.where((c) => !c.isHide).toList();
                   return Wrap(
                     runSpacing: 5,
                     spacing: 5,
-                    children: List.generate(state.items.length, (index) {
-                      Category category = state.items[index];
+                    children: List.generate(categories.length, (index) {
+                      Category category = categories[index];
                       return ChoiceChip(
                         backgroundColor: AppColors.surface,
                         selectedColor: AppColors.greenSurface,

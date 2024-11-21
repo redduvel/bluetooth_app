@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/container_page.dart';
@@ -101,7 +102,7 @@ class _AdminBodyState extends State<AdminBody> {
                         text: 'Выйти',
                         width: double.infinity,
                         onPressed: () {
-                          context.router.popForced();
+                          context.router.replace(const HomeRoute());
                           context
                               .read<NavigationBloc>()
                               .add(Started(const DashboardPage()));
