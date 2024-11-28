@@ -153,7 +153,6 @@ class _ProductScreenState extends State<ProductScreen> {
               centerTitle: false,
               automaticallyImplyLeading: false,
               actions: [
-
                 IconButton(
                     onPressed: () => setState(
                           () => showTools = !showTools,
@@ -189,7 +188,9 @@ class _ProductScreenState extends State<ProductScreen> {
                             SelectedCategoryWidget(
                                 controller: categoryController),
                             CheckBox(
-                                value: checkAllowFreeTime, title: 'Разрешить свободную маркировку?',)
+                              value: checkAllowFreeTime,
+                              title: 'Разрешить свободную маркировку?',
+                            )
                           ],
                         )
                       : Column(
@@ -198,7 +199,9 @@ class _ProductScreenState extends State<ProductScreen> {
                             SelectedCategoryWidget(
                                 controller: categoryController),
                             CheckBox(
-                                value: checkAllowFreeTime, title: 'Разрешить свободную маркировку?',)
+                              value: checkAllowFreeTime,
+                              title: 'Разрешить свободную маркировку?',
+                            )
                           ],
                         )),
             ),
@@ -238,10 +241,18 @@ class _ProductScreenState extends State<ProductScreen> {
                     spacing: 15,
                     runSpacing: 15,
                     children: products.map((p) {
-                      return ProductWidget(
-                        product: p,
-                        bloc: bloc,
-                      );
+                      return p.isHide
+                          ? Opacity(
+                              opacity: 0.5,
+                              child: ProductWidget(
+                                product: p,
+                                bloc: bloc,
+                              ),
+                            )
+                          : ProductWidget(
+                              product: p,
+                              bloc: bloc,
+                            );
                     }).toList(),
                   );
                 }

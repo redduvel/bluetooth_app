@@ -36,31 +36,32 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer: (Platform.isAndroid || Platform.isIOS)
           ? Drawer(
+              width: double.infinity,
               child: NavigationPage(controls: [
-              [
-                PrimaryButtonIcon(
-                    toPage: const LoginScreen(),
-                    text: 'Администратор',
-                    width: double.infinity,
-                    icon: Icons.admin_panel_settings),
-                PrimaryButtonIcon(
-                    toPage: const EmployeeScreen(),
-                    text: 'Сотрудники',
-                    icon: Icons.person_2)
-              ],
-              [
-                // PrimaryButtonIcon(
-                //     toPage: const ApplicationSettingsScreen(),
-                //     text: 'Настройки',
-                //     icon: Icons.settings),
-                PrimaryButtonIcon(
-                    type: ButtonType.delete,
-                    width: double.infinity,
-                    onPressed: () => exit(0),
-                    text: 'Закрыть',
-                    icon: Icons.close)
-              ]
-            ]))
+                [
+                  PrimaryButtonIcon(
+                      toPage: const LoginScreen(),
+                      text: 'Администратор',
+                      width: double.infinity,
+                      icon: Icons.admin_panel_settings),
+                  PrimaryButtonIcon(
+                      toPage: const EmployeeScreen(),
+                      text: 'Сотрудники',
+                      icon: Icons.person_2)
+                ],
+                [
+                  // PrimaryButtonIcon(
+                  //     toPage: const ApplicationSettingsScreen(),
+                  //     text: 'Настройки',
+                  //     icon: Icons.settings),
+                  PrimaryButtonIcon(
+                      type: ButtonType.delete,
+                      width: double.infinity,
+                      onPressed: () => exit(0),
+                      text: 'Закрыть',
+                      icon: Icons.close)
+                ]
+              ]))
           : null,
     );
   }

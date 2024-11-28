@@ -5,7 +5,9 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
+import 'package:bluetooth_app/clean/core/tools/id_generator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class CategoryListTile extends StatefulWidget {
@@ -113,13 +115,15 @@ class _CategoryListTileState extends State<CategoryListTile> {
                 text: 'Архивировать продукты и удалить категорию',
                 icon: Icons.delete,
                 type: ButtonType.delete,
-                onPressed: () async {
+                onPressed: () {
                   var archiveCategory =
                       Hive.box<Category>('categories').get('archive');
                   for (var product in relatedProducts) {
-                    var updatedProduct =
-                        product.copyWith(category: archiveCategory);
-                    await productsBox.put(product.id, updatedProduct);
+                    var updatedProduct = product.copyWith(
+                        category: archiveCategory, id: IdGenerator.generate());
+                    context
+                        .read<DBBloc<Product>>()
+                        .add(AddItem(updatedProduct));
                   }
 
                   widget.bloc.add(DeleteItem<Category>(category.id));

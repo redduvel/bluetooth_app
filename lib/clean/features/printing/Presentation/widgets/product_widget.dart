@@ -108,11 +108,13 @@ class _ProductWidgetState extends State<ProductWidget> {
                   color: AppColors.white,
                   itemBuilder: (context) {
                     return [
-                      const PopupMenuItem(
-                          child: Text(
-                        'Изменить данные',
-                        style: AppTextStyles.bodyMedium16,
-                      )),
+                      PopupMenuItem(
+                        child: const Text(
+                          'Изменить данные',
+                          style: AppTextStyles.bodyMedium16,
+                        ),
+                        onTap: () {},
+                      ),
                       PopupMenuItem(
                         child: const Text(
                           'Изменить оформление',
@@ -208,8 +210,10 @@ class _ProductWidgetState extends State<ProductWidget> {
                 }).toList()),
             Row(
               children: [
-                PrimaryButtonIcon(text: 'Печать', icon: Icons.print,),
-                PrimaryButtonIcon(text: 'Печать', icon: Icons.print,),
+                PrimaryButtonIcon(
+                  text: 'Печать',
+                  icon: Icons.print,
+                ),
               ],
             )
           ],
