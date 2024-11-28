@@ -30,7 +30,6 @@ class _NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(currentPage);
     return BlocListener<NavigationBloc, NavigationState>(
       bloc: bloc,
       listener: (context, state) {
@@ -59,6 +58,7 @@ class _NavigationPageState extends State<NavigationPage> {
                       width: double.infinity,
                       onPressed: () {
                         bloc.add(NavigateTo(w.toPage!));
+                        if (w.onPressed != null) w.onPressed!();
                       },
                       selected: currentPage.runtimeType == w.toPage.runtimeType,
                     );

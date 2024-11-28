@@ -30,7 +30,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: BlocListener<HomeBloc, HomeState>(
         listener: (context, state) => (Platform.isAndroid || Platform.isIOS)
-            ? Scaffold.of(context).openDrawer()
+            ? {
+                print("open"),
+                Scaffold.of(context).openDrawer(),
+              }
             : null,
         child: const HomeBody(),
       ),
@@ -41,12 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 [
                   PrimaryButtonIcon(
                       toPage: const LoginScreen(),
+                      onPressed: Navigator.of(context).pop,
                       text: 'Администратор',
                       width: double.infinity,
                       icon: Icons.admin_panel_settings),
                   PrimaryButtonIcon(
                       toPage: const EmployeeScreen(),
+                      onPressed: Navigator.of(context).pop,
                       text: 'Сотрудники',
+                      width: double.infinity,
                       icon: Icons.person_2)
                 ],
                 [
