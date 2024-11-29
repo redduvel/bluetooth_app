@@ -1,6 +1,7 @@
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
@@ -19,7 +20,8 @@ class TemplatePage extends StatefulWidget {
 class _TemplatePageState extends State<TemplatePage> {
   bool showTools = false;
   late TextEditingController _controller;
-  List<Product> selectBooks = [];
+  List<(Product, Characteristic)> selectBooks = [];
+  late SelectDataController _selectDataController;
 
   @override
   void initState() {
@@ -55,7 +57,42 @@ class _TemplatePageState extends State<TemplatePage> {
           ),
           if (showTools)
             SliverToBoxAdapter(
-              child: BlocBuilder<DBBloc<Product>, DBState<Product>>(
+              child: BlocConsumer<DBBloc<Product>, DBState<Product>>(
+                listener: (context, productState) {
+                  switch (productState) {
+                    case ItemsLoaded<Product>():
+                      {
+                        _selectDataController = SelectDataController(
+                          initSelected: (context
+                                      .read<DBBloc<Template>>()
+                                      .repository
+                                      .currentItem ==
+                                  null)
+                              ? null
+                              : selectBooks
+                                  .map(
+                                    (e) => SingleItemCategoryModel(
+                                      nameSingleItem: e.$2.name,
+                                      value: e,
+                                    ),
+                                  )
+                                  .toList(),
+                          data: productState.items
+                              .map(
+                                (p) => SingleCategoryModel(
+                                  nameCategory: p.title,
+                                  singleItemCategoryList: p.characteristics
+                                      .map((c) => SingleItemCategoryModel(
+                                          nameSingleItem: c.name,
+                                          value: (p, c)))
+                                      .toList(),
+                                ),
+                              )
+                              .toList(),
+                        );
+                      }
+                  }
+                },
                 builder: (context, productState) {
                   return switch (productState) {
                     ItemsLoaded<Product>() => Column(
@@ -69,80 +106,123 @@ class _TemplatePageState extends State<TemplatePage> {
                           Padding(
                             padding: const EdgeInsets.all(15),
                             child: Select2dot1(
-                              pillboxSettings: PillboxSettings(
-                                  defaultDecoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: AppColors.black),
-                                      borderRadius: BorderRadius.circular(5)),
-                                  activeDecoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.primary,
-                                      ),
-                                      borderRadius: BorderRadius.circular(5))),
-                              doneButtonModalSettings: DoneButtonModalSettings(
-                                  title: 'Выбрать',
-                                  iconColor: AppColors.primary,
-                                  buttonDecoration: BoxDecoration(
-                                      color: AppColors.primary,
-                                      borderRadius: BorderRadius.circular(5))),
-                              isSearchable: true,
-                              searchBarModalSettings:
-                                  const SearchBarModalSettings(
-                                textFieldStyle: AppTextStyles.bodySmall12,
-                              ),
-                              searchEmptyInfoModalSettings:
-                                  const SearchEmptyInfoModalSettings(
-                                      text: 'Нет результатов'),
-                              onChanged: (value) {
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  setState(() {
-                                    selectBooks = value
-                                        .map((v) => v.value as Product)
-                                        .toList();
+                                pillboxSettings: PillboxSettings(
+                                    defaultDecoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: AppColors.black),
+                                        borderRadius: BorderRadius.circular(5)),
+                                    activeDecoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppColors.primary,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(5))),
+                                doneButtonModalSettings:
+                                    DoneButtonModalSettings(
+                                        title: 'Выбрать',
+                                        iconColor: AppColors.primary,
+                                        buttonDecoration: BoxDecoration(
+                                            color: AppColors.primary,
+                                            borderRadius:
+                                                BorderRadius.circular(5))),
+                                isSearchable: true,
+                                searchBarModalSettings:
+                                    const SearchBarModalSettings(
+                                  textFieldStyle: AppTextStyles.bodySmall12,
+                                ),
+                                searchEmptyInfoModalSettings:
+                                    const SearchEmptyInfoModalSettings(
+                                        text: 'Нет результатов'),
+                                onChanged: (value) {
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    setState(() {
+                                      selectBooks = value.map(
+                                        (v) {
+                                          Product pr = v.value.$1;
+                                          Characteristic ch = v.value.$2;
+                                          return (pr, ch);
+                                        },
+                                      ).toList();
+                                    });
                                   });
-                                });
-                              },
-                              dropdownModalSettings:
-                                  const DropdownModalSettings(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            topRight: Radius.circular(5)),
-                                      ),
-                                      backgroundColor: AppColors.onSurface),
-                              titleModalSettings: const TitleModalSettings(
-                                  title: 'Выберете продукты',
-                                  titleTextStyle: AppTextStyles.labelMedium18),
-                              selectDataController: SelectDataController(
-                                data: [
-                                  SingleCategoryModel(
-                                    singleItemCategoryList: productState.items
-                                        .map((p) => SingleItemCategoryModel(
-                                            nameSingleItem: p.title, value: p))
-                                        .toList(),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                },
+                                dropdownModalSettings:
+                                    const DropdownModalSettings(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(5),
+                                              topRight: Radius.circular(5)),
+                                        ),
+                                        backgroundColor: AppColors.onSurface),
+                                titleModalSettings: const TitleModalSettings(
+                                    title: 'Выберете продукты',
+                                    titleTextStyle:
+                                        AppTextStyles.labelMedium18),
+                                selectDataController: _selectDataController),
                           ),
                           PrimaryButtonIcon(
-                              text: "Сохранить",
-                              icon: Icons.save,
-                              onPressed: (selectBooks.isEmpty ||
-                                      _controller.text == "")
-                                  ? null
-                                  : () {
-                                      return context
-                                          .read<DBBloc<Template>>()
-                                          .add(
-                                            AddItem(
-                                              Template(
+                            text: "Сохранить",
+                            icon: Icons.save,
+                            onPressed: (selectBooks.isEmpty ||
+                                    _controller.text == "")
+                                ? null
+                                : (context
+                                            .read<DBBloc<Template>>()
+                                            .repository
+                                            .currentItem ==
+                                        null)
+                                    ? () {
+                                        showTools = false;
+                                        context.read<DBBloc<Template>>().add(
+                                              AddItem(
+                                                Template(
                                                   title: _controller.text,
-                                                  listProducts: selectBooks),
-                                            ),
-                                          );
-                                    })
+                                                  listProducts: selectBooks
+                                                      .map(
+                                                        (e) => e.$1,
+                                                      )
+                                                      .toList(),
+                                                  listChars: selectBooks
+                                                      .map(
+                                                        (e) => e.$2,
+                                                      )
+                                                      .toList(),
+                                                ),
+                                                sync: false,
+                                              ),
+                                            );
+                                        _controller.text = "";
+                                        context
+                                            .read<DBBloc<Template>>()
+                                            .repository
+                                            .currentItem = null;
+                                      }
+                                    : () {
+                                        showTools = false;
+                                        Template t = context
+                                            .read<DBBloc<Template>>()
+                                            .repository
+                                            .currentItem!
+                                            .copyWith(
+                                              listProducts: selectBooks
+                                                  .map((e) => e.$1)
+                                                  .toList(),
+                                              listChars: selectBooks
+                                                  .map((e) => e.$2)
+                                                  .toList(),
+                                              title: _controller.text,
+                                            );
+                                        _controller.text = "";
+                                        context
+                                            .read<DBBloc<Template>>()
+                                            .repository
+                                            .currentItem = null;
+                                        context
+                                            .read<DBBloc<Template>>()
+                                            .add(AddItem(t, sync: false));
+                                      },
+                          ),
                         ],
                       ),
                     _ =>
@@ -193,11 +273,38 @@ class _TemplatePageState extends State<TemplatePage> {
                                     color: AppColors.white,
                                     itemBuilder: (context) {
                                       return [
-                                        const PopupMenuItem(
-                                            child: Text(
-                                          'Изменить данные',
-                                          style: AppTextStyles.bodyMedium16,
-                                        )),
+                                        PopupMenuItem(
+                                          child: const Text(
+                                            'Изменить данные',
+                                            style: AppTextStyles.bodyMedium16,
+                                          ),
+                                          onTap: () {
+                                            setState(() {
+                                              context
+                                                      .read<DBBloc<Template>>()
+                                                      .repository
+                                                      .currentItem =
+                                                  templateState.items[index];
+                                              _controller.text = templateState
+                                                  .items[index].title;
+                                              selectBooks = List<
+                                                  (
+                                                    Product,
+                                                    Characteristic
+                                                  )>.generate(
+                                                templateState.items[index]
+                                                    .listProducts.length,
+                                                (jndex) => (
+                                                  templateState.items[index]
+                                                      .listProducts[jndex],
+                                                  templateState.items[index]
+                                                      .listChars[jndex],
+                                                ),
+                                              );
+                                              showTools = true;
+                                            });
+                                          },
+                                        ),
                                         const PopupMenuItem(
                                             child: Text(
                                           'Изменить оформление',
@@ -226,8 +333,7 @@ class _TemplatePageState extends State<TemplatePage> {
                                     padding: const EdgeInsets.all(2.5),
                                     labelPadding: const EdgeInsets.all(0),
                                     label: Text(
-                                      templateState.items[index]
-                                          .listProducts[chipIndex].title,
+                                      '${templateState.items[index].listProducts[chipIndex].title} ${templateState.items[index].listChars[chipIndex].name}',
                                       style: AppTextStyles.bodyMedium16
                                           .copyWith(fontSize: 12),
                                     ));

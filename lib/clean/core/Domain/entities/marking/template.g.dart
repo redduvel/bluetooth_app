@@ -8,7 +8,7 @@ part of 'template.dart';
 
 class TemplateAdapter extends TypeAdapter<Template> {
   @override
-  final int typeId = 7;
+  final int typeId = 8;
 
   @override
   Template read(BinaryReader reader) {
@@ -19,19 +19,22 @@ class TemplateAdapter extends TypeAdapter<Template> {
     return Template(
       id: fields[0] as String?,
       listProducts: (fields[1] as List).cast<Product>(),
-      title: fields[2] as String,
+      listChars: (fields[2] as List).cast<Characteristic>(),
+      title: fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Template obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.listProducts)
       ..writeByte(2)
+      ..write(obj.listChars)
+      ..writeByte(3)
       ..write(obj.title);
   }
 

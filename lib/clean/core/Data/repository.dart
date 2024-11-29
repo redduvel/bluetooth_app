@@ -1,6 +1,5 @@
-
 abstract class IRepository<T> {
-  dynamic currentItem;
+  T? currentItem;
   Future<List<T>> sync();
   Future<void> save(T model, {bool sync = false});
   List<T> getAll();

@@ -1,7 +1,6 @@
 import 'package:bluetooth_app/clean/core/Data/repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 // ======EVENTS======
 abstract class DBEvent<T> {}
 
@@ -9,12 +8,14 @@ class LoadItems<T> extends DBEvent<T> {}
 
 class AddItem<T> extends DBEvent<T> {
   final T item;
-  AddItem(this.item);
+  final bool? sync;
+  AddItem(this.item, {this.sync});
 }
 
 class UpdateItem<T> extends DBEvent<T> {
   final T item;
-  UpdateItem(this.item);
+  final bool? sync;
+  UpdateItem(this.item, {this.sync});
 }
 
 class DeleteItem<T> extends DBEvent<T> {
@@ -29,17 +30,13 @@ class ReorderList<T> extends DBEvent<T> {
   ReorderList(this.newIndex, this.oldIndex, this.sync);
 }
 
-class Sync<T> extends DBEvent<T> {
-  
-}
+class Sync<T> extends DBEvent<T> {}
 
 class Search<T> extends DBEvent<T> {
   final String query;
 
   Search(this.query);
 }
-
-
 
 // ======STATES======
 abstract class DBState<T> {}
@@ -82,7 +79,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
 
     on<AddItem<T>>((event, emit) async {
       try {
-        await repository.save(event.item, sync: true);
+        await repository.save(event.item, sync: event.sync ?? true);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));
@@ -91,7 +88,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
 
     on<UpdateItem<T>>((event, emit) async {
       try {
-        await repository.update(event.item, sync: true);
+        await repository.update(event.item, sync: event.sync ?? true);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));
@@ -109,7 +106,8 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
 
     on<ReorderList<T>>((event, emit) {
       try {
-        repository.reorderList(event.newIndex, event.oldIndex, sync: event.sync);
+        repository.reorderList(event.newIndex, event.oldIndex,
+            sync: event.sync);
         add(LoadItems<T>());
       } catch (e) {
         emit(ItemOperationFailed<T>(e.toString()));

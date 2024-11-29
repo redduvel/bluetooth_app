@@ -272,14 +272,14 @@ class _ProductWidgetState extends State<ProductWidget> {
                   _buildLabelTemplate(
                       context,
                       widget.product,
-                      context.read<DBBloc<User>>().repository.currentItem,
+                      context.read<DBBloc<User>>().repository.currentItem!,
                       false,
                       startDate: startDate),
                 if (widget.product.characteristics.isEmpty)
                   _buildEmptyLabelTemplate(
                     context,
                     widget.product,
-                    context.read<DBBloc<User>>().repository.currentItem,
+                    context.read<DBBloc<User>>().repository.currentItem!,
                   ),
                 const SliverToBoxAdapter(
                   child: SizedBox(height: 10),
@@ -441,8 +441,10 @@ class _ProductWidgetState extends State<ProductWidget> {
                   if (saveMarking) {
                     context.read<DBBloc<Marking>>().add(AddItem(Marking(
                         product: widget.product,
-                        user:
-                            context.read<DBBloc<User>>().repository.currentItem,
+                        user: context
+                            .read<DBBloc<User>>()
+                            .repository
+                            .currentItem!,
                         category: widget.product.category,
                         startDate:
                             adjustmentType ? customEndDate : DateTime.now(),
@@ -454,8 +456,10 @@ class _ProductWidgetState extends State<ProductWidget> {
                   }
                   context.read<PrinterBloc>().add(PrintLabel(
                         product: widget.product,
-                        employee:
-                            context.read<DBBloc<User>>().repository.currentItem,
+                        employee: context
+                            .read<DBBloc<User>>()
+                            .repository
+                            .currentItem!,
                         startDate:
                             adjustmentType ? customEndDate : DateTime.now(),
                         characteristicIndex: selectedCharacteristic,
@@ -613,7 +617,7 @@ class _ProductWidgetState extends State<ProductWidget> {
               ),
               const SliverToBoxAdapter(child: Divider()),
               _buildLabelTemplate(context, widget.product,
-                  context.read<DBBloc<User>>().repository.currentItem, true),
+                  context.read<DBBloc<User>>().repository.currentItem!, true),
               const SliverToBoxAdapter(child: Divider()),
               if (widget.product.characteristics.isNotEmpty)
                 _buildChoiceChips(setState),
