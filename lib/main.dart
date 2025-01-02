@@ -80,15 +80,24 @@ class App extends StatelessWidget {
               ..add(Sync<User>());
           },
         ),
-        BlocProvider(create: (_) => DBBloc(ProductRepository(repositoryName: 'products'))
-              ..add(Sync<Product>()),
+        BlocProvider(
+          create: (_) => DBBloc(ProductRepository(repositoryName: 'products'))
+            ..add(Sync<Product>()),
         ),
-        BlocProvider(create: (_) => DBBloc(CategoryRepository(repositoryName: 'categories'))
-              ..add(Sync<Category>()),
+        BlocProvider(
+          create: (_) =>
+              DBBloc(CategoryRepository(repositoryName: 'categories'))
+                ..add(Sync<Category>()),
         ),
-        BlocProvider(create: (_) => DBBloc(MarkingRepositore(repositoryName: 'markings'))),
-        BlocProvider(create: (_) => DBBloc(TemplateRepository(repositoryName: 'templates'))),
-        BlocProvider(create: (_) => NavigationBloc(InitialState(const DashboardPage()))),
+        BlocProvider(
+            create: (_) =>
+                DBBloc(MarkingRepositore(repositoryName: 'markings'))),
+        BlocProvider(
+            create: (_) =>
+                DBBloc(TemplateRepository(repositoryName: 'templates'))
+                  ..add(LoadItems<Template>())),
+        BlocProvider(
+            create: (_) => NavigationBloc(InitialState(const DashboardPage()))),
         BlocProvider(create: (_) => PrinterBloc()..add(CheckConnection())),
       ],
       child: MaterialApp.router(

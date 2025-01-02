@@ -27,7 +27,6 @@ class _TemplatePageState extends State<TemplatePage> {
     _controller = TextEditingController();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +62,7 @@ class _TemplatePageState extends State<TemplatePage> {
                         children: [
                           PrimaryTextField(
                             controller: _controller,
-                            width: 800,
+                            width: double.infinity,
                             margin: const EdgeInsets.symmetric(horizontal: 15),
                             hintText: 'Название',
                           ),

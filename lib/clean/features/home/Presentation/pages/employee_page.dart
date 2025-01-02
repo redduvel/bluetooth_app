@@ -48,12 +48,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       leading: const Icon(Icons.person),
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
-                        context.read<DBBloc<User>>().repository.currentItem = state.items[index];
+                        context.read<DBBloc<User>>().repository.currentItem =
+                            state.items[index];
                         context.read<UserCubit>().setUser(CurrentUser.employee);
-                        context.read<NavigationBloc>().add(NavigateTo(const PrintingPage()));
+                        context
+                            .read<NavigationBloc>()
+                            .add(NavigateTo(const PrintingPage()));
 
                         context.router.push(const PrintingRoute());
-
                       },
                     );
                   }, childCount: state.items.length))

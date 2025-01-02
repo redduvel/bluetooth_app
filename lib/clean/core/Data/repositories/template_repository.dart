@@ -71,7 +71,6 @@ class TemplateRepository implements IRepository<Template> {
       throw Exception(e);
     }
   }
-  
   @override
   List<Template> search(String query) {
     // TODO: implement search
