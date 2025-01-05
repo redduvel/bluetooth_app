@@ -41,6 +41,7 @@ dependencies:
   select2dot1: ^2.0.9
   auto_route: ^9.2.2
   multi_dropdown: ^3.0.1
+  adoptive_calendar: ^0.2.0
 
 dev_dependencies:
   flutter_test:

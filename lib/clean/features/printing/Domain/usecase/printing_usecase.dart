@@ -10,8 +10,6 @@ class PrintingUsecase {
         return startTime.add(Duration(minutes: characteristic.value));
       case MeasurementUnit.days:
         return startTime.add(Duration(days: characteristic.value));
-      default:
-        throw ArgumentError('Unknown MeasurementUnit: ${characteristic.unit}');
     }
   }
 }

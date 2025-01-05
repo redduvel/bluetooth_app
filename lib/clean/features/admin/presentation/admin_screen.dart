@@ -69,7 +69,7 @@ class AdminScreen extends StatelessWidget {
                 [
                   PrimaryButtonIcon(
                     toPage: const DashboardPage(),
-                    text: 'Доска (демо версия журнала)',
+                    text: 'Журнал',
                     width: double.infinity,
                     icon: Icons.dashboard,
                   ),
@@ -93,11 +93,6 @@ class AdminScreen extends StatelessWidget {
                   )
                 ],
                 [
-                  PrimaryButtonIcon(
-                      toPage: const SettingsScreen(),
-                      text: 'Настройки',
-                      width: double.infinity,
-                      icon: Icons.settings),
                   PrimaryButtonIcon(
                       text: 'Выйти',
                       width: double.infinity,

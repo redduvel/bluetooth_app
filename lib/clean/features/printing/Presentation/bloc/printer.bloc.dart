@@ -202,11 +202,11 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
             endTime = DateFormat('dd.MM.yy HH:mm').format(PrintingUsecase.setAdjustmentTime(
                 event.startDate,
                 event.product.characteristics[event.characteristicIndex]));
-            img = await ImageUtils().createLabelWithText(
+            img = await ImageService().createLabelWithText(
                 event.product.subtitle, event.employee.fullName, double.tryParse(labelWidth) ?? 30, double.tryParse(labelHeigth) ?? 20,
                 startDate: startTime, endDate: endTime);
           } else {
-            img = await ImageUtils().createLabelWithText(
+            img = await ImageService().createLabelWithText(
                 event.product.subtitle, event.employee.fullName, double.tryParse(labelWidth) ?? 30, double.tryParse(labelHeigth) ?? 20);
           }
 
@@ -245,7 +245,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
             30 * PdfPageFormat.mm, 20 * PdfPageFormat.mm,
             marginAll: 0),
         onLayout: (PdfPageFormat format) async {
-          final pdf = await ImageUtils().generatePdf(
+          final pdf = await ImageService().generatePdf(
             int.tryParse(event.count)!,
             format,
             event.product.subtitle,

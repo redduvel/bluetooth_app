@@ -18,12 +18,19 @@ class EmployeeScreen extends StatefulWidget {
 
 class _EmployeeScreenState extends State<EmployeeScreen> {
   late DBBloc<User> bloc;
-  TextEditingController nameController = TextEditingController();
+  late TextEditingController nameController;
 
   @override
   void initState() {
     bloc = context.read<DBBloc<User>>()..add(LoadItems<User>());
+    nameController = TextEditingController();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,16 +69,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           automaticallyImplyLeading: false,
           actions: [
             if (Platform.isMacOS || Platform.isWindows)
-            PrimaryButtonIcon(
-              text: 'Синхронизировать',
-              icon: Icons.sync,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              selected: true,
-              onPressed: () => bloc.add(Sync<User>()),
-            ),
-
+              PrimaryButtonIcon(
+                text: 'Синхронизировать',
+                icon: Icons.sync,
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                selected: true,
+                onPressed: () => bloc.add(Sync<User>()),
+              ),
             if (Platform.isAndroid || Platform.isIOS)
-            IconButton(onPressed: () => bloc.add(Sync<User>()), icon: const Icon(Icons.sync))
+              IconButton(
+                  onPressed: () => bloc.add(Sync<User>()),
+                  icon: const Icon(Icons.sync))
           ],
         ),
         SliverToBoxAdapter(
@@ -88,6 +96,13 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
               text: 'Добавить',
               icon: Icons.add,
               onPressed: () {
+                if (nameController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Необходимо заполнить все поля'))
+                  );
+                  return;
+                }
+
                 bloc.add(AddItem(User(fullName: nameController.text)));
               },
             ),
@@ -102,14 +117,16 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             );
           }, childCount: users.length)),
         if (users.isEmpty)
-        const SliverPadding(
-          padding: EdgeInsets.symmetric(vertical: 15),
-          sliver: SliverToBoxAdapter(
-            child: Center(
-              child: CircularProgressIndicator(color: AppColors.greenOnSurface,),
+          const SliverPadding(
+            padding: EdgeInsets.symmetric(vertical: 15),
+            sliver: SliverToBoxAdapter(
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.greenOnSurface,
+                ),
+              ),
             ),
-          ),
-        )
+          )
       ],
     );
   }

@@ -135,26 +135,21 @@ double calculateRemainingPercentage(DateTime startDate, DateTime endDate) {
 String calculateRemainingTime(DateTime startDate, DateTime endDate) {
   final currentTime = DateTime.now();
 
-  // Если текущее время до начала периода, считаем оставшееся время с начала
   DateTime effectiveStartDate =
       currentTime.isBefore(startDate) ? startDate : currentTime;
 
-  // Если текущее время уже после конца периода, возвращаем "0 минут"
   if (currentTime.isAfter(endDate)) {
-    return "0 минут";
+    return "0 мин.";
   }
 
   final remainingDuration = endDate.difference(effectiveStartDate);
 
   if (remainingDuration.inDays >= 1) {
-    // Если осталось больше или равно 1 дню
-    return "${remainingDuration.inDays} дней";
+    return "${remainingDuration.inDays} дн.";
   } else if (remainingDuration.inHours >= 1) {
-    // Если осталось меньше 1 дня, но больше или равно 1 часа
-    return "${remainingDuration.inHours} часов";
+    return "${remainingDuration.inHours} ч.";
   } else {
-    // Если осталось меньше часа, выводим минуты
-    return "${remainingDuration.inMinutes} минут";
+    return "${remainingDuration.inMinutes} мин.";
   }
 }
 

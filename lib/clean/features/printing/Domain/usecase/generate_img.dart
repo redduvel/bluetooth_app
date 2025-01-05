@@ -8,7 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:image/image.dart' as img;
 
-class ImageUtils {
+class ImageService {
   Future<Map<String, dynamic>> createLabelWithText(String product, String name, double width, double height,
       {String? startDate, String? endDate}) async {
     const int dpi = 203;

@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/clock_widget.dart';
@@ -9,28 +10,27 @@ import 'package:intl/intl.dart';
 import 'package:universal_io/io.dart';
 
 class LabelTemplateWidget extends StatefulWidget {
-    final Product product;
+  final Product product;
+  final bool customDate;
+  final DateTime startDate;
+  final DateTime customEndDate;
+  final Characteristic selectedCharacteristic;
 
-  const LabelTemplateWidget({super.key, required this.product});
+  const LabelTemplateWidget(
+      {super.key, required this.product, required this.customDate, required this.startDate, required this.customEndDate, required this.selectedCharacteristic});
 
   @override
   State<LabelTemplateWidget> createState() => _LabelTemplateWidgetState();
 }
 
 class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
-  DateTime customEndDate = DateTime.now();
-  DateTime startDate = DateTime.now();
-  DateTime adjustmentDateTime = DateTime.now();
-
-  bool customDate = false;
-    int selectedCharacteristic = 0;
-
-
   late User currentUser;
 
   @override
   void initState() {
-    currentUser = context.read<DBBloc<User>>().repository.currentItem ?? User(fullName: 'fullName');
+    currentUser = context.read<DBBloc<User>>().repository.currentItem ??
+        User(fullName: 'Администатор');
+
     super.initState();
   }
 
@@ -58,9 +58,10 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
             minFontSize: 14,
           ),
           if (widget.product.characteristics.isNotEmpty)
-            customDate
+            widget.customDate
                 ? AutoSizeText(
-                    DateFormat('dd.MM.yy HH:mm').format(customEndDate),
+                    DateFormat('dd.MM.yy HH:mm')
+                        .format(widget.startDate),
                     style: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w500),
                     maxLines: 1,
@@ -68,13 +69,14 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
                     minFontSize: 14,
                   )
                 : ClockWidget(
-                    startDate: startDate,
+                    startDate: widget.startDate,
                     characteristic: null,
                   ),
           if (widget.product.characteristics.isNotEmpty)
-            customDate
+            widget.customDate
                 ? AutoSizeText(
-                    DateFormat('dd.MM.yy HH:mm').format(adjustmentDateTime),
+                    DateFormat('dd.MM.yy HH:mm')
+                        .format(widget.customEndDate),
                     style: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w500),
                     maxLines: 1,
@@ -82,10 +84,10 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
                     minFontSize: 14,
                   )
                 : ClockWidget(
-                    key: ValueKey(selectedCharacteristic),
-                    startDate: adjustmentDateTime,
+                    key: ValueKey(UniqueKey()),
+                    startDate: widget.customEndDate,
                     characteristic:
-                        widget.product.characteristics[selectedCharacteristic]),
+                        widget.selectedCharacteristic),
           AutoSizeText(
             currentUser.fullName,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),

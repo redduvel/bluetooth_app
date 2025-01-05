@@ -6,6 +6,7 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class CategoryListTile extends StatefulWidget {
@@ -103,7 +104,7 @@ class _CategoryListTileState extends State<CategoryListTile> {
                 type: ButtonType.delete,
                 onPressed: () {
                   for (var product in relatedProducts) {
-                    productsBox.delete(product.id);
+                    context.read<DBBloc<Product>>().add(DeleteItem<Product>(product.id));
                   }
                   widget.bloc.add(DeleteItem<Category>(category.id));
                   context.router.popForced();

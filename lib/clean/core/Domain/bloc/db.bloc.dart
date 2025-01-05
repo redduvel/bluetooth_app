@@ -63,6 +63,7 @@ class DBBloc<T> extends Bloc<DBEvent<T>, DBState<T>> {
   DBBloc(this.repository) : super(ItemsLoading<T>()) {
     on<Sync<T>>((event, emit) async {
       try {
+        emit(ItemsLoading<T>());
         await repository.sync().then((value) {
           emit(ItemsLoaded<T>(value));
         });

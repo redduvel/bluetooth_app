@@ -17,11 +17,11 @@ enum MeasurementUnit {
 String getLocalizedMeasurementUnit(MeasurementUnit unit) {
   switch (unit) {
     case MeasurementUnit.hours:
-      return 'час';
+      return 'ч.';
     case MeasurementUnit.minutes:
-      return 'минута';
+      return 'мин.';
     case MeasurementUnit.days:
-      return 'сутки';
+      return 'дн.';
   }
 }
 

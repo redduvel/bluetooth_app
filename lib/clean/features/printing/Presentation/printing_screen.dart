@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/routes/app_router.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
+import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
@@ -43,9 +45,13 @@ class _PrintingScreenState extends State<PrintingScreen> {
         //     context.router.popForced();
         //   },
         // ),
+        title: Text(
+          context.read<DBBloc<User>>().repository.currentItem.fullName
+        ),
         actions: [
-          if (Platform.isAndroid || Platform.isIOS)
-            BlocBuilder<PrinterBloc, PrinterState>(
+          
+          if (Platform.isAndroid || Platform.isIOS) ...[
+BlocBuilder<PrinterBloc, PrinterState>(
               builder: (context, state) {
                 if (state is PrinterLoading) {
                   return const Padding(
@@ -72,6 +78,8 @@ class _PrintingScreenState extends State<PrintingScreen> {
                 );
               },
             ),
+          ]
+            
         ],
       ),
       body: const PrintingBody(),

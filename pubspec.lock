@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "67.0.0"
+  adoptive_calendar:
+    dependency: "direct main"
+    description:
+      name: adoptive_calendar
+      sha256: "58ee961a0471267d7fd630cb5ee48eb67e5a096b9766da09f3004b58527678d9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   analyzer:
     dependency: transitive
     description:

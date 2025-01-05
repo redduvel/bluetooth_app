@@ -24,7 +24,9 @@ class ProductRepository implements IRepository<Product> {
 
       RemoteDB.database.from(repositoryName).select('''
         id, title, subtitle, characteristics, category!inner(id, name, isHide, order), allowFreeMarking, isHide
-        ''').eq('isHide', 'False').then((data) async {
+        ''')
+        //.eq('isHide', UserCubit.current == CurrentUser.admin ? 'True' : 'False')
+        .then((data) async {
             for (var product in data) {
               remoteData.add(Product.fromJson(product));
             }

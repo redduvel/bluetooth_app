@@ -113,6 +113,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
               text: 'Добавить',
               icon: Icons.add,
               onPressed: () {
+                if (nameController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Необходимо заполнить все поля'))
+                  );
+                  return;
+                }
                 bloc.add(AddItem(Category(
                     order: 1, name: nameController.text, isHide: false)));
               },

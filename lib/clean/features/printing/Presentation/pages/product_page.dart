@@ -6,6 +6,7 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_appbar.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/product_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_io/io.dart';
@@ -47,15 +48,16 @@ class _PrintingPageState extends State<PrintingPage> {
                     builder: (context, state) {
                   if (state is ItemsLoaded<Product>) {
                     return IconButton(
-                        onPressed: () => context.read<DBBloc<Product>>().add(Sync<Product>()),
+                        onPressed: () => context
+                            .read<DBBloc<Product>>()
+                            .add(Sync<Product>()),
                         icon: const Icon(Icons.sync));
                   }
                   if (state is ItemsLoading<Product>) {
-                    return const CircularProgressIndicator(
-                        color: AppColors.greenOnSurface);
+                    return const CupertinoActivityIndicator();
                   }
 
-                  return const SizedBox.shrink();
+                  return const CupertinoActivityIndicator();
                 }),
               ],
             )
@@ -73,9 +75,21 @@ class _PrintingPageState extends State<PrintingPage> {
               automaticallyImplyLeading: false,
               actions: [
                 IconButton(
-                    onPressed: () => context.read<DBBloc<Product>>().add(Sync<Product>()),
+                    onPressed: () =>
+                        context.read<DBBloc<Product>>().add(Sync<Product>()),
                     icon: const Icon(Icons.sync))
               ],
+              bottom: PreferredSize(
+                  preferredSize: const Size(double.infinity, 40),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    child: CupertinoSearchTextField(
+                      placeholder: 'Поиск продуктов...',
+                      onChanged: (value) {
+                        context.read<DBBloc<Product>>().add(Search<Product>(value));
+                      },
+                    ),
+                  )),
             ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -84,8 +98,8 @@ class _PrintingPageState extends State<PrintingPage> {
                   builder: (context, state) {
                 if (state is ItemsLoaded<Category>) {
                   return Wrap(
-                    runSpacing: 5,
-                    spacing: 5,
+                    //runSpacing: 5,
+                    spacing: 10,
                     children: List.generate(state.items.length, (index) {
                       Category category = state.items[index];
                       return ChoiceChip(
@@ -93,6 +107,7 @@ class _PrintingPageState extends State<PrintingPage> {
                         selectedColor: AppColors.greenSurface,
                         checkmarkColor: AppColors.greenOnSurface,
                         selectedShadowColor: AppColors.greenOnSurface,
+                        visualDensity: VisualDensity.compact,
                         label: Text(category.name),
                         selected: selectedCategories.contains(category),
                         onSelected: (value) {
@@ -121,7 +136,7 @@ class _PrintingPageState extends State<PrintingPage> {
                   final filteredProducts = _getFilteredProducts(
                       productState.items, selectedCategories);
                   if (filteredProducts.isEmpty) {
-                    return const SliverToBoxAdapter(
+                    return const SliverFillRemaining(
                       child: Center(
                           child: Text(
                         'Нет продуктов для этой категории.',
@@ -140,7 +155,7 @@ class _PrintingPageState extends State<PrintingPage> {
               },
             )
           else
-            const SliverToBoxAdapter(
+            const SliverFillRemaining(
               child: Center(
                   child: Text(
                 'Выберите категорию',
