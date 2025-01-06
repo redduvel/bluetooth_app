@@ -14,7 +14,6 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/start_page.dart';
-import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/cubit/dropdown_controller.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
@@ -47,21 +46,11 @@ Future<void> main() async {
   //   });
   // }
 
-  // RUN APP
   runApp(const App());
 }
 
 class App extends StatelessWidget {
   const App({super.key});
-
-  // bool productSearchCondition(Product product, String query) {
-  //   return product.title.toLowerCase().contains(query) ||
-  //       product.subtitle.toLowerCase().contains(query);
-  // }
-
-  // bool nomenclatureSearchCondition(Nomenclature nomenclature, String query) {
-  //   return nomenclature.name.toLowerCase().contains(query);
-  // }
 
   @override
   Widget build(BuildContext context) {

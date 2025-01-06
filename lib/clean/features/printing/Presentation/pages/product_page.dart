@@ -29,7 +29,7 @@ class _PrintingPageState extends State<PrintingPage> {
 
   @override
   void initState() {
-    productBloc = productBloc;
+    productBloc = context.read<DBBloc<Product>>();
     printerBloc = context.read<PrinterBloc>();
     super.initState();
 
@@ -82,7 +82,9 @@ class _PrintingPageState extends State<PrintingPage> {
                     bloc: productBloc,
                     builder: (context, state) {
                       if (state is ItemsLoading<Product>) {
-                        return CupertinoActivityIndicator();
+                        return const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: CupertinoActivityIndicator());
                       }
                       return IconButton(
                           onPressed: () => productBloc.add(Sync<Product>()),
