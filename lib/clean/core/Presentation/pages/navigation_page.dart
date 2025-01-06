@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.event.dart';
@@ -54,6 +55,7 @@ class _NavigationPageState extends State<NavigationPage> {
                       width: double.infinity,
                       onPressed: () {
                         bloc.add(NavigateTo(w.toPage!));
+                        context.router.maybePop();
                       },
                       selected: currentPage.runtimeType == w.toPage.runtimeType,
                     );

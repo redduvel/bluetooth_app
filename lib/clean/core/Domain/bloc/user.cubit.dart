@@ -5,16 +5,15 @@ enum CurrentUser {
 }
 
 class UserCubit extends Cubit<CurrentUser> {
-  UserCubit() : super(CurrentUser.employee);
+  UserCubit._internal() : super(CurrentUser.employee);
 
-  static UserCubit? _instance;
+  static final UserCubit _instance = UserCubit._internal();
 
-  factory UserCubit.instance() {
-    _instance ??= UserCubit();
-    return _instance!;
+  factory UserCubit() {
+    return _instance;
   }
 
-  static CurrentUser get current => _instance?.state ?? CurrentUser.admin;
+  static CurrentUser get current => _instance.state;
 
   void setUser(CurrentUser user) => emit(user);
 }

@@ -45,13 +45,13 @@ class _PrintingScreenState extends State<PrintingScreen> {
         //     context.router.popForced();
         //   },
         // ),
-        title: Text(
-          context.read<DBBloc<User>>().repository.currentItem.fullName
+        title: BlocBuilder<DBBloc<User>, DBState<User>>(
+          builder: (context, state) => Text(
+              context.read<DBBloc<User>>().repository.currentItem.fullName),
         ),
         actions: [
-          
           if (Platform.isAndroid || Platform.isIOS) ...[
-BlocBuilder<PrinterBloc, PrinterState>(
+            BlocBuilder<PrinterBloc, PrinterState>(
               builder: (context, state) {
                 if (state is PrinterLoading) {
                   return const Padding(
@@ -79,7 +79,6 @@ BlocBuilder<PrinterBloc, PrinterState>(
               },
             ),
           ]
-            
         ],
       ),
       body: const PrintingBody(),
@@ -112,13 +111,14 @@ BlocBuilder<PrinterBloc, PrinterState>(
                 ],
                 [
                   PrimaryButtonIcon(
-                    text: 'Настройки',
-                    icon: Icons.settings,
-                    width: double.infinity,
-                  ),
+                      toPage: const EmployeeScreen(),
+                      text: 'Сотрудники',
+                      width: double.infinity,
+                      icon: Icons.person_2),
                   PrimaryButtonIcon(
                       text: 'Выйти',
                       width: double.infinity,
+                      type: ButtonType.delete,
                       onPressed: () {
                         context.router.replace(const HomeRoute());
                         context

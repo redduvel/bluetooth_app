@@ -56,8 +56,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/ggg.jpeg
-    - assets/images/test.bmp
+    - assets/
+    - assets/images/
+    - assets/images/start.png
+    - assets/fonts/
     - assets/fonts/roboto.ttf
     - assets/fonts/roboto.zip
     - assets/fonts/roboto.ttf.zip

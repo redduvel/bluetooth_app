@@ -55,14 +55,16 @@ class _PrintingBodyState extends State<PrintingBody> {
                       icon: Icons.print,
                     )
                   ],
-                  [
+                  [ 
                     PrimaryButtonIcon(
-                      text: 'Настройки',
-                      icon: Icons.settings,
-                      width: double.infinity,
-                    ),
+                    toPage: const EmployeeScreen(),
+                    text: 'Сотрудники',
+                    width: double.infinity,
+                    icon: Icons.person_2),
                     PrimaryButtonIcon(
                         text: 'Выйти',
+                    type: ButtonType.delete,
+
                         width: double.infinity,
                         onPressed: () {
                           context.router.popForced();

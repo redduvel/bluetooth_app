@@ -31,6 +31,10 @@ class _SelectedCategoryWidgetState extends State<SelectedCategoryWidget> {
               widget.controller.selectOption(value!);
             }),
             hintText: 'Выберите категорию',
+            width: double.infinity,
+            menuStyle: const MenuStyle(
+              backgroundColor: WidgetStatePropertyAll(AppColors.surface)
+            ),
             leadingIcon: const Icon(Icons.category),
             dropdownMenuEntries: nomenclatures.map((nomenclature) {
               return DropdownMenuEntry(

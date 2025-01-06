@@ -50,66 +50,6 @@ class _DashboardPageState extends State<DashboardPage> {
               if (state is ItemsLoaded<Marking>) {
                 return CustomScrollView(
                   slivers: [
-                    // const SliverToBoxAdapter(
-                    //   child: TextField(
-                    //     decoration: InputDecoration(
-                    //         prefixIcon: Icon(Icons.search),
-                    //         border: OutlineInputBorder(
-                    //             borderSide: BorderSide(
-                    //                 color: AppColors.secondaryButton)),
-                    //         focusedBorder: OutlineInputBorder(
-                    //             borderSide:
-                    //                 BorderSide(color: AppColors.secondaryText)),
-                    //         enabledBorder: OutlineInputBorder(
-                    //             borderSide: BorderSide(
-                    //                 color: AppColors.secondaryButton)),
-                    //         filled: true,
-                    //         fillColor: AppColors.inputSurface,
-                    //         hintText: 'Поиск категорий, маркировок...'),
-                    //     cursorColor: AppColors.primary,
-                    //   ),
-                    // ),
-                    // const SliverToBoxAdapter(
-                    //   child: SizedBox(
-                    //     height: 80,
-                    //   ),
-                    // ),
-                    // const SliverToBoxAdapter(
-                    //   child: Text(
-                    //     'Последние за 30 дней',
-                    //     style: AppTextStyles.labelMedium18,
-                    //   ),
-                    // ),
-                    // const SliverToBoxAdapter(
-                    //   child: SizedBox(
-                    //     height: 30,
-                    //   ),
-                    // ),
-                    // const SliverToBoxAdapter(
-                    //   child: Wrap(
-                    //     runSpacing: 10,
-                    //     spacing: 10,
-                    //     children: [
-                    //       LastMarkingWidget(
-                    //           name: 'name',
-                    //           startDate: 'startDate',
-                    //           endDate: 'endDate'),
-                    //       LastMarkingWidget(
-                    //           name: 'name',
-                    //           startDate: 'startDate',
-                    //           endDate: 'endDate'),
-                    //       LastMarkingWidget(
-                    //           name: 'name',
-                    //           startDate: 'startDate',
-                    //           endDate: 'endDate'),
-                    //     ],
-                    //   ),
-                    // ),
-                    // const SliverToBoxAdapter(
-                    //   child: SizedBox(
-                    //     height: 30,
-                    //   ),
-                    // ),
                     SliverToBoxAdapter(
                       child: SizedBox(
                         height: MediaQuery.of(context).size.height,

@@ -1,10 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
+import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
-import 'package:bluetooth_app/clean/features/settings/Presentation/application_settings_screen.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/start_page.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 
@@ -26,7 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
-       
+        title: Text(
+          'FrashTag',
+          style: AppTextStyles.labelMedium18.copyWith(fontSize: 22),
+        ),
+        centerTitle: false,
       ),
       body: const HomeBody(),
       drawer: (Platform.isAndroid || Platform.isIOS)
@@ -41,18 +46,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 PrimaryButtonIcon(
                     toPage: const EmployeeScreen(),
                     text: 'Сотрудники',
+                    width: double.infinity,
                     icon: Icons.person_2)
               ],
               [
                 PrimaryButtonIcon(
-                    toPage: const ApplicationSettingsScreen(),
-                    text: 'Настройки',
-                    icon: Icons.settings),
+                    toPage: const StartPage(),
+                    text: 'Стартовая страница',
+                    width: double.infinity,
+                    icon: Icons.start),
                 PrimaryButtonIcon(
-                  type: ButtonType.delete,
-                  width: double.infinity,
+                    type: ButtonType.delete,
+                    width: double.infinity,
                     onPressed: () => exit(0),
-                    text: 'Закрыть',
+                    text: 'Закрыть приложение',
                     icon: Icons.close)
               ]
             ]))

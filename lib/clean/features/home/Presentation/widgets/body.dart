@@ -3,6 +3,7 @@ import 'package:bluetooth_app/clean/core/Presentation/pages/navigation_page.dart
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_page.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/start_page.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 
@@ -28,22 +29,26 @@ class _HomeBodyState extends State<HomeBody> {
                     PrimaryButtonIcon(
                         toPage: const LoginScreen(),
                         text: 'Администратор',
+                        width: double.infinity,
                         icon: Icons.admin_panel_settings),
                     PrimaryButtonIcon(
                         toPage: const EmployeeScreen(),
-                        text: 'Сотрудник',
+                        text: 'Сотрудники',
+                        width: double.infinity,
                         icon: Icons.person_2)
                   ],
                   [
                     PrimaryButtonIcon(
-                        toPage: const LoginScreen(),
-                        text: 'Настройки',
-                        icon: Icons.settings),
+                    toPage: const StartPage(),
+                    text: 'Стартовая страница',
+                    width: double.infinity,
+                    icon: Icons.start),
                     PrimaryButtonIcon(
                         onPressed: () {
                           exit(0);
                         },
-                        text: 'Закрыть',
+                        text: 'Закрыть приложение',
+                        width: double.infinity,
                         icon: Icons.close)
                   ]
                 ],

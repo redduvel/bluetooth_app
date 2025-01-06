@@ -20,6 +20,7 @@ class PrintingPage extends StatefulWidget {
 
 class _PrintingPageState extends State<PrintingPage> {
   late PrinterBloc printerBloc;
+  late DBBloc<Product> productBloc;
 
   Set<Category> selectedCategories = {};
   List<Category> categories = [];
@@ -28,8 +29,11 @@ class _PrintingPageState extends State<PrintingPage> {
 
   @override
   void initState() {
-    super.initState();
+    productBloc = productBloc;
     printerBloc = context.read<PrinterBloc>();
+    super.initState();
+
+    productBloc.add(Sync<Product>());
   }
 
   @override
@@ -41,7 +45,7 @@ class _PrintingPageState extends State<PrintingPage> {
               title: 'Печать маркировок',
               titleStyle: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
               onSearch: (query) {
-                context.read<DBBloc<Product>>().add(Search(query));
+                productBloc.add(Search(query));
               },
               buttons: [
                 BlocBuilder<DBBloc<Product>, DBState<Product>>(
@@ -74,19 +78,26 @@ class _PrintingPageState extends State<PrintingPage> {
               centerTitle: false,
               automaticallyImplyLeading: false,
               actions: [
-                IconButton(
-                    onPressed: () =>
-                        context.read<DBBloc<Product>>().add(Sync<Product>()),
-                    icon: const Icon(Icons.sync))
+                BlocBuilder(
+                    bloc: productBloc,
+                    builder: (context, state) {
+                      if (state is ItemsLoading<Product>) {
+                        return CupertinoActivityIndicator();
+                      }
+                      return IconButton(
+                          onPressed: () => productBloc.add(Sync<Product>()),
+                          icon: const Icon(Icons.sync));
+                    })
               ],
               bottom: PreferredSize(
                   preferredSize: const Size(double.infinity, 40),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    padding:
+                        const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                     child: CupertinoSearchTextField(
                       placeholder: 'Поиск продуктов...',
                       onChanged: (value) {
-                        context.read<DBBloc<Product>>().add(Search<Product>(value));
+                        productBloc.add(Search<Product>(value));
                       },
                     ),
                   )),
@@ -218,7 +229,7 @@ class _PrintingPageState extends State<PrintingPage> {
               children: List.generate(productsInCategory.length, (index) {
                 return ProductWidget(
                   product: productsInCategory[index],
-                  bloc: context.read<DBBloc<Product>>(),
+                  bloc: productBloc,
                 );
               }),
             )

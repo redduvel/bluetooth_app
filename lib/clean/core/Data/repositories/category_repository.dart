@@ -22,52 +22,40 @@ class CategoryRepository implements IRepository<Category> {
     try {
       List<Category> localData = getAll();
 
-      RemoteDB.database
-          .from(repositoryName)
-          .select()
-          //.eq('isHide', UserCubit.current == CurrentUser.admin ? 'True' : 'False')
-          .asStream()
-          .listen((List<Map<String, dynamic>> data) async {
-        List<Category> remoteData = [];
+      final data = await RemoteDB.database.from(repositoryName).select();
 
-        remoteData = data.map((map) {
-          return Category.fromJson(map);
-        }).toList();
+      List<Category> remoteData = data.map((map) {
+        return Category.fromJson(map);
+      }).toList();
 
-        final localCategoryMap = {
-          for (Category category in localData) category.id: category
-        };
+      final localCategoryMap = {
+        for (Category category in localData) category.id: category
+      };
 
-        final supabaseCategoryMap = {
-          for (Category category in remoteData) category.id: category
-        };
+      final remoteCategoryMap = {
+        for (Category category in remoteData) category.id: category
+      };
 
-        for (Category category in remoteData) {
-          if (localCategoryMap.containsKey(category.id)) {
-            final localCategory = localCategoryMap[category.id];
-            if (localCategory != category) {
-              await update(category);
-            }
-          } else {
-            await save(category);
+      for (Category remoteCategory in remoteData) {
+        if (localCategoryMap.containsKey(remoteCategory.id)) {
+          final localCategory = localCategoryMap[remoteCategory.id];
+          if (localCategory != remoteCategory) {
+            await update(remoteCategory);
           }
+        } else {
+          await save(remoteCategory);
         }
+      }
 
-        for (var category in localData) {
-          if (!supabaseCategoryMap.containsKey(category.id)) {
-            await delete(category.id);
-          }
+      for (Category localCategory in localData) {
+        if (!remoteCategoryMap.containsKey(localCategory.id)) {
+          await delete(localCategory.id);
         }
-      });
+      }
 
-      await Future.delayed(const Duration(seconds: 1)).whenComplete(() {
-        localData = getAll();
-      });
-
-      return localData;
+      return getAll();
     } catch (e) {
-      Exception(e);
-      return [];
+      throw Exception(e);
     }
   }
 
@@ -76,7 +64,13 @@ class CategoryRepository implements IRepository<Category> {
     try {
       var categoriesBox = Hive.box<Category>(repositoryName);
       List<Category> categories = categoriesBox.values.toList();
+      
+      if (UserCubit.current == CurrentUser.employee) {
+        categories = categories.where((category) => !category.isHide).toList();
+      }
+      
       categories.sort((a, b) => a.order.compareTo(b.order));
+      
       return categories;
     } catch (e) {
       throw Exception(e);

@@ -16,8 +16,10 @@ import 'package:universal_io/io.dart';
 class ProductWidget extends StatefulWidget {
   final Product product;
   final DBBloc<Product> bloc;
+  final Function(Product)? edit;
 
-  const ProductWidget({super.key, required this.product, required this.bloc});
+  const ProductWidget(
+      {super.key, required this.product, required this.bloc, this.edit});
 
   @override
   State<ProductWidget> createState() => _ProductWidgetState();
@@ -37,10 +39,13 @@ class _ProductWidgetState extends State<ProductWidget> {
   DateTime adjustmentDateTime = DateTime.now();
   int selectedCharacteristic = 0;
 
+  void _onEdit() {
+    widget.edit!(widget.product);
+  }
+
   @override
   void initState() {
     controller = TextEditingController(text: '$count');
-
     super.initState();
   }
 
@@ -73,12 +78,26 @@ class _ProductWidgetState extends State<ProductWidget> {
                     child: Text(
                       widget.product.title,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.labelMedium18,
+                      style: AppTextStyles.labelMedium18.copyWith(
+                        decoration: widget.product.isHide
+                            ? TextDecoration.lineThrough
+                            : null,
+                        color: widget.product.isHide
+                            ? AppColors.secondaryText
+                            : null,
+                      ),
                     ),
                   ),
                   Text(
                     widget.product.category.name,
-                    style: AppTextStyles.labelSmall12,
+                    style: AppTextStyles.labelSmall12.copyWith(
+                      decoration: widget.product.isHide
+                          ? TextDecoration.lineThrough
+                          : null,
+                      color: widget.product.isHide
+                          ? AppColors.secondaryText
+                          : null,
+                    ),
                   )
                 ],
               ),
@@ -95,11 +114,13 @@ class _ProductWidgetState extends State<ProductWidget> {
                         onTap: () => showEditColorDialog(context)),
                     if (context.read<UserCubit>().state ==
                         CurrentUser.admin) ...[
-                      const PopupMenuItem(
-                          child: Text(
-                        'Изменить данные',
-                        style: AppTextStyles.bodyMedium16,
-                      )),
+                      PopupMenuItem(
+                        child: const Text(
+                          'Изменить данные',
+                          style: AppTextStyles.bodyMedium16,
+                        ),
+                        onTap: () => _onEdit(),
+                      ),
                       PopupMenuItem(
                         child: Text(
                           widget.product.isHide
@@ -150,14 +171,15 @@ class _ProductWidgetState extends State<ProductWidget> {
                       const Icon(CupertinoIcons.printer, color: AppColors.text),
                   onPressed: () => _showPrintBottomSheet(context)),
               const Spacer(),
-              CupertinoButton(
-                  minSize: 30,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: const Icon(
-                    CupertinoIcons.clock,
-                    color: AppColors.text,
-                  ),
-                  onPressed: () => _showScheduleBottomSheet(context))
+              if (widget.product.allowFreeTime)
+                CupertinoButton(
+                    minSize: 30,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: const Icon(
+                      CupertinoIcons.clock,
+                      color: AppColors.text,
+                    ),
+                    onPressed: () => _showScheduleBottomSheet(context))
             ],
           )
         ],
@@ -207,10 +229,9 @@ class _ProductWidgetState extends State<ProductWidget> {
   }
 
   void _showPrintBottomSheet(BuildContext context) {
-
     showBarModalBottomSheet(
       context: context,
-            backgroundColor: AppColors.onSurface,
+      backgroundColor: AppColors.onSurface,
       enableDrag: false,
       builder: (context) {
         return NormalPrintSheet(product: widget.product);

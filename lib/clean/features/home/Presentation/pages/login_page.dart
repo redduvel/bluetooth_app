@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         context
                             .read<NavigationBloc>()
                             .add(NavigateTo(const CategoryScreen()));
-                                                    context.read<UserCubit>().setUser(CurrentUser.admin);
+                        context.read<UserCubit>().setUser(CurrentUser.admin);
 
                         context.router.push(const AdminRoute());
                       }

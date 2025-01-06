@@ -1,5 +1,6 @@
 import 'package:bluetooth_app/clean/core/Data/datasource/remote/remote_db.dart';
 import 'package:bluetooth_app/clean/core/Data/repository.dart';
+import 'package:bluetooth_app/clean/core/Domain/bloc/user.cubit.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -22,46 +23,44 @@ class ProductRepository implements IRepository<Product> {
       List<Product> localData = getAll();
       List<Product> remoteData = [];
 
-      RemoteDB.database.from(repositoryName).select('''
+      var data = await RemoteDB.database.from(repositoryName).select('''
         id, title, subtitle, characteristics, category!inner(id, name, isHide, order), allowFreeMarking, isHide
-        ''')
-        //.eq('isHide', UserCubit.current == CurrentUser.admin ? 'True' : 'False')
-        .then((data) async {
-            for (var product in data) {
-              remoteData.add(Product.fromJson(product));
-            }
+        ''');
+        //.eq('isHide', UserCubit.current == CurrentUser.employee ? 'TRUE' : 'FALSE');
 
-            final localProductMap = {
-              for (Product product in localData) product.id: product
-            };
+      for (var product in data) {
+        remoteData.add(Product.fromJson(product));
+      }
 
-            final supabaseProductMap = {
-              for (Product product in remoteData) product.id: product
-            };
+      final localProductMap = {
+        for (Product product in localData) product.id: product
+      };
 
-            for (Product product in remoteData) {
-              if (localProductMap.containsKey(product.id)) {
-                final localProduct = localProductMap[product.id];
-                if (localProduct != product) {
-                  product.backgroundColor = localProduct!.backgroundColor;
-                  await update(product);
-                }
-              } else {
-                await save(product);
-              }
-            }
+      final remoteProductMap = {
+        for (Product product in remoteData) product.id: product
+      };
 
-            for (var category in localData) {
-              if (!supabaseProductMap.containsKey(category.id)) {
-                await delete(category.id);
-              }
-            }
-          });
+      // Add or update products from remote to local
+      for (Product product in remoteData) {
+        if (localProductMap.containsKey(product.id)) {
+          final localProduct = localProductMap[product.id];
+          if (localProduct != product) {
+            product.backgroundColor = localProduct!.backgroundColor;
+            await update(product);
+          }
+        } else {
+          await save(product);
+        }
+      }
 
-      await Future.delayed(const Duration(seconds: 1)).whenComplete(() {
-        localData = getAll();
-      });
+      // Delete local products that are not in remote
+      for (Product product in localData) {
+        if (!remoteProductMap.containsKey(product.id)) {
+          await delete(product.id);
+        }
+      }
 
+      localData = getAll();
       return localData;
     } catch (e) {
       return [];
@@ -73,6 +72,11 @@ class ProductRepository implements IRepository<Product> {
     try {
       var productBox = Hive.box<Product>(repositoryName);
       List<Product> products = productBox.values.toList();
+
+      if (UserCubit.current == CurrentUser.employee) {
+        products = products.where((product) => !product.isHide).toList();
+      }
+
       return products;
     } catch (e) {
       throw Exception(e);

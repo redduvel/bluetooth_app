@@ -8,7 +8,6 @@ import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_scree
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/employee_screen.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/product_screen.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,71 +34,41 @@ class _AdminBodyState extends State<AdminBody> {
     return Row(
       children: [
         if (Platform.isMacOS || Platform.isWindows)
-        Flexible(
-            flex: 159,
-            fit: FlexFit.tight,
-            child: NavigationPage(
-              controls: [
-                [
-                  PrimaryButtonIcon(
-                    toPage: const DashboardPage(),
-                    text: 'Доска (демо версия журнала)',
-                    width: double.infinity,
-                    icon: Icons.dashboard,
-                  ),
-                  PrimaryButtonIcon(
-                    text: 'Сотрудники',
-                    icon: Icons.person,
-                    width: double.infinity,
-                    toPage: const EmployeeScreen(),
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const CategoryScreen(),
-                    text: 'Категории',
-                    width: double.infinity,
-                    icon: Icons.category,
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const ProductScreen(),
-                    text: 'Продукты',
-                    width: double.infinity,
-                    icon: Icons.egg,
-                  )
-                ],
-                [
-                  PrimaryButtonIcon(
-                      toPage: const SettingsScreen(),
-                      text: 'Настройки',
-                      width: double.infinity,
+          Flexible(
+              flex: 159,
+              fit: FlexFit.tight,
+              child: NavigationPage(
+                controls: [
+                  [
+                    PrimaryButtonIcon(
+                      toPage: const DashboardPage(),
+                      text: 'Журнал',
                       icon: Icons.dashboard,
+                      width: double.infinity,
                     ),
                     PrimaryButtonIcon(
+                      toPage: const EmployeeScreen(),
                       text: 'Сотрудники',
                       icon: Icons.person,
                       width: double.infinity,
-                      toPage: const EmployeeScreen(),
                     ),
                     PrimaryButtonIcon(
                       toPage: const CategoryScreen(),
                       text: 'Категории',
-                      width: double.infinity,
                       icon: Icons.category,
+                      width: double.infinity,
                     ),
                     PrimaryButtonIcon(
                       toPage: const ProductScreen(),
                       text: 'Продукты',
-                      width: double.infinity,
                       icon: Icons.egg,
+                      width: double.infinity,
                     )
                   ],
                   [
                     PrimaryButtonIcon(
-                        toPage: const SettingsScreen(),
-                        text: 'Настройки',
-                        width: double.infinity,
-                        icon: Icons.settings),
-                    PrimaryButtonIcon(
                         text: 'Выйти',
+                        type: ButtonType.delete,
                         width: double.infinity,
                         onPressed: () {
                           context.router.popForced();

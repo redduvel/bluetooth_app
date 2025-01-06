@@ -2,7 +2,6 @@ import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/pages/main_screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 class CharacteristicsWidget extends StatefulWidget {
@@ -43,22 +42,31 @@ class _CharacteristicsWidgetState extends State<CharacteristicsWidget> {
                   shrinkWrap: true,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PrimaryTextField(
-                          controller: widget.nameControllers[index],
-                          hintText: 'Название',
-                          width: 150,
+                        Flexible(
+                          flex: 7,
+                          child: PrimaryTextField(
+                            controller: widget.nameControllers[index],
+                            hintText: 'Название',
+                            width: double.infinity,
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              widget.characteristics.removeAt(index);
-                              widget.nameControllers.removeAt(index);
-                              widget.valueControllers.removeAt(index);
-                              widget.units.removeAt(index);
-                            });
-                          },
+                        const SizedBox(width: 10,),
+                        Flexible(
+                          flex: 2,
+                          child: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                widget.characteristics.removeAt(index);
+                                widget.nameControllers.removeAt(index);
+                                widget.valueControllers.removeAt(index);
+                                widget.units.removeAt(index);
+                              });
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -66,19 +74,25 @@ class _CharacteristicsWidgetState extends State<CharacteristicsWidget> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        PrimaryTextField(
-                          controller: widget.valueControllers[index],
-                          hintText: 'Значение',
-                          width: 150,
-                          //type: TextInputType.number,
+                        Flexible(
+                          flex: 7,
+                          child: PrimaryTextField(
+                            controller: widget.valueControllers[index],
+                            hintText: 'Значение',
+                            width: double.infinity,
+                            //type: TextInputType.number,
+                          ),
                         ),
-                        const VerticalDivider(),
-                        Expanded(
-                          flex: 1,
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Flexible(
+                          flex: 2,
                           child: DropdownButton<MeasurementUnit>(
                             dropdownColor: AppColors.white,
                             value: widget.units[index],
                             padding: EdgeInsets.zero,
+                            
                             onChanged: (newUnit) {
                               setState(() {
                                 widget.units[index] = newUnit!;
@@ -108,14 +122,10 @@ class _CharacteristicsWidgetState extends State<CharacteristicsWidget> {
           );
         }),
         PrimaryButtonIcon(
-          toPage: const SettingsScreen(),
           alignment: Alignment.center,
           text: 'Добавить характеристику',
           icon: Icons.add,
-          width: 350,
-          height: 155,
-          radius: const Radius.circular(12),
-          padding: EdgeInsets.zero,
+          width: double.infinity,
           onPressed: () {
             setState(() {
               widget.characteristics.add(

@@ -129,24 +129,23 @@ class _NormalPrintSheetState extends State<NormalPrintSheet> {
             child: SizedBox(height: 10),
           ),
           SliverToBoxAdapter(
-            child: Center(
-                child: SizedBox(
-              width: 300,
-              child: CheckboxListTile(
-                value: saveMarking,
-                checkColor: AppColors.white,
-                activeColor: AppColors.primary,
-                onChanged: (value) {
-                  setState(() {
-                    saveMarking = value ?? !saveMarking;
-                  });
-                },
-                title: const Text(
-                  'Сохранить в журнал?',
-                  style: AppTextStyles.bodyMedium16,
-                ),
-              ),
-            )),
+            child: SizedBox(
+                          width: 300,
+                          child: CheckboxListTile(
+            value: saveMarking,
+            checkColor: AppColors.white,
+            activeColor: AppColors.primary,
+            onChanged: (value) {
+              setState(() {
+                saveMarking = value ?? !saveMarking;
+              });
+            },
+            title: const Text(
+              'Сохранить в журнал?',
+              style: AppTextStyles.bodyMedium16,
+            ),
+                          ),
+                        ),
           ),
           const SliverToBoxAdapter(
             child: SizedBox(

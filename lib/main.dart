@@ -13,11 +13,11 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
+import 'package:bluetooth_app/clean/features/home/Presentation/pages/start_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/dashboard_page.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/cubit/dropdown_controller.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
-import 'package:flutter/cupertino.dart';
 //import 'package:bluetooth_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -98,7 +98,7 @@ class App extends StatelessWidget {
                 DBBloc(TemplateRepository(repositoryName: 'templates'))
                   ..add(LoadItems<Template>())),
         BlocProvider(
-            create: (_) => NavigationBloc(InitialState(const DashboardPage()))),
+            create: (_) => NavigationBloc(InitialState(const StartPage()))),
         BlocProvider(create: (_) => PrinterBloc()..add(CheckConnection())),
       ],
       child: MaterialApp.router(

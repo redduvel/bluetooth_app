@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
@@ -17,7 +18,12 @@ class LabelTemplateWidget extends StatefulWidget {
   final Characteristic selectedCharacteristic;
 
   const LabelTemplateWidget(
-      {super.key, required this.product, required this.customDate, required this.startDate, required this.customEndDate, required this.selectedCharacteristic});
+      {super.key,
+      required this.product,
+      required this.customDate,
+      required this.startDate,
+      required this.customEndDate,
+      required this.selectedCharacteristic});
 
   @override
   State<LabelTemplateWidget> createState() => _LabelTemplateWidgetState();
@@ -52,7 +58,8 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
         children: [
           AutoSizeText(
             widget.product.subtitle,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            style: AppTextStyles.bodyMedium16
+                .copyWith(fontSize: 18, fontWeight: FontWeight.w500),
             maxLines: 1,
             maxFontSize: 22,
             minFontSize: 14,
@@ -60,10 +67,9 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
           if (widget.product.characteristics.isNotEmpty)
             widget.customDate
                 ? AutoSizeText(
-                    DateFormat('dd.MM.yy HH:mm')
-                        .format(widget.startDate),
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w500),
+                    DateFormat('dd.MM.yy HH:mm').format(widget.startDate),
+                    style: AppTextStyles.bodyMedium16
+                        .copyWith(fontSize: 18, fontWeight: FontWeight.w500),
                     maxLines: 1,
                     maxFontSize: 22,
                     minFontSize: 14,
@@ -75,10 +81,9 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
           if (widget.product.characteristics.isNotEmpty)
             widget.customDate
                 ? AutoSizeText(
-                    DateFormat('dd.MM.yy HH:mm')
-                        .format(widget.customEndDate),
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w500),
+                    DateFormat('dd.MM.yy HH:mm').format(widget.customEndDate),
+                    style: AppTextStyles.bodyMedium16
+                        .copyWith(fontSize: 18, fontWeight: FontWeight.w500),
                     maxLines: 1,
                     maxFontSize: 22,
                     minFontSize: 14,
@@ -86,11 +91,11 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
                 : ClockWidget(
                     key: ValueKey(UniqueKey()),
                     startDate: widget.customEndDate,
-                    characteristic:
-                        widget.selectedCharacteristic),
+                    characteristic: widget.selectedCharacteristic),
           AutoSizeText(
             currentUser.fullName,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            style: AppTextStyles.bodyMedium16
+                .copyWith(fontSize: 18, fontWeight: FontWeight.w500),
             maxLines: 1,
             maxFontSize: 22,
             minFontSize: 14,
