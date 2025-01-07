@@ -5,6 +5,7 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/user_listtile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_io/io.dart';
@@ -22,7 +23,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   @override
   void initState() {
-    bloc = context.read<DBBloc<User>>()..add(LoadItems<User>());
+    bloc = context.read<DBBloc<User>>();
     nameController = TextEditingController();
     super.initState();
   }
@@ -94,6 +95,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             child: PrimaryButtonIcon(
               selected: true,
               text: 'Добавить',
+              alignment: Alignment.center,
               icon: Icons.add,
               onPressed: () {
                 if (nameController.text.isEmpty) {
@@ -119,10 +121,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         if (users.isEmpty)
           const SliverPadding(
             padding: EdgeInsets.symmetric(vertical: 15),
-            sliver: SliverToBoxAdapter(
+            sliver: SliverFillRemaining(
               child: Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.greenOnSurface,
+                child: CupertinoActivityIndicator(
                 ),
               ),
             ),

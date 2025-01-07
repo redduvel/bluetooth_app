@@ -42,6 +42,8 @@ dependencies:
   auto_route: ^9.2.2
   multi_dropdown: ^3.0.1
   adoptive_calendar: ^0.2.0
+  internet_connection_checker_plus: ^2.7.0
+  logger: ^2.5.0
 
 dev_dependencies:
   flutter_test:

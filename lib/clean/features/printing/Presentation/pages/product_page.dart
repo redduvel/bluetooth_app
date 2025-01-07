@@ -33,7 +33,7 @@ class _PrintingPageState extends State<PrintingPage> {
     printerBloc = context.read<PrinterBloc>();
     super.initState();
 
-    productBloc.add(Sync<Product>());
+    //productBloc.add(Sync<Product>());
   }
 
   @override

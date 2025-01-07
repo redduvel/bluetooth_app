@@ -5,6 +5,7 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:select2dot1/select2dot1.dart';
@@ -17,14 +18,21 @@ class TemplatePage extends StatefulWidget {
 }
 
 class _TemplatePageState extends State<TemplatePage> {
+  late DBBloc<Template> bloc;
+  late TextEditingController _nameController;
+
   bool showTools = false;
-  late TextEditingController _controller;
   List<Product> selectBooks = [];
+
+  bool _isValid() {
+    return _nameController.text.isNotEmpty && selectBooks.isNotEmpty;
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    bloc = context.read<DBBloc<Template>>();
+    _nameController = TextEditingController();
   }
 
   @override
@@ -37,7 +45,7 @@ class _TemplatePageState extends State<TemplatePage> {
           SliverAppBar(
             backgroundColor: AppColors.white,
             title: Text(
-              'Панель шаблонов',
+              'Шаблоны',
               style: AppTextStyles.labelMedium18.copyWith(fontSize: 24),
             ),
             centerTitle: false,
@@ -50,7 +58,6 @@ class _TemplatePageState extends State<TemplatePage> {
                     });
                   },
                   icon: const Icon(Icons.add)),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
             ],
           ),
           if (showTools)
@@ -61,7 +68,7 @@ class _TemplatePageState extends State<TemplatePage> {
                     ItemsLoaded<Product>() => Column(
                         children: [
                           PrimaryTextField(
-                            controller: _controller,
+                            controller: _nameController,
                             width: double.infinity,
                             margin: const EdgeInsets.symmetric(horizontal: 15),
                             hintText: 'Название',
@@ -127,22 +134,13 @@ class _TemplatePageState extends State<TemplatePage> {
                             ),
                           ),
                           PrimaryButtonIcon(
-                              text: "Сохранить",
-                              icon: Icons.save,
-                              onPressed: (selectBooks.isEmpty ||
-                                      _controller.text == "")
-                                  ? null
-                                  : () {
-                                      return context
-                                          .read<DBBloc<Template>>()
-                                          .add(
-                                            AddItem(
-                                              Template(
-                                                  title: _controller.text,
-                                                  listProducts: selectBooks),
-                                            ),
-                                          );
-                                    })
+                              text: "Добавить",
+                              selected: true,
+                              alignment: Alignment.center,
+                              icon: Icons.add,
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              onPressed: () => createTemplate())
                         ],
                       ),
                     _ =>
@@ -160,22 +158,19 @@ class _TemplatePageState extends State<TemplatePage> {
                 ItemsLoaded<Template>() => ListView.builder(
                     itemCount: templateState.items.length,
                     itemBuilder: (context, index) => Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       margin: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
-                          color: AppColors.blueOnSurface),
+                          color: AppColors.secondaryButton),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                templateState.items[index].title,
-                                style: AppTextStyles.labelMedium18
-                                    .copyWith(color: AppColors.surface),
-                              ),
+                              Text(templateState.items[index].title,
+                                  style: AppTextStyles.labelMedium18),
                               Row(
                                 children: [
                                   IconButton(
@@ -186,7 +181,7 @@ class _TemplatePageState extends State<TemplatePage> {
                                       onPressed: () {},
                                       icon: const Icon(
                                         Icons.print,
-                                        color: AppColors.white,
+                                        color: AppColors.black,
                                       )),
                                   PopupMenuButton(
                                     position: PopupMenuPosition.under,
@@ -198,16 +193,20 @@ class _TemplatePageState extends State<TemplatePage> {
                                           'Изменить данные',
                                           style: AppTextStyles.bodyMedium16,
                                         )),
-                                        const PopupMenuItem(
-                                            child: Text(
-                                          'Изменить оформление',
-                                          style: AppTextStyles.bodyMedium16,
-                                        )),
-                                        const PopupMenuItem(
-                                            child: Text(
-                                          'Удалить',
-                                          style: AppTextStyles.bodyMedium16,
-                                        )),
+                                        // const PopupMenuItem(
+                                        //     child: Text(
+                                        //   'Изменить оформление',
+                                        //   style: AppTextStyles.bodyMedium16,
+                                        // )),
+                                        PopupMenuItem(
+                                            child: const Text(
+                                              'Удалить',
+                                              style: AppTextStyles.bodyMedium16,
+                                            ),
+                                            onTap: () => bloc.add(
+                                                DeleteItem<Template>(
+                                                    templateState
+                                                        .items[index].id))),
                                       ];
                                     },
                                   )
@@ -222,7 +221,10 @@ class _TemplatePageState extends State<TemplatePage> {
                               children: List.generate(
                                   templateState.items[index].listProducts
                                       .length, (chipIndex) {
+                                        Product product = templateState.items[index].listProducts[chipIndex];
+
                                 return Chip(
+                                  backgroundColor: Color(product.backgroundColor ?? AppColors.surface.value),
                                     padding: const EdgeInsets.all(2.5),
                                     labelPadding: const EdgeInsets.all(0),
                                     label: Text(
@@ -238,12 +240,28 @@ class _TemplatePageState extends State<TemplatePage> {
                       ),
                     ),
                   ),
-                _ => const SizedBox.shrink(child: CircularProgressIndicator()),
+                _ => const SizedBox.shrink(child: CupertinoActivityIndicator()),
               };
             },
           ),
         ),
       ),
     );
+  }
+
+  void createTemplate() {
+    if (_isValid()) {
+      bloc.add(
+        AddItem(
+          Template(title: _nameController.text, listProducts: selectBooks),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+        'Необходимо заполнить все поля',
+        style: AppTextStyles.bodyMedium16.copyWith(color: AppColors.white),
+      )));
+    }
   }
 }

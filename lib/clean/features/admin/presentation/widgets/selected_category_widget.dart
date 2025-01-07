@@ -15,43 +15,44 @@ class SelectedCategoryWidget extends StatefulWidget {
 }
 
 class _SelectedCategoryWidgetState extends State<SelectedCategoryWidget> {
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DBBloc<Category>, DBState<Category>>(
-      builder: (context, state) {
-        if (state is ItemsLoaded<Category>) {
-          var nomenclatures = state.items;
-          // if (!widget.showHideEnemies) {
-          //   nomenclatures =
-          //       nomenclatures.where((n) => n.name != 'Архив').toList();
-          // }
 
-          return DropdownMenu<Category>(
-            onSelected: (value) => setState(() {
-              widget.controller.selectOption(value!);
-            }),
-            hintText: 'Выберите категорию',
-            width: double.infinity,
-            menuStyle: const MenuStyle(
-              backgroundColor: WidgetStatePropertyAll(AppColors.surface)
-            ),
-            leadingIcon: const Icon(Icons.category),
-            dropdownMenuEntries: nomenclatures.map((nomenclature) {
-              return DropdownMenuEntry(
-                style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(AppColors.surface),
-                ),
-                value: nomenclature,
-                label: nomenclature.name,
-              );
-            }).toList(),
-          );
-        }
-        if (state is ItemOperationFailed<Category>) {
-          return Text(state.error);
-        }
-        return const Text('Нет категорий');
-      },
+    return BlocProvider<DropdownCubit<Category>>(
+      create: (context) => widget.controller,
+      child: BlocBuilder<DBBloc<Category>, DBState<Category>>(
+        builder: (context, state) {
+          if (state is ItemsLoaded<Category>) {
+            var nomenclatures = state.items;
+      
+            return DropdownMenu<Category>(
+              onSelected: (value) => setState(() {
+                widget.controller.selectOption(value!);
+              }),
+              hintText: 'Выберите категорию',
+              width: double.infinity,
+              menuStyle: const MenuStyle(
+                backgroundColor: WidgetStatePropertyAll(AppColors.surface)
+              ),
+              leadingIcon: const Icon(Icons.category),
+              dropdownMenuEntries: nomenclatures.map((nomenclature) {
+                return DropdownMenuEntry(
+                  style: const ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(AppColors.surface),
+                  ),
+                  value: nomenclature,
+                  label: nomenclature.name,
+                );
+              }).toList(),
+            );
+          }
+          if (state is ItemOperationFailed<Category>) {
+            return Text(state.error);
+          }
+          return const Text('Нет категорий');
+        },
+      ),
     );
   }
 }

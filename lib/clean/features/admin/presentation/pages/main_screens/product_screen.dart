@@ -95,8 +95,8 @@ class _ProductScreenState extends State<ProductScreen> {
 
   @override
   void initState() {
-    categoryController = context.read<DropdownCubit<Category>>();
-    bloc = context.read<DBBloc<Product>>()..add(LoadItems<Product>());
+    categoryController = DropdownCubit<Category>();
+    bloc = context.read<DBBloc<Product>>();
     super.initState();
   }
 

@@ -11,10 +11,11 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
+import 'package:bluetooth_app/clean/core/Domain/usecases/sync_service.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.bloc.dart';
 import 'package:bluetooth_app/clean/core/Presentation/bloc/navigation_bloc/navigation.state.dart';
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/start_page.dart';
-import 'package:bluetooth_app/clean/features/admin/presentation/cubit/dropdown_controller.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
 //import 'package:bluetooth_app/pages/home_page.dart';
@@ -23,7 +24,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'clean/config/routes/app_router.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   LocalDB.createDB();
@@ -45,56 +46,75 @@ Future<void> main() async {
   //     windowManager.show();
   //   });
   // }
+  final blocs = await initializeBlocs();
 
-  runApp(const App());
+  await SyncService.initialize(
+    categoryBloc: blocs.categoryBloc,
+    productBloc: blocs.productBloc,
+    userBloc: blocs.userBloc
+  ).then((value) {
+    value.startSync();
+  });
+
+  runApp(MyApp(blocs: blocs));
 }
 
-class App extends StatelessWidget {
-  const App({super.key});
+class MyApp extends StatelessWidget {
+  final Blocs blocs;
+
+  const MyApp({super.key, required this.blocs});
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider(create: (_) => UserCubit()),
-        BlocProvider(create: (_) => DropdownCubit<Category>()),
-        BlocProvider(
-          create: (context) {
-            return DBBloc(TemplateRepository(repositoryName: 'templates'))
-              ..add(Sync<Template>());
-          },
-        ),
-        BlocProvider(
-          create: (context) {
-            return DBBloc(UserRepository(repositoryName: 'users'))
-              ..add(Sync<User>());
-          },
-        ),
-        BlocProvider(
-          create: (_) => DBBloc(ProductRepository(repositoryName: 'products'))
-            ..add(Sync<Product>()),
-        ),
-        BlocProvider(
-          create: (_) =>
-              DBBloc(CategoryRepository(repositoryName: 'categories'))
-                ..add(Sync<Category>()),
-        ),
-        BlocProvider(
-            create: (_) =>
-                DBBloc(MarkingRepositore(repositoryName: 'markings'))),
-        BlocProvider(
-            create: (_) =>
-                DBBloc(TemplateRepository(repositoryName: 'templates'))
-                  ..add(LoadItems<Template>())),
-        BlocProvider(
-            create: (_) => NavigationBloc(InitialState(const StartPage()))),
-        BlocProvider(create: (_) => PrinterBloc()..add(CheckConnection())),
+        RepositoryProvider.value(value: blocs.userBloc),
+        RepositoryProvider.value(value: blocs.productBloc),
+        RepositoryProvider.value(value: blocs.categoryBloc),
       ],
-      child: MaterialApp.router(
-        showSemanticsDebugger: false,
-        debugShowCheckedModeBanner: false,
-        routerConfig: AppRouter().config(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<UserCubit>(create: (_) => UserCubit()),
+          BlocProvider(create: (_) => DBBloc<Template>(TemplateRepository(repositoryName: 'templates'))..add(LoadItems<Template>())),
+          BlocProvider(create: (_) => DBBloc(MarkingRepositore(repositoryName: 'markings'))..add(LoadItems<Marking>())),
+          BlocProvider(create: (_) => NavigationBloc(InitialState(const StartPage()))),
+          BlocProvider(create: (_) => PrinterBloc()..add(CheckConnection())),
+        ],
+        child: MaterialApp.router(
+          routerConfig: AppRouter().config(),
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }
+}
+
+// filepath: /lib/core/init/blocs.dart
+class Blocs {
+  final DBBloc<User> userBloc;
+  final DBBloc<Product> productBloc;
+  final DBBloc<Category> categoryBloc;
+
+  Blocs({
+    required this.userBloc,
+    required this.productBloc,
+    required this.categoryBloc,
+  });
+}
+
+Future<Blocs> initializeBlocs() async {
+
+  final userBloc = DBBloc<User>(UserRepository(repositoryName: 'users'));
+
+  final productBloc =
+      DBBloc<Product>(ProductRepository(repositoryName: 'products'));
+
+  final categoryBloc =
+      DBBloc<Category>(CategoryRepository(repositoryName: 'categories'));
+
+  return Blocs(
+    userBloc: userBloc,
+    productBloc: productBloc,
+    categoryBloc: categoryBloc,
+  );
 }

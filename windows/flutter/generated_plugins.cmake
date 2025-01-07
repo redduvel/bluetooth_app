@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   cbl_flutter_ce
+  connectivity_plus
   file_selector_windows
   printing
   screen_retriever

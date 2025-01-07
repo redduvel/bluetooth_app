@@ -5,6 +5,7 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/category_listtile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
@@ -24,7 +25,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   void initState() {
-    bloc = context.read<DBBloc<Category>>()..add(LoadItems<Category>());
+    bloc = context.read<DBBloc<Category>>();
     super.initState();
   }
 
@@ -112,6 +113,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               selected: true,
               text: 'Добавить',
               icon: Icons.add,
+              alignment: Alignment.center,
               onPressed: () {
                 if (nameController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -179,10 +181,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
         if (categories.isEmpty)
           const SliverPadding(
             padding: EdgeInsets.symmetric(vertical: 15),
-            sliver: SliverToBoxAdapter(
+            sliver: SliverFillRemaining(
               child: Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.greenOnSurface,
+                child: CupertinoActivityIndicator(
                 ),
               ),
             ),

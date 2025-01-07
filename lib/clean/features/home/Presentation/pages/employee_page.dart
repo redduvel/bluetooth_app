@@ -24,7 +24,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   @override
   void initState() {
-    bloc = context.read<DBBloc<User>>()..add(LoadItems<User>());
+    bloc = context.read<DBBloc<User>>();
     super.initState();
   }
 
@@ -48,7 +48,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       leading: const Icon(Icons.person),
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
-                        context.read<DBBloc<User>>().repository.currentItem =
+                        bloc.repository.currentItem =
                             state.items[index];
                         context.read<UserCubit>().setUser(CurrentUser.employee);
                         context
