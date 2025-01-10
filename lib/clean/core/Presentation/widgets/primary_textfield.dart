@@ -12,6 +12,8 @@ class PrimaryTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final TextInputType? keyboardType;
   final TextAlign? textAlign;
+  final double? height;
+  final EdgeInsets? contentPadding;
 
   const PrimaryTextField({
     super.key,
@@ -24,12 +26,15 @@ class PrimaryTextField extends StatelessWidget {
     this.keyboardType,
     this.textAlign,
     this.onChanged,
+    this.height,
+    this.contentPadding
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
+      height: height,
       child: Padding(
         padding: margin ?? const EdgeInsets.all(8.0),
         child: TextField(
@@ -38,7 +43,9 @@ class PrimaryTextField extends StatelessWidget {
           controller: controller,
           onSubmitted: onSubmitted,
           onChanged: onChanged,
+          
           decoration: InputDecoration(
+            contentPadding: contentPadding,
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(
                     color: AppColors.secondaryButton,
@@ -52,7 +59,7 @@ class PrimaryTextField extends StatelessWidget {
               filled: true,
               fillColor: AppColors.inputSurface,
               prefixIcon: icon != null ? Icon(icon) : null,
-              hintText: hintText),
+              hintText: hintText,),
           cursorColor: AppColors.greenOnSurface,
         ),
       ),

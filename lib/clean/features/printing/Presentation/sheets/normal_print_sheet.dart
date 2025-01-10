@@ -60,22 +60,29 @@ class _NormalPrintSheetState extends State<NormalPrintSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Печать этикетки: ${widget.product.title}',
-                  style: AppTextStyles.labelMedium18
-                      .copyWith(color: AppColors.black),
+                Flexible(
+                  flex: 7,
+                  child: Text(
+                    '${widget.product.title}',
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelMedium18
+                        .copyWith(color: AppColors.black),
+                  ),
                 ),
-                CupertinoButton(
-                    color: AppColors.primary,
-                    minSize: 1,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(
-                      'Готово',
-                      style: AppTextStyles.bodyMedium16
-                          .copyWith(color: AppColors.text),
-                    ),
-                    onPressed: () => context.router.popForced())
+                Flexible(
+                  flex: 3,
+                  child: CupertinoButton(
+                      color: AppColors.primary,
+                      minSize: 1,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Text(
+                        'Готово',
+                        style: AppTextStyles.bodyMedium16
+                            .copyWith(color: AppColors.text),
+                      ),
+                      onPressed: () => context.router.popForced()),
+                )
               ],
             ),
           ),
@@ -88,8 +95,8 @@ class _NormalPrintSheetState extends State<NormalPrintSheet> {
               customDate: false,
               startDate: DateTime.now(),
               customEndDate: endDate,
-              selectedCharacteristic:
-                  widget.product.characteristics[selectedCharacteristic],
+              selectedCharacteristic: widget.product.characteristics.isNotEmpty ?
+                  widget.product.characteristics[selectedCharacteristic] : null,
             ),
           ),
           const SliverToBoxAdapter(child: Divider()),
@@ -251,6 +258,7 @@ class _NormalPrintSheetState extends State<NormalPrintSheet> {
           startDate: DateTime.now(),
           endDate: PrintingUsecase.setAdjustmentTime(DateTime.now(),
               widget.product.characteristics[selectedCharacteristic]),
+              characteristicIndex: selectedCharacteristic,
           count: count)));
     }
     context.read<PrinterBloc>().add(PrintLabel(

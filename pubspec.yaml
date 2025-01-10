@@ -44,6 +44,7 @@ dependencies:
   adoptive_calendar: ^0.2.0
   internet_connection_checker_plus: ^2.7.0
   logger: ^2.5.0
+  animated_custom_dropdown: ^3.1.1
 
 dev_dependencies:
   flutter_test:

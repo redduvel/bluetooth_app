@@ -240,10 +240,10 @@ class _ProductScreenState extends State<ProductScreen> {
               sliver: SliverToBoxAdapter(
                 child: PrimaryButtonIcon(
                   onPressed: createProduct,
-                  icon: edit ? Icons.edit : Icons.add,
+                  icon: edit ? Icons.save : Icons.add,
                   selected: true,
                   alignment: Alignment.center,
-                  text: edit ? 'Редактировать' : 'Добавить',
+                  text: edit ? 'Сохранить' : 'Добавить',
                 ),
               ),
             ),
@@ -328,6 +328,12 @@ class _ProductScreenState extends State<ProductScreen> {
                 return ProductWidget(
                   product: productsInCategory[index],
                   bloc: context.read<DBBloc<Product>>(),
+                  edit: (p0)  {
+                    editProductPressed(p0);
+                  },
+                  delete: (p0) {
+                    deleteProductPressed(p0);
+                  },
                 );
               }),
             ),
@@ -339,7 +345,17 @@ class _ProductScreenState extends State<ProductScreen> {
     return SliverList(delegate: SliverChildListDelegate(widgets));
   }
 
-  editProductPressed(product) {
+  void deleteProductPressed(Product product) {
+    setState(() {
+      final archiveCategory = context.read<DBBloc<Category>>().repository.getAll().firstWhere((a) => a.name == "Архив");
+      
+      bloc.add(UpdateItem<Product>(product.copyWith(
+        category: archiveCategory
+      )));
+    });
+  }
+
+  void editProductPressed(Product product) {
     setState(() {
       showTools = true;
       edit = true;
@@ -348,7 +364,9 @@ class _ProductScreenState extends State<ProductScreen> {
       subnameController.text = product.subtitle;
       categoryController.selectOption(product.category);
       checkAllowFreeTime = product.allowFreeTime;
-      nameControllers = product.characteristics
+      nameControllers = 
+      
+       product.characteristics
           .map((c) => TextEditingController(text: c.name))
           .toList();
       valueControllers = product.characteristics

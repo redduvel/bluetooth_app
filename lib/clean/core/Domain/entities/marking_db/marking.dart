@@ -36,6 +36,8 @@ class Marking {
   final int count;
   @HiveField(7)
   MarkingStatus status = MarkingStatus.normal;
+  @HiveField(8)
+  final int characteristicIndex;
 
   Marking(
       {String? id,
@@ -45,8 +47,10 @@ class Marking {
       required this.startDate,
       required this.endDate,
       required this.count,
+      required this.characteristicIndex,
       MarkingStatus? status})
-      : id = id ?? IdGenerator.generate();
+      : id = id ?? IdGenerator.generate(),
+      status = calculateTimeStatus(startDate, endDate);
 
   Marking copyWith(
       {String? id,
@@ -55,6 +59,7 @@ class Marking {
       Category? category,
       DateTime? startDate,
       DateTime? endDate,
+      int? characteristicIndex,
       int? count,
       MarkingStatus? status}) {
     return Marking(
@@ -63,9 +68,32 @@ class Marking {
         category: category ?? this.category,
         startDate: startDate ?? this.startDate,
         endDate: endDate ?? this.endDate,
+        characteristicIndex: characteristicIndex ?? this.characteristicIndex,
         count: count ?? this.count,
         status: status ?? this.status);
   }
 
   Marking setStatus(MarkingStatus status) => copyWith(status: status);
+
+  static MarkingStatus calculateTimeStatus(DateTime startDate, DateTime endDate) {
+  final currentTime = DateTime.now();
+
+  if (currentTime.isBefore(startDate)) {
+    return MarkingStatus.normal;
+  }
+
+  if (currentTime.isAfter(endDate)) {
+    return MarkingStatus.expired;
+  }
+
+  final totalDuration = endDate.difference(startDate).inMilliseconds;
+  final elapsedDuration = currentTime.difference(startDate).inMilliseconds;
+  final remainingPercentage = 1 - (elapsedDuration / totalDuration);
+
+  if (remainingPercentage >= 0.5) {
+    return MarkingStatus.normal;
+  } else {
+    return MarkingStatus.warning;
+  }
+}
 }

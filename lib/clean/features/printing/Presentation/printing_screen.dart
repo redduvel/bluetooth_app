@@ -15,9 +15,9 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/pages/product
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/setting_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/pages/template_page.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/body.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:universal_io/io.dart';
 
 @RoutePage()
@@ -56,10 +56,7 @@ class _PrintingScreenState extends State<PrintingScreen> {
                 if (state is PrinterLoading) {
                   return const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: SpinKitFadingCircle(
-                      color: Colors.orange,
-                      size: 25.0,
-                    ),
+                    child: CupertinoActivityIndicator()
                   );
                 }
 

@@ -24,6 +24,7 @@ class MarkingAdapter extends TypeAdapter<Marking> {
       startDate: fields[4] as DateTime,
       endDate: fields[5] as DateTime,
       count: fields[6] as int,
+      characteristicIndex: fields[8] as int,
       status: fields[7] as MarkingStatus?,
     );
   }
@@ -31,7 +32,7 @@ class MarkingAdapter extends TypeAdapter<Marking> {
   @override
   void write(BinaryWriter writer, Marking obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class MarkingAdapter extends TypeAdapter<Marking> {
       ..writeByte(6)
       ..write(obj.count)
       ..writeByte(7)
-      ..write(obj.status);
+      ..write(obj.status)
+      ..writeByte(8)
+      ..write(obj.characteristicIndex);
   }
 
   @override

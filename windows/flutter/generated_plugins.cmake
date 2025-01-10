@@ -8,7 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   file_selector_windows
   printing
-  screen_retriever
+  screen_retriever_windows
   url_launcher_windows
   window_manager
 )

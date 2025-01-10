@@ -15,7 +15,7 @@ class LabelTemplateWidget extends StatefulWidget {
   final bool customDate;
   final DateTime startDate;
   final DateTime customEndDate;
-  final Characteristic selectedCharacteristic;
+  final Characteristic? selectedCharacteristic;
 
   const LabelTemplateWidget(
       {super.key,
@@ -23,7 +23,7 @@ class LabelTemplateWidget extends StatefulWidget {
       required this.customDate,
       required this.startDate,
       required this.customEndDate,
-      required this.selectedCharacteristic});
+       this.selectedCharacteristic});
 
   @override
   State<LabelTemplateWidget> createState() => _LabelTemplateWidgetState();

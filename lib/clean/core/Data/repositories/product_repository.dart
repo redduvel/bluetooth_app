@@ -117,6 +117,7 @@ class ProductRepository implements IRepository<Product> {
     }
   }
 
+
   @override
   Future<void> delete(String id, {bool sync = false}) async {
     try {

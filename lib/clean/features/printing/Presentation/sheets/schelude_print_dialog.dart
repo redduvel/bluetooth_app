@@ -85,9 +85,12 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
             child: LabelTemplateWidget(
                 product: widget.product,
                 customDate: true,
-                startDate:  adjustmentDateTime,
-                customEndDate:  customEndDate,
-                selectedCharacteristic: widget.product.characteristics[selectedCharacteristic],),
+                startDate: adjustmentDateTime,
+                customEndDate: customEndDate,
+                selectedCharacteristic:
+                    widget.product.characteristics.isNotEmpty
+                        ? widget.product.characteristics[selectedCharacteristic]
+                        : null),
           ),
           const SliverToBoxAdapter(child: Divider()),
           if (widget.product.characteristics.isNotEmpty) ...[
@@ -242,6 +245,7 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
           endDate: PrintingUsecase.setAdjustmentTime(
               adjustmentType ? customEndDate : DateTime.now(),
               widget.product.characteristics[selectedCharacteristic]),
+          characteristicIndex: selectedCharacteristic,
           count: count)));
     }
     context.read<PrinterBloc>().add(PrintLabel(

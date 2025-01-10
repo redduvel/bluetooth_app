@@ -6,10 +6,10 @@ import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.bloc.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.event.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.state.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:universal_io/io.dart';
 
 class PrintingSettingPage extends StatefulWidget {
@@ -118,17 +118,14 @@ class _PrintingSettingPageState extends State<PrintingSettingPage> {
                 ],
               ),
             if (state is PrinterLoading)
-              const SliverToBoxAdapter(
+              const SliverFillRemaining(
                 child: Center(
-                    child: SpinKitFadingCircle(
-                  color: Colors.orange,
-                  size: 40,
-                )),
+                    child: CupertinoActivityIndicator()),
               ),
             if (state is DevicesLoaded) _buildDeviceList(state.devices),
             if (state is PrinterDisconnected)
-              const SliverToBoxAdapter(
-                  child: Center(child: Text('Принтер отключен'))),
+              const SliverFillRemaining(
+                  child: Center(child: Text('Нет доступных принтеров.', style: AppTextStyles.labelMedium18,))),
             if (state is PrinterConnected) _buildDeviceList(printerBloc.devices)
           ],
         );

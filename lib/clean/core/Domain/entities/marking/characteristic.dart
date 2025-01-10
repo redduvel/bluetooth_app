@@ -80,4 +80,18 @@ class Characteristic extends HiveObject {
   String toString() {
     return '$shortName: $value ${getLocalizedMeasurementUnit(unit)}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Characteristic &&
+        other.name == name &&
+        other.shortName == shortName &&
+        other.value == value &&
+        other.unit == unit;
+  }
+
+  @override
+  int get hashCode => name.hashCode ^ shortName.hashCode ^ value.hashCode ^ unit.hashCode;
 }

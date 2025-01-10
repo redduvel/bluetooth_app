@@ -40,6 +40,7 @@ class _CharacteristicsWidgetState extends State<CharacteristicsWidget> {
                 padding: const EdgeInsets.all(8.0),
                 child: ListView(
                   shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,

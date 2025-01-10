@@ -2,6 +2,7 @@ import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
 import 'package:bluetooth_app/clean/core/Domain/bloc/db.bloc.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
+import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/features/admin/presentation/widgets/other/data_row.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
@@ -48,8 +49,35 @@ class _DashboardPageState extends State<DashboardPage> {
           child: BlocBuilder<DBBloc<Marking>, DBState<Marking>>(
             builder: (context, state) {
               if (state is ItemsLoaded<Marking>) {
+                                      final List<Marking> filteredMarking = state.items.where((m) => m.status == MarkingStatus.expired).toList();
+
                 return CustomScrollView(
                   slivers: [
+                    SliverToBoxAdapter(
+                      child: Text('Просроченные продукты:', style: AppTextStyles.labelMedium18,),
+                    ),
+                    SliverList.builder(itemBuilder: (context, index) {
+                      final Marking marking = filteredMarking[index];
+                      return Container(
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(marking.product.title, style: AppTextStyles.bodyMedium16,),
+                                PrimaryButtonIcon(text: "Печатать", icon: Icons.print)
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }, itemCount: filteredMarking.length),
+                    SliverToBoxAdapter(
+                      child: Divider(),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Text('Журнал текущих продуктов:', style: AppTextStyles.labelMedium18,),
+                    ),
                     SliverToBoxAdapter(
                       child: SizedBox(
                         height: MediaQuery.of(context).size.height,
@@ -57,7 +85,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           empty: const Text('Здесь будут отображаться маркировки', style: AppTextStyles.bodyMedium16,),
                           sortColumnIndex: _sortColumnIndex,
                           sortAscending: _sortAscending,
-                          minWidth: 700,
+                          minWidth: MediaQuery.of(context).size.width * 1.75,
+                          
                           columnSpacing: 0,
                           
                           decoration: BoxDecoration(

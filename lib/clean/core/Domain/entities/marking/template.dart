@@ -1,4 +1,4 @@
-import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/template_entry.dart';
 import 'package:bluetooth_app/clean/core/tools/id_generator.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -10,7 +10,7 @@ class Template extends HiveObject {
   final String id;
 
   @HiveField(1)
-  final List<Product> listProducts;
+  final List<TemplateEntry> listProducts;
 
   @HiveField(2)
   final String title;
@@ -18,29 +18,11 @@ class Template extends HiveObject {
   Template({String? id, required this.listProducts, required this.title})
       : id = id ?? IdGenerator.generate();
 
-  Template copyWith({String? id, List<Product>? listProducts, String? title}) {
+  Template copyWith({String? id, List<TemplateEntry>? listProducts, String? title}) {
     return Template(
         id: id ?? this.id,
         listProducts: listProducts ?? this.listProducts,
         title: title ?? this.title);
-  }
-
-  // Метод для сериализации в JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'listProducts': listProducts,
-      'title': title,
-    };
-  }
-
-  // Метод для десериализации из JSON
-  factory Template.fromJson(Map<String, dynamic> json) {
-    return Template(
-      id: json['id'],
-      listProducts: json['listProducts'],
-      title: json['title'],
-    );
   }
 
   @override

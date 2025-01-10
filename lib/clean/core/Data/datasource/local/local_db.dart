@@ -1,6 +1,7 @@
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/category.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
+import 'package:bluetooth_app/clean/core/Domain/entities/marking/template_entry.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/user.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/characteristic.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking_db/marking.dart';
@@ -12,7 +13,7 @@ class LocalDB {
   static LocalDB get instance => _instance ??= LocalDB._();
 
   static void createDB() async {
-    await Hive.initFlutter('db7');
+    await Hive.initFlutter('db10');
 
     Hive.registerAdapter(UserAdapter());
     Hive.registerAdapter(ProductAdapter());
@@ -21,6 +22,7 @@ class LocalDB {
     Hive.registerAdapter(MeasurementUnitAdapter());
     Hive.registerAdapter(MarkingStatusAdapter());
     Hive.registerAdapter(MarkingAdapter());
+    Hive.registerAdapter(TemplateEntryAdapter());
     Hive.registerAdapter(TemplateAdapter());
 
     await Hive.openBox<Marking>('markings');

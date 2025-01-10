@@ -110,11 +110,12 @@ class _PrintingPageState extends State<PrintingPage> {
               child: BlocBuilder<DBBloc<Category>, DBState<Category>>(
                   builder: (context, state) {
                 if (state is ItemsLoaded<Category>) {
+                  final filteredCategories = state.items.where((element) => element.name != "Архив").toList();
                   return Wrap(
                     //runSpacing: 5,
                     spacing: 10,
-                    children: List.generate(state.items.length, (index) {
-                      Category category = state.items[index];
+                    children: List.generate(filteredCategories.length, (index) {
+                      Category category = filteredCategories[index];
                       return ChoiceChip(
                         backgroundColor: AppColors.surface,
                         selectedColor: AppColors.greenSurface,

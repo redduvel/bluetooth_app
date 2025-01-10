@@ -29,7 +29,18 @@ void main() async {
 
   LocalDB.createDB();
 
+  final blocs = await initializeBlocs();
+
+  await SyncService.initialize(
+    categoryBloc: blocs.categoryBloc,
+    productBloc: blocs.productBloc,
+    userBloc: blocs.userBloc
+  ).then((value) {
+    value.sync();
+  });
+
   await RemoteDB.createDB();
+  await RemoteDB.sync();
   // Инициализация менеджера окна
   // if (Platform.isWindows || Platform.isMacOS) {
   // await windowManager.ensureInitialized();
@@ -46,15 +57,7 @@ void main() async {
   //     windowManager.show();
   //   });
   // }
-  final blocs = await initializeBlocs();
 
-  await SyncService.initialize(
-    categoryBloc: blocs.categoryBloc,
-    productBloc: blocs.productBloc,
-    userBloc: blocs.userBloc
-  ).then((value) {
-    value.startSync();
-  });
 
   runApp(MyApp(blocs: blocs));
 }

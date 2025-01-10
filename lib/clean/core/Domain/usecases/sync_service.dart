@@ -8,9 +8,14 @@ import 'package:logger/logger.dart';
 
 class SyncService {
   static final SyncService _instance = SyncService._internal();
+  
+  static SyncService get instance => _instance;
+  
   factory SyncService() => _instance;
 
   SyncService._internal();
+
+  
 
   Timer? _timer;
   late Logger logger;
@@ -34,13 +39,13 @@ class SyncService {
   }
 
   void startSync() async {
-    await _syncInBackground();
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) async {
-      await _syncInBackground();
+    await sync();
+    _timer = Timer.periodic(const Duration(minutes: 5), (timer) async {
+      await sync();
     });
   }
 
-  Future<void> _syncInBackground() async {
+  Future<void> sync() async {
     try {
       bool internetConnection = await InternetConnection().hasInternetAccess;
 
@@ -54,10 +59,6 @@ class SyncService {
     } catch (e) {
       logger.e('Sync error: $e');
     }
-  }
-
-  static Future<void> _backgroundSync(_) async {
-    await Future.delayed(const Duration(seconds: 1));
   }
 
   void stopSync() {

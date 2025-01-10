@@ -1,4 +1,5 @@
 // ignore: file_names
+import 'package:bluetooth_app/clean/core/Domain/usecases/sync_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RemoteDB {
@@ -26,7 +27,7 @@ class RemoteDB {
         schema: 'public',
         table: 'products',
         callback: (payload) {
-          print('Change received: ${payload.toString()}');
+          SyncService.instance.sync();
         })
     .subscribe();
   }

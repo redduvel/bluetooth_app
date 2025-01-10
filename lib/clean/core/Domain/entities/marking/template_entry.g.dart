@@ -1,38 +1,38 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'template.dart';
+part of 'template_entry.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TemplateAdapter extends TypeAdapter<Template> {
+class TemplateEntryAdapter extends TypeAdapter<TemplateEntry> {
   @override
-  final int typeId = 7;
+  final int typeId = 8;
 
   @override
-  Template read(BinaryReader reader) {
+  TemplateEntry read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Template(
-      id: fields[0] as String?,
-      listProducts: (fields[1] as List).cast<TemplateEntry>(),
-      title: fields[2] as String,
+    return TemplateEntry(
+      fields[0] as Product,
+      fields[1] as Characteristic?,
+      fields[2] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, Template obj) {
+  void write(BinaryWriter writer, TemplateEntry obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.product)
       ..writeByte(1)
-      ..write(obj.listProducts)
+      ..write(obj.characteristic)
       ..writeByte(2)
-      ..write(obj.title);
+      ..write(obj.count);
   }
 
   @override
@@ -41,7 +41,7 @@ class TemplateAdapter extends TypeAdapter<Template> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TemplateAdapter &&
+      other is TemplateEntryAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

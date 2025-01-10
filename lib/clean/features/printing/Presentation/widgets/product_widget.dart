@@ -17,9 +17,10 @@ class ProductWidget extends StatefulWidget {
   final Product product;
   final DBBloc<Product> bloc;
   final Function(Product)? edit;
+  final Function(Product)? delete;
 
   const ProductWidget(
-      {super.key, required this.product, required this.bloc, this.edit});
+      {super.key, required this.product, required this.bloc, this.edit, this.delete});
 
   @override
   State<ProductWidget> createState() => _ProductWidgetState();
@@ -43,6 +44,10 @@ class _ProductWidgetState extends State<ProductWidget> {
     widget.edit!(widget.product);
   }
 
+  void _onDelete() {
+    widget.delete!(widget.product);
+  }
+
   @override
   void initState() {
     controller = TextEditingController(text: '$count');
@@ -51,34 +56,51 @@ class _ProductWidgetState extends State<ProductWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: (Platform.isMacOS || Platform.isWindows)
-          ? 200
-          : (MediaQuery.of(context).size.width - 20 - 16) / 2,
-      height: 200,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-          color: Color(widget.product.backgroundColor ??
-              AppColors.secondaryButton.value),
-          borderRadius: BorderRadius.circular(8)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 100,
-                    child: Text(
-                      widget.product.title,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.labelMedium18.copyWith(
+    return CupertinoButton(
+      onPressed: () => _showPrintBottomSheet(context),
+      padding: EdgeInsets.all(0),
+      minSize: 1,
+      child: Container(
+        
+        width: (Platform.isMacOS || Platform.isWindows)
+            ? 200
+            : (MediaQuery.of(context).size.width - 20 - 16) / 2,
+        height: 200,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+            color: Color(widget.product.backgroundColor ??
+                AppColors.secondaryButton.value),
+            borderRadius: BorderRadius.circular(8)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: Text(
+                        widget.product.title,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.labelMedium18.copyWith(
+                          decoration: widget.product.isHide
+                              ? TextDecoration.lineThrough
+                              : null,
+                          color: widget.product.isHide
+                              ? AppColors.secondaryText
+                              : null,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      widget.product.category.name,
+                      style: AppTextStyles.labelSmall12.copyWith(
                         decoration: widget.product.isHide
                             ? TextDecoration.lineThrough
                             : null,
@@ -86,103 +108,89 @@ class _ProductWidgetState extends State<ProductWidget> {
                             ? AppColors.secondaryText
                             : null,
                       ),
-                    ),
-                  ),
-                  Text(
-                    widget.product.category.name,
-                    style: AppTextStyles.labelSmall12.copyWith(
-                      decoration: widget.product.isHide
-                          ? TextDecoration.lineThrough
-                          : null,
-                      color: widget.product.isHide
-                          ? AppColors.secondaryText
-                          : null,
-                    ),
-                  )
-                ],
-              ),
-              PopupMenuButton(
-                position: PopupMenuPosition.under,
-                color: AppColors.white,
-                itemBuilder: (context) {
-                  return [
-                    PopupMenuItem(
-                        child: const Text(
-                          'Изменить оформление',
-                          style: AppTextStyles.bodyMedium16,
-                        ),
-                        onTap: () => showEditColorDialog(context)),
-                    if (context.read<UserCubit>().state ==
-                        CurrentUser.admin) ...[
+                    )
+                  ],
+                ),
+                PopupMenuButton(
+                  position: PopupMenuPosition.under,
+                  color: AppColors.white,
+                  itemBuilder: (context) {
+                    return [
                       PopupMenuItem(
-                        child: const Text(
-                          'Изменить данные',
-                          style: AppTextStyles.bodyMedium16,
+                          child: const Text(
+                            'Изменить оформление',
+                            style: AppTextStyles.bodyMedium16,
+                          ),
+                          onTap: () => showEditColorDialog(context)),
+                      if (context.read<UserCubit>().state ==
+                          CurrentUser.admin) ...[
+                        PopupMenuItem(
+                          child: const Text(
+                            'Изменить данные',
+                            style: AppTextStyles.bodyMedium16,
+                          ),
+                          onTap: () => _onEdit(),
                         ),
-                        onTap: () => _onEdit(),
-                      ),
-                      PopupMenuItem(
-                        child: Text(
-                          widget.product.isHide
-                              ? 'Убрать из скрытых'
-                              : 'Скрыть',
-                          style: AppTextStyles.bodyMedium16,
+                        PopupMenuItem(
+                          child: Text(
+                            widget.product.isHide
+                                ? 'Убрать из скрытых'
+                                : 'Скрыть',
+                            style: AppTextStyles.bodyMedium16,
+                          ),
+                          onTap: () {
+                            context
+                                .read<DBBloc<Product>>()
+                                .add(UpdateItem<Product>(
+                                  widget.product
+                                      .copyWith(isHide: !widget.product.isHide),
+                                ));
+                          },
                         ),
-                        onTap: () {
-                          context
-                              .read<DBBloc<Product>>()
-                              .add(UpdateItem<Product>(
-                                widget.product
-                                    .copyWith(isHide: !widget.product.isHide),
-                              ));
-                        },
-                      ),
-                      PopupMenuItem(
-                        child: const Text('Удалить',
-                            style: AppTextStyles.bodyMedium16),
-                        onTap: () {
-                          context
-                              .read<DBBloc<Product>>()
-                              .add(DeleteItem<Product>(widget.product.id));
-                        },
-                      ),
-                    ]
-                  ];
-                },
-              )
-            ],
-          ),
-          Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: widget.product.characteristics.map((c) {
-                return Text(
-                  c.toString(),
-                  style: AppTextStyles.bodyMedium16,
-                );
-              }).toList()),
-          Row(
-            children: [
-              CupertinoButton(
-                  minSize: 30,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child:
-                      const Icon(CupertinoIcons.printer, color: AppColors.text),
-                  onPressed: () => _showPrintBottomSheet(context)),
-              const Spacer(),
-              if (widget.product.allowFreeTime)
+                        PopupMenuItem(
+                          child: const Text('Удалить',
+                              style: AppTextStyles.bodyMedium16),
+                          onTap: () => _onDelete()
+                        ),
+                      ]
+                    ];
+                  },
+                )
+              ],
+            ),
+            Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: widget.product.characteristics.map((c) {
+                  return Text(
+                    c.toString(),
+                    style: AppTextStyles.bodyMedium16,
+                  );
+                }).toList()),
+            if (UserCubit.current == CurrentUser.employee)
+            Row(
+              children: [
                 CupertinoButton(
                     minSize: 30,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: const Icon(
-                      CupertinoIcons.clock,
-                      color: AppColors.text,
-                    ),
-                    onPressed: () => _showScheduleBottomSheet(context))
-            ],
-          )
-        ],
+                    child:
+                        const Icon(CupertinoIcons.printer, color: AppColors.text),
+                    onPressed: () => _showPrintBottomSheet(context)),
+                const Spacer(),
+                if (widget.product.allowFreeTime)
+                  CupertinoButton(
+                      minSize: 30,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: const Icon(
+                        CupertinoIcons.clock,
+                        color: AppColors.text,
+                      ),
+                      onPressed: () => _showScheduleBottomSheet(context))
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

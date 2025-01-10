@@ -1,3 +1,4 @@
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:bluetooth_app/clean/core/utils/id_generator.dart';
 import 'package:hive/hive.dart';
 
@@ -6,8 +7,9 @@ import 'characteristic.dart';
 
 part 'product.g.dart';
 
+
 @HiveType(typeId: 2)
-class Product extends HiveObject {
+class Product extends HiveObject with CustomDropdownListFilter {
   @HiveField(0)
   final String id;
   @HiveField(1)
@@ -89,5 +91,10 @@ class Product extends HiveObject {
   Product setColor(int color) {
     backgroundColor = color;
     return this;
+  }
+  
+  @override
+  bool filter(String query) {
+    return title.toLowerCase().contains(query.toLowerCase());
   }
 }

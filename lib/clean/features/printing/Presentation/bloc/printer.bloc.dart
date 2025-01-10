@@ -89,17 +89,21 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       InitializePrinter event, Emitter<PrinterState> emit) async {
     emit(PrinterLoading());
     try {
-      if (Platform.isAndroid | Platform.isIOS) {
-        await FlutterBluePlus.startScan(timeout: const Duration(seconds: 2));
-        FlutterBluePlus.scanResults.listen((results) {
-          for (ScanResult result in results) {
-            if (!devices.contains(result.device)) {
-              devices.add(result.device);
+      if (await FlutterBluePlus.isOn) {
+        if (Platform.isAndroid | Platform.isIOS) {
+          await FlutterBluePlus.startScan(timeout: const Duration(seconds: 2));
+          FlutterBluePlus.scanResults.listen((results) {
+            for (ScanResult result in results) {
+              if (!devices.contains(result.device)) {
+                devices.add(result.device);
+              }
             }
-          }
-        });
+          });
 
-        emit(DevicesLoaded(devices));
+          emit(DevicesLoaded(devices));
+        }
+      } else {
+        emit(PrinterDisconnected());
       }
     } catch (e) {
       emit(PrinterDisconnected());
@@ -175,11 +179,15 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   Future<bool> _checkConnection(
       CheckConnection event, Emitter<PrinterState> emit) async {
     try {
-      if (connectedDevice == null && characteristic == null) {
-        _attemptReconnectToSavedDevice();
-        return false;
+      if (await FlutterBluePlus.isOn) {
+        if (connectedDevice == null && characteristic == null) {
+          _attemptReconnectToSavedDevice();
+          return false;
+        } else {
+          return true;
+        }
       } else {
-        return true;
+        return false;
       }
     } catch (e) {
       throw Exception(e);
@@ -199,15 +207,22 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
           Map<String, dynamic> img;
 
           if (event.product.characteristics.isNotEmpty) {
-            endTime = DateFormat('dd.MM.yy HH:mm').format(PrintingUsecase.setAdjustmentTime(
-                event.startDate,
-                event.product.characteristics[event.characteristicIndex]));
+            endTime = DateFormat('dd.MM.yy HH:mm').format(
+                PrintingUsecase.setAdjustmentTime(event.startDate,
+                    event.product.characteristics[event.characteristicIndex]));
             img = await ImageService().createLabelWithText(
-                event.product.subtitle, event.employee.fullName, double.tryParse(labelWidth) ?? 30, double.tryParse(labelHeigth) ?? 20,
-                startDate: startTime, endDate: endTime);
+                event.product.subtitle,
+                event.employee.fullName,
+                double.tryParse(labelWidth) ?? 30,
+                double.tryParse(labelHeigth) ?? 20,
+                startDate: startTime,
+                endDate: endTime);
           } else {
             img = await ImageService().createLabelWithText(
-                event.product.subtitle, event.employee.fullName, double.tryParse(labelWidth) ?? 30, double.tryParse(labelHeigth) ?? 20);
+                event.product.subtitle,
+                event.employee.fullName,
+                double.tryParse(labelWidth) ?? 30,
+                double.tryParse(labelHeigth) ?? 20);
           }
 
           final List<List<int>> data = img['data'];
@@ -234,9 +249,9 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       String endTime = '';
 
       if (event.product.characteristics.isNotEmpty) {
-        endTime = DateFormat('yyyy-MM-dd HH:mm').format(PrintingUsecase.setAdjustmentTime(
-            event.startDate,
-            event.product.characteristics[event.characteristicIndex]));
+        endTime = DateFormat('yyyy-MM-dd HH:mm').format(
+            PrintingUsecase.setAdjustmentTime(event.startDate,
+                event.product.characteristics[event.characteristicIndex]));
       }
 
       await Printing.directPrintPdf(
@@ -259,4 +274,3 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
     }
   }
 }
-

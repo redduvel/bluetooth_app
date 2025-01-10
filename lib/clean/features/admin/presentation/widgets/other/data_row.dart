@@ -158,45 +158,62 @@ DataRow createDataRow(Marking m) {
     DataCell(Text(
       m.product.title,
       overflow: TextOverflow.ellipsis,
-      style: AppTextStyles.bodyMedium16,
+      style: AppTextStyles.bodySmall12,
     )),
     _createStatus(calculateTimeStatus(m.startDate, m.endDate)),
     DataCell(Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.max,
       children: [
-        Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.surface,
-              ),
-              width: 100 / 2,
-              height: 4,
-            ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.text,
-              ),
-              width: calculateRemainingPercentage(m.startDate, m.endDate) / 2,
-              height: 4,
-            ),
-          ],
+        Flexible(
+          flex: 1,
+          child: _createTimeOut(calculateTimeStatus(m.startDate, m.endDate), 100,
+            m.startDate, m.endDate),
         ),
+
         const SizedBox(
           width: 5,
         ),
-        Text(
-            '${calculateRemainingPercentage(m.startDate, m.endDate).toStringAsFixed(0)}%'),
-        const SizedBox(
-          width: 5,
+        Flexible(
+          flex: 2,
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.surface,
+                    ),
+                    width: 100 / 2,
+                    height: 4,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.text,
+                    ),
+                    width: calculateRemainingPercentage(m.startDate, m.endDate) / 2,
+                    height: 4,
+                  ),
+                ],
+              ),
+              SizedBox(width: 5),
+          Text(
+              '${calculateRemainingPercentage(m.startDate, m.endDate).toStringAsFixed(0)}%'),
+            ],
+          ),
         ),
-        _createTimeOut(calculateTimeStatus(m.startDate, m.endDate), 100,
-          m.startDate, m.endDate),
+        
+        
       ],
     )),
     
-    DataCell(Text('${m.count}')),
+    DataCell(Row(
+      children: [
+        SizedBox(width: 10),
+        Text('${m.count}'),
+      ],
+    )),
   ]);
 }

@@ -5,10 +5,11 @@ import 'package:bluetooth_app/clean/core/Domain/entities/marking/product.dart';
 import 'package:bluetooth_app/clean/core/Domain/entities/marking/template.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/multi_select_product_cubit.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/multi_select_product_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:select2dot1/select2dot1.dart';
 
 class TemplatePage extends StatefulWidget {
   const TemplatePage({super.key});
@@ -18,14 +19,17 @@ class TemplatePage extends StatefulWidget {
 }
 
 class _TemplatePageState extends State<TemplatePage> {
+  Template? editTemplate;
+
   late DBBloc<Template> bloc;
   late TextEditingController _nameController;
+  late MultiProductCubit _productsController;
 
-  bool showTools = false;
-  List<Product> selectBooks = [];
+  bool _showTools = false;
 
   bool _isValid() {
-    return _nameController.text.isNotEmpty && selectBooks.isNotEmpty;
+    return _nameController.text.isNotEmpty &&
+        _productsController.state.toEntries().isNotEmpty;
   }
 
   @override
@@ -33,6 +37,7 @@ class _TemplatePageState extends State<TemplatePage> {
     super.initState();
     bloc = context.read<DBBloc<Template>>();
     _nameController = TextEditingController();
+    _productsController = MultiProductCubit();
   }
 
   @override
@@ -54,98 +59,46 @@ class _TemplatePageState extends State<TemplatePage> {
               IconButton(
                   onPressed: () {
                     setState(() {
-                      showTools = !showTools;
+                      _showTools = !_showTools;
                     });
                   },
-                  icon: const Icon(Icons.add)),
+                  icon:
+                      Icon(_showTools ? Icons.keyboard_arrow_down : Icons.add)),
             ],
           ),
-          if (showTools)
+          if (_showTools)
             SliverToBoxAdapter(
               child: BlocBuilder<DBBloc<Product>, DBState<Product>>(
                 builder: (context, productState) {
-                  return switch (productState) {
-                    ItemsLoaded<Product>() => Column(
-                        children: [
-                          PrimaryTextField(
-                            controller: _nameController,
+                  if (productState is ItemsLoaded<Product>) {
+                    return Column(
+                      children: [
+                        PrimaryTextField(
+                          controller: _nameController,
+                          width: double.infinity,
+                          margin: const EdgeInsets.symmetric(horizontal: 15),
+                          hintText: 'Название',
+                        ),
+                        BlocProvider.value(
+                          value: _productsController,
+                          child: MultiProductSelectionWidget(
+                            controller: _productsController,
+                            products: productState.items,
+                          ),
+                        ),
+                        PrimaryButtonIcon(
+                            text: "Добавить",
+                            selected: true,
+                            alignment: Alignment.center,
+                            icon: Icons.add,
                             width: double.infinity,
-                            margin: const EdgeInsets.symmetric(horizontal: 15),
-                            hintText: 'Название',
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Select2dot1(
-                              pillboxSettings: PillboxSettings(
-                                  defaultDecoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: AppColors.black),
-                                      borderRadius: BorderRadius.circular(5)),
-                                  activeDecoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.primary,
-                                      ),
-                                      borderRadius: BorderRadius.circular(5))),
-                              doneButtonModalSettings: DoneButtonModalSettings(
-                                  title: 'Выбрать',
-                                  iconColor: AppColors.primary,
-                                  buttonDecoration: BoxDecoration(
-                                      color: AppColors.primary,
-                                      borderRadius: BorderRadius.circular(5))),
-                              isSearchable: true,
-                              searchBarModalSettings:
-                                  const SearchBarModalSettings(
-                                textFieldStyle: AppTextStyles.bodySmall12,
-                              ),
-                              searchEmptyInfoModalSettings:
-                                  const SearchEmptyInfoModalSettings(
-                                      text: 'Нет результатов'),
-                              onChanged: (value) {
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  setState(() {
-                                    selectBooks = value
-                                        .map((v) => v.value as Product)
-                                        .toList();
-                                  });
-                                });
-                              },
-                              dropdownModalSettings:
-                                  const DropdownModalSettings(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            topRight: Radius.circular(5)),
-                                      ),
-                                      backgroundColor: AppColors.onSurface),
-                              titleModalSettings: const TitleModalSettings(
-                                  title: 'Выберете продукты',
-                                  titleTextStyle: AppTextStyles.labelMedium18),
-                              selectDataController: SelectDataController(
-                                data: [
-                                  SingleCategoryModel(
-                                    singleItemCategoryList: productState.items
-                                        .map((p) => SingleItemCategoryModel(
-                                            nameSingleItem: p.title, value: p))
-                                        .toList(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          PrimaryButtonIcon(
-                              text: "Добавить",
-                              selected: true,
-                              alignment: Alignment.center,
-                              icon: Icons.add,
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              onPressed: () => createTemplate())
-                        ],
-                      ),
-                    _ =>
-                      const SizedBox.shrink(child: CircularProgressIndicator()),
-                  };
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            onPressed: () => createTemplate())
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink(
+                      child: CircularProgressIndicator());
                 },
               ),
             ),
@@ -188,16 +141,28 @@ class _TemplatePageState extends State<TemplatePage> {
                                     color: AppColors.white,
                                     itemBuilder: (context) {
                                       return [
-                                        const PopupMenuItem(
-                                            child: Text(
-                                          'Изменить данные',
-                                          style: AppTextStyles.bodyMedium16,
-                                        )),
-                                        // const PopupMenuItem(
-                                        //     child: Text(
-                                        //   'Изменить оформление',
-                                        //   style: AppTextStyles.bodyMedium16,
-                                        // )),
+                                        PopupMenuItem(
+                                          child: const Text(
+                                            'Изменить данные',
+                                            style: AppTextStyles.bodyMedium16,
+                                          ),
+                                          onTap: () {
+                                            setState(() {
+                                              _showTools = !_showTools;
+
+                                              editTemplate =
+                                                  templateState.items[index];
+
+                                              _nameController.text =
+                                                  templateState
+                                                      .items[index].title;
+                                              _productsController
+                                                  .fromTemplateEntries(
+                                                      templateState.items[index]
+                                                          .listProducts);
+                                            });
+                                          },
+                                        ),
                                         PopupMenuItem(
                                             child: const Text(
                                               'Удалить',
@@ -221,15 +186,21 @@ class _TemplatePageState extends State<TemplatePage> {
                               children: List.generate(
                                   templateState.items[index].listProducts
                                       .length, (chipIndex) {
-                                        Product product = templateState.items[index].listProducts[chipIndex];
+                                Product product = templateState.items[index]
+                                    .listProducts[chipIndex].product;
 
                                 return Chip(
-                                  backgroundColor: Color(product.backgroundColor ?? AppColors.surface.value),
+                                    backgroundColor: Color(
+                                        product.backgroundColor ??
+                                            AppColors.surface.value),
                                     padding: const EdgeInsets.all(2.5),
                                     labelPadding: const EdgeInsets.all(0),
                                     label: Text(
-                                      templateState.items[index]
-                                          .listProducts[chipIndex].title,
+                                      templateState
+                                          .items[index]
+                                          .listProducts[chipIndex]
+                                          .product
+                                          .title,
                                       style: AppTextStyles.bodyMedium16
                                           .copyWith(fontSize: 12),
                                     ));
@@ -251,11 +222,28 @@ class _TemplatePageState extends State<TemplatePage> {
 
   void createTemplate() {
     if (_isValid()) {
-      bloc.add(
-        AddItem(
-          Template(title: _nameController.text, listProducts: selectBooks),
-        ),
-      );
+      if (editTemplate != null) {
+        final updatedTemplate = editTemplate!.copyWith(
+            title: _nameController.text,
+            listProducts: _productsController.state.toEntries());
+        bloc.add(UpdateItem<Template>(updatedTemplate));
+      } else {
+        final newTemplate = Template(
+            title: _nameController.text,
+            listProducts: _productsController.state.toEntries());
+        bloc.add(
+          AddItem<Template>(
+            newTemplate,
+          ),
+        );
+      }
+
+      setState(() {
+        _showTools = false;
+        editTemplate = null;
+        _nameController.clear();
+        _productsController.clear();
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
