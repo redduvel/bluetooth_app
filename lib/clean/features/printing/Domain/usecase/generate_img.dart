@@ -9,13 +9,19 @@ import 'package:printing/printing.dart';
 import 'package:image/image.dart' as img;
 
 class ImageService {
-  Future<Map<String, dynamic>> createLabelWithText(String product, String name, double width, double height,
+
+  Future<Map<String, dynamic>> createLabelWithText(
+      String product, String name, double width, double height,
       {String? startDate, String? endDate}) async {
+
     const int dpi = 203;
+
     double widthMm = width;
     double heightMm = height;
+
     final int widthPx = (widthMm * dpi / 25.4).round();
     final int heightPx = (heightMm * dpi / 25.4).round();
+    
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(
         recorder,
@@ -24,23 +30,33 @@ class ImageService {
     final paint = Paint()..color = Colors.black;
     canvas.drawRect(
         Rect.fromLTWH(0, 0, widthPx.toDouble(), heightPx.toDouble()), paint);
-    const textStyle = TextStyle(
+    var textStyle = const TextStyle(
       color: Colors.white,
       fontSize: 23,
       fontWeight: FontWeight.w700,
       fontFamily: 'Roboto',
     );
+
     if (startDate == null && endDate == null) {
       final texts = [product, name];
       double offsetY = 30;
       for (var txt in texts) {
-        final textSpan = TextSpan(text: txt, style: textStyle);
-        final textPainter = TextPainter(
-          text: textSpan,
-          textAlign: TextAlign.left,
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
+        double fontSize = 23;
+        TextPainter textPainter;
+        
+        do {
+          textStyle = textStyle.copyWith(fontSize: fontSize);
+          final textSpan = TextSpan(text: txt, style: textStyle);
+          textPainter = TextPainter(
+            text: textSpan,
+            maxLines: 1,
+            textAlign: TextAlign.left,
+            textDirection: TextDirection.ltr,
+          );
+          textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
+          fontSize -= 1;
+        } while (textPainter.width > widthPx && fontSize > 8);
+
         final offsetX = (widthPx - textPainter.width) / 2;
         textPainter.paint(canvas, Offset(offsetX, offsetY));
         offsetY += textPainter.height + 25;
@@ -49,13 +65,23 @@ class ImageService {
       final texts = [product, startDate, endDate, name];
       double offsetY = 0;
       for (var txt in texts) {
-        final textSpan = TextSpan(text: txt, style: textStyle);
-        final textPainter = TextPainter(
-          text: textSpan,
-          textAlign: TextAlign.left,
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
+        if (txt == null) continue;
+        
+        double fontSize = 23;
+        TextPainter textPainter;
+        
+        do {
+          textStyle = textStyle.copyWith(fontSize: fontSize);
+          final textSpan = TextSpan(text: txt, style: textStyle);
+          textPainter = TextPainter(
+            text: textSpan,
+            textAlign: TextAlign.left,
+            textDirection: TextDirection.ltr,
+          );
+          textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
+          fontSize -= 1;
+        } while (textPainter.width > widthPx && fontSize > 8);
+
         final offsetX = (widthPx - textPainter.width) / 2;
         textPainter.paint(canvas, Offset(offsetX, offsetY));
         offsetY += textPainter.height + 10;
@@ -86,6 +112,8 @@ class ImageService {
     return {'data': imageDataForPrinting, 'image': monoImage};
   }
 
+  /// Преобразует BMP данные в формат, подходящий для печати
+  /// Возвращает двумерный массив битов изображения
   Future<List<List<int>>> getImageDataFromBmp(Uint8List bmpData) async {
     final image = img.decodeBmp(bmpData);
     if (image == null) {
@@ -112,6 +140,8 @@ class ImageService {
     return data;
   }
 
+  /// Сохраняет изображение в формате BMP в локальное хранилище
+  /// Возвращает путь к сохраненному файлу
   Future<String> saveBmpImage(img.Image image, String filename) async {
     final directory = await getApplicationDocumentsDirectory();
     final path = '${directory.path}/$filename';
@@ -121,11 +151,14 @@ class ImageService {
     return path;
   }
 
+  /// Загружает BMP файл и возвращает его содержимое как массив байтов
   Future<Uint8List> loadBmpImageData(String path) async {
     final file = File(path);
     return file.readAsBytesSync();
   }
 
+  /// Генерирует PDF документ с заданным количеством страниц
+  /// Каждая страница содержит текстовую информацию в заданном формате
   Future<pw.Document> generatePdf(
       int count, PdfPageFormat format, String subtitle, String fullName,
       {String? startDate, String? endDate}) async {

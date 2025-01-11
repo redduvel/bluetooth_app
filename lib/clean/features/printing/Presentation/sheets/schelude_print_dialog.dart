@@ -1,4 +1,3 @@
-import 'package:adoptive_calendar/adoptive_calendar.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/config/theme/text_styles.dart';
@@ -16,6 +15,7 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/label
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class ScheludePrintDialog extends StatefulWidget {
   final Product product;
@@ -42,6 +42,7 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
     saveMarking = false;
     adjustmentType = false;
     count = 1;
+
   }
 
   @override
@@ -61,22 +62,30 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Печать этикетки: ${widget.product.title}',
-                  style: AppTextStyles.labelMedium18
-                      .copyWith(color: AppColors.black),
+                Flexible(
+                  flex: 7,
+                  child: Text(
+                    'Печать этикетки: ${widget.product.title}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelMedium18
+                        .copyWith(color: AppColors.black),
+                  ),
                 ),
-                CupertinoButton(
-                    color: AppColors.primary,
-                    minSize: 1,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(
-                      'Готово',
-                      style: AppTextStyles.bodyMedium16
-                          .copyWith(color: AppColors.text),
-                    ),
-                    onPressed: () => context.router.popForced())
+                Flexible(
+                  flex: 3,
+                  child: CupertinoButton(
+                      color: AppColors.primary,
+                      minSize: 1,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Text(
+                        'Готово',
+                        style: AppTextStyles.bodyMedium16
+                            .copyWith(color: AppColors.text),
+                      ),
+                      onPressed: () => context.router.popForced()),
+                )
               ],
             ),
           ),
@@ -127,22 +136,44 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
           ],
           if (widget.product.characteristics.isNotEmpty) ...[
             SliverToBoxAdapter(
-                child: AdoptiveCalendar(
-              backgroundColor: AppColors.surface,
-              fontColor: AppColors.text,
-              monthYearMode: CupertinoDatePickerMode.date,
-              use24hFormat: true,
-              initialDate: adjustmentDateTime,
-              onSelection: (p0) {
-                setState(() {
-                  adjustmentDateTime = p0 ?? DateTime.now();
+              child: TableCalendar(
+                locale: Localizations.localeOf(context).languageCode,
+                focusedDay: adjustmentDateTime, firstDay: DateTime(2000), lastDay: DateTime(2100),
+                selectedDayPredicate: (day) => isSameDay(day, adjustmentDateTime),
+                availableCalendarFormats: const {
+                  CalendarFormat.month: 'Month'
+                },
+                headerStyle: const HeaderStyle(
+                  leftChevronIcon: Icon(Icons.arrow_back_ios, color: AppColors.black,),
+                  rightChevronIcon: Icon(Icons.arrow_forward_ios, color: AppColors.black,)
+                ),
+                calendarStyle: CalendarStyle(
+                  selectedDecoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primary
+                  ),
+                  todayDecoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.primary
+                    ),
+                    
+                  ),
+                  todayTextStyle: AppTextStyles.bodyMedium16.copyWith(
+                    color: AppColors.black
+                  )
+                ),
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                  adjustmentDateTime = selectedDay;
 
                   customEndDate = PrintingUsecase.setAdjustmentTime(
                       adjustmentDateTime,
                       widget.product.characteristics[selectedCharacteristic]);
                 });
-              },
-            )),
+                },)
+            ),
+            
             const SliverToBoxAdapter(child: Divider()),
           ],
           SliverToBoxAdapter(

@@ -12,4 +12,5 @@ class PrintingUsecase {
         return startTime.add(Duration(days: characteristic.value));
     }
   }
+  
 }

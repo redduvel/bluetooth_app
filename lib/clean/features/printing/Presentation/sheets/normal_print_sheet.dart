@@ -63,7 +63,8 @@ class _NormalPrintSheetState extends State<NormalPrintSheet> {
                 Flexible(
                   flex: 7,
                   child: Text(
-                    '${widget.product.title}',
+                    'Печать этикетки: ${widget.product.title}',
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.labelMedium18
                         .copyWith(color: AppColors.black),

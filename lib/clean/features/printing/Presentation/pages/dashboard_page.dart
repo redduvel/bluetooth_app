@@ -53,7 +53,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 return CustomScrollView(
                   slivers: [
-                    SliverToBoxAdapter(
+                    const SliverToBoxAdapter(
                       child: Text('Просроченные продукты:', style: AppTextStyles.labelMedium18,),
                     ),
                     SliverList.builder(itemBuilder: (context, index) {
@@ -72,10 +72,10 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       );
                     }, itemCount: filteredMarking.length),
-                    SliverToBoxAdapter(
+                    const SliverToBoxAdapter(
                       child: Divider(),
                     ),
-                    SliverToBoxAdapter(
+                    const SliverToBoxAdapter(
                       child: Text('Журнал текущих продуктов:', style: AppTextStyles.labelMedium18,),
                     ),
                     SliverToBoxAdapter(

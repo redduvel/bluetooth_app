@@ -21,11 +21,13 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/printer.
 //import 'package:bluetooth_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'clean/config/routes/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
 
   LocalDB.createDB();
 
@@ -84,6 +86,11 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => PrinterBloc()..add(CheckConnection())),
         ],
         child: MaterialApp.router(
+          localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+      ],
+      supportedLocales: [const Locale('ru', 'RU')],
+          locale: Locale('ru', ''),
           routerConfig: AppRouter().config(),
           debugShowCheckedModeBanner: false,
         ),

@@ -58,7 +58,7 @@ class _ProductWidgetState extends State<ProductWidget> {
   Widget build(BuildContext context) {
     return CupertinoButton(
       onPressed: () => _showPrintBottomSheet(context),
-      padding: EdgeInsets.all(0),
+      padding: const EdgeInsets.all(0),
       minSize: 1,
       child: Container(
         

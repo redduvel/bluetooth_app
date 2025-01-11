@@ -26,87 +26,90 @@ class AdminScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-         actions: [
-          if(Platform.isAndroid || Platform.isIOS)
-          BlocBuilder<PrinterBloc, PrinterState>(
-              builder: (context, state) {
-                if (state is PrinterLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: SpinKitFadingCircle(
-                      color: Colors.orange,
-                      size: 25.0,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.surface,
+           actions: [
+            if(Platform.isAndroid || Platform.isIOS)
+            BlocBuilder<PrinterBloc, PrinterState>(
+                builder: (context, state) {
+                  if (state is PrinterLoading) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: SpinKitFadingCircle(
+                        color: Colors.orange,
+                        size: 25.0,
+                      ),
+                    );
+                  }
+      
+                  return IconButton(
+                    onPressed: () => context
+                        .read<NavigationBloc>()
+                        .add(NavigateTo(const PrintingSettingPage())),
+                    icon: Icon(
+                      context.read<PrinterBloc>().connectedDevice != null
+                          ? Icons.print
+                          : Icons.print_disabled,
+                      color: context.read<PrinterBloc>().connectedDevice != null
+                          ? Colors.green
+                          : Colors.red,
                     ),
                   );
-                }
-
-                return IconButton(
-                  onPressed: () => context
-                      .read<NavigationBloc>()
-                      .add(NavigateTo(const PrintingSettingPage())),
-                  icon: Icon(
-                    context.read<PrinterBloc>().connectedDevice != null
-                        ? Icons.print
-                        : Icons.print_disabled,
-                    color: context.read<PrinterBloc>().connectedDevice != null
-                        ? Colors.green
-                        : Colors.red,
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
-      body: const AdminBody(),
-      drawer: (Platform.isAndroid || Platform.isIOS)
-          ? Drawer(
-              child: NavigationPage(
-              controls: [
-                [
-                  PrimaryButtonIcon(
-                    toPage: const DashboardPage(),
-                    text: 'Журнал',
-                    width: double.infinity,
-                    icon: Icons.dashboard,
-                  ),
-                  PrimaryButtonIcon(
-                    text: 'Сотрудники',
-                    icon: Icons.person,
-                    width: double.infinity,
-                    toPage: const EmployeeScreen(),
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const CategoryScreen(),
-                    text: 'Категории',
-                    width: double.infinity,
-                    icon: Icons.category,
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const ProductScreen(),
-                    text: 'Продукты',
-                    width: double.infinity,
-                    icon: Icons.egg,
-                  )
-                ],
-                [
-                  PrimaryButtonIcon(
-                      text: 'Выйти',
-                      type: ButtonType.delete,
+                },
+              ),
+          ],
+        ),
+        body: const AdminBody(),
+        drawer: (Platform.isAndroid || Platform.isIOS)
+            ? Drawer(
+                child: NavigationPage(
+                controls: [
+                  [
+                    PrimaryButtonIcon(
+                      toPage: const DashboardPage(),
+                      text: 'Журнал',
                       width: double.infinity,
-                      onPressed: () {
-                        context.router.replace(const HomeRoute());
-                        context
-                            .read<NavigationBloc>()
-                            .add(NavigateTo(const LoginScreen()));
-                      },
-                      icon: Icons.logout)
-                ]
-              ],
-            ))
-          : null,
+                      icon: Icons.dashboard,
+                    ),
+                    PrimaryButtonIcon(
+                      text: 'Сотрудники',
+                      icon: Icons.person,
+                      width: double.infinity,
+                      toPage: const EmployeeScreen(),
+                    ),
+                    PrimaryButtonIcon(
+                      toPage: const CategoryScreen(),
+                      text: 'Категории',
+                      width: double.infinity,
+                      icon: Icons.category,
+                    ),
+                    PrimaryButtonIcon(
+                      toPage: const ProductScreen(),
+                      text: 'Продукты',
+                      width: double.infinity,
+                      icon: Icons.egg,
+                    )
+                  ],
+                  [
+                    PrimaryButtonIcon(
+                        text: 'Выйти',
+                        type: ButtonType.delete,
+                        width: double.infinity,
+                        onPressed: () {
+                          context.router.replace(const HomeRoute());
+                          context
+                              .read<NavigationBloc>()
+                              .add(NavigateTo(const LoginScreen()));
+                        },
+                        icon: Icons.logout)
+                  ]
+                ],
+              ))
+            : null,
+      ),
     );
   }
 }

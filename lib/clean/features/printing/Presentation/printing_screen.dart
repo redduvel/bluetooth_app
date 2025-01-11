@@ -32,101 +32,104 @@ class PrintingScreen extends StatefulWidget {
 class _PrintingScreenState extends State<PrintingScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back),
-        //   onPressed: () {
-        //     context
-        //         .read<NavigationBloc>()
-        //         .add(NavigateTo(const DashboardPage()));
-        //     context.router.popForced();
-        //   },
-        // ),
-        title: BlocBuilder<DBBloc<User>, DBState<User>>(
-          builder: (context, state) => Text(
-              context.read<DBBloc<User>>().repository.currentItem.fullName),
-        ),
-        actions: [
-          if (Platform.isAndroid || Platform.isIOS) ...[
-            BlocBuilder<PrinterBloc, PrinterState>(
-              builder: (context, state) {
-                if (state is PrinterLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CupertinoActivityIndicator()
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          // leading: IconButton(
+          //   icon: const Icon(Icons.arrow_back),
+          //   onPressed: () {
+          //     context
+          //         .read<NavigationBloc>()
+          //         .add(NavigateTo(const DashboardPage()));
+          //     context.router.popForced();
+          //   },
+          // ),
+          title: BlocBuilder<DBBloc<User>, DBState<User>>(
+            builder: (context, state) => Text(
+                context.read<DBBloc<User>>().repository.currentItem.fullName),
+          ),
+          actions: [
+            if (Platform.isAndroid || Platform.isIOS) ...[
+              BlocBuilder<PrinterBloc, PrinterState>(
+                builder: (context, state) {
+                  if (state is PrinterLoading) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CupertinoActivityIndicator()
+                    );
+                  }
+      
+                  return IconButton(
+                    onPressed: () => context
+                        .read<NavigationBloc>()
+                        .add(NavigateTo(const PrintingSettingPage())),
+                    icon: Icon(
+                      context.read<PrinterBloc>().connectedDevice != null
+                          ? Icons.print
+                          : Icons.print_disabled,
+                      color: context.read<PrinterBloc>().connectedDevice != null
+                          ? Colors.green
+                          : Colors.red,
+                    ),
                   );
-                }
-
-                return IconButton(
-                  onPressed: () => context
-                      .read<NavigationBloc>()
-                      .add(NavigateTo(const PrintingSettingPage())),
-                  icon: Icon(
-                    context.read<PrinterBloc>().connectedDevice != null
-                        ? Icons.print
-                        : Icons.print_disabled,
-                    color: context.read<PrinterBloc>().connectedDevice != null
-                        ? Colors.green
-                        : Colors.red,
-                  ),
-                );
-              },
-            ),
-          ]
-        ],
+                },
+              ),
+            ]
+          ],
+        ),
+        body: const PrintingBody(),
+        drawer: (Platform.isAndroid || Platform.isIOS)
+            ? Drawer(
+                child: NavigationPage(controls: [
+                  [
+                    PrimaryButtonIcon(
+                      toPage: const DashboardPage(),
+                      text: 'Журнал',
+                      icon: Icons.dashboard,
+                    ),
+                    PrimaryButtonIcon(
+                      toPage: const TemplatePage(),
+                      text: 'Шаблоны',
+                      icon: Icons.edit_document,
+                    ),
+                  ],
+                  [
+                    PrimaryButtonIcon(
+                      toPage: const PrintingPage(),
+                      text: 'Продукты',
+                      icon: Icons.egg_alt,
+                    ),
+                    PrimaryButtonIcon(
+                      toPage: const PrintingSettingPage(),
+                      text: 'Настройка принтера',
+                      icon: Icons.print,
+                    )
+                  ],
+                  [
+                    PrimaryButtonIcon(
+                        toPage: const EmployeeScreen(),
+                        text: 'Сотрудники',
+                        width: double.infinity,
+                        icon: Icons.person_2),
+                    PrimaryButtonIcon(
+                        text: 'Выйти',
+                        width: double.infinity,
+                        type: ButtonType.delete,
+                        onPressed: () {
+                          context.router.replace(const HomeRoute());
+                          context
+                              .read<NavigationBloc>()
+                              .add(NavigateTo(const EmployeeScreen()));
+                        },
+                        icon: Icons.logout)
+                  ]
+                ]),
+              )
+            : null,
       ),
-      body: const PrintingBody(),
-      drawer: (Platform.isAndroid || Platform.isIOS)
-          ? Drawer(
-              child: NavigationPage(controls: [
-                [
-                  PrimaryButtonIcon(
-                    toPage: const DashboardPage(),
-                    text: 'Журнал',
-                    icon: Icons.dashboard,
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const TemplatePage(),
-                    text: 'Шаблоны',
-                    icon: Icons.edit_document,
-                  ),
-                ],
-                [
-                  PrimaryButtonIcon(
-                    toPage: const PrintingPage(),
-                    text: 'Продукты',
-                    icon: Icons.egg_alt,
-                  ),
-                  PrimaryButtonIcon(
-                    toPage: const PrintingSettingPage(),
-                    text: 'Настройка принтера',
-                    icon: Icons.print,
-                  )
-                ],
-                [
-                  PrimaryButtonIcon(
-                      toPage: const EmployeeScreen(),
-                      text: 'Сотрудники',
-                      width: double.infinity,
-                      icon: Icons.person_2),
-                  PrimaryButtonIcon(
-                      text: 'Выйти',
-                      width: double.infinity,
-                      type: ButtonType.delete,
-                      onPressed: () {
-                        context.router.replace(const HomeRoute());
-                        context
-                            .read<NavigationBloc>()
-                            .add(NavigateTo(const EmployeeScreen()));
-                      },
-                      icon: Icons.logout)
-                ]
-              ]),
-            )
-          : null,
     );
   }
 }

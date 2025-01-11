@@ -23,47 +23,50 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: Text(
-          'FrashTag',
-          style: AppTextStyles.labelMedium18.copyWith(fontSize: 22),
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          title: Text(
+            'FrashTag',
+            style: AppTextStyles.labelMedium18.copyWith(fontSize: 22),
+          ),
+          centerTitle: false,
         ),
-        centerTitle: false,
+        body: const HomeBody(),
+        drawer: (Platform.isAndroid || Platform.isIOS)
+            ? Drawer(
+                child: NavigationPage(controls: [
+                [
+                  PrimaryButtonIcon(
+                      toPage: const LoginScreen(),
+                      text: 'Администратор',
+                      width: double.infinity,
+                      icon: Icons.admin_panel_settings),
+                  PrimaryButtonIcon(
+                      toPage: const EmployeeScreen(),
+                      text: 'Сотрудники',
+                      width: double.infinity,
+                      icon: Icons.person_2)
+                ],
+                [
+                  PrimaryButtonIcon(
+                      toPage: const StartPage(),
+                      text: 'Стартовая страница',
+                      width: double.infinity,
+                      icon: Icons.start),
+                  PrimaryButtonIcon(
+                      type: ButtonType.delete,
+                      width: double.infinity,
+                      onPressed: () => exit(0),
+                      text: 'Закрыть приложение',
+                      icon: Icons.close)
+                ]
+              ]))
+            : null,
       ),
-      body: const HomeBody(),
-      drawer: (Platform.isAndroid || Platform.isIOS)
-          ? Drawer(
-              child: NavigationPage(controls: [
-              [
-                PrimaryButtonIcon(
-                    toPage: const LoginScreen(),
-                    text: 'Администратор',
-                    width: double.infinity,
-                    icon: Icons.admin_panel_settings),
-                PrimaryButtonIcon(
-                    toPage: const EmployeeScreen(),
-                    text: 'Сотрудники',
-                    width: double.infinity,
-                    icon: Icons.person_2)
-              ],
-              [
-                PrimaryButtonIcon(
-                    toPage: const StartPage(),
-                    text: 'Стартовая страница',
-                    width: double.infinity,
-                    icon: Icons.start),
-                PrimaryButtonIcon(
-                    type: ButtonType.delete,
-                    width: double.infinity,
-                    onPressed: () => exit(0),
-                    text: 'Закрыть приложение',
-                    icon: Icons.close)
-              ]
-            ]))
-          : null,
     );
   }
 }

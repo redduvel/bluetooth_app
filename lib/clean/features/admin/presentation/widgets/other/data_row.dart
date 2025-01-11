@@ -198,7 +198,7 @@ DataRow createDataRow(Marking m) {
                   ),
                 ],
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
           Text(
               '${calculateRemainingPercentage(m.startDate, m.endDate).toStringAsFixed(0)}%'),
             ],
@@ -211,7 +211,7 @@ DataRow createDataRow(Marking m) {
     
     DataCell(Row(
       children: [
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Text('${m.count}'),
       ],
     )),
