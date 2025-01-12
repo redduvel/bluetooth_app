@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate
       ],
       supportedLocales: const [Locale('ru', 'RU')],
-          locale: Locale('ru', ''),
+          locale: const Locale('ru', ''),
           routerConfig: AppRouter().config(),
           debugShowCheckedModeBanner: false,
         ),

@@ -11,6 +11,7 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/templ
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_io/io.dart';
 
 class TemplatePage extends StatefulWidget {
   const TemplatePage({super.key});
@@ -88,12 +89,11 @@ class _TemplatePageState extends State<TemplatePage> {
                           ),
                         ),
                         PrimaryButtonIcon(
-                            text: editTemplate != null ? "Сохранить" : "Добавить",
+                            text:
+                                editTemplate != null ? "Сохранить" : "Добавить",
                             selected: true,
                             alignment: Alignment.center,
-                            icon: editTemplate != null
-                                ? Icons.save
-                                : Icons.add,
+                            icon: editTemplate != null ? Icons.save : Icons.add,
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             onPressed: () => createTemplate())
@@ -109,22 +109,42 @@ class _TemplatePageState extends State<TemplatePage> {
         body: Padding(
           padding: const EdgeInsets.all(15),
           child: BlocBuilder<DBBloc<Template>, DBState<Template>>(
-            builder: (context, templateState) {
-              return switch (templateState) {
-                ItemsLoaded<Template>() => ListView.builder(
-                    itemCount: templateState.items.length,
-                    itemBuilder: (context, index) => TemplateWidget(
-                      template: templateState.items[index],
-                      onDelete: (template) {
-                        bloc.add(DeleteItem<Template>(template.id));
-                      },
-                      onEdit: (template) => editTemplateFunc(template),
-                    ),
+              builder: (context, state) {
+            if (state is ItemsLoaded<Template>) {
+              if (Platform.isMacOS || Platform.isWindows) {
+                return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 1.2 / 1.2,
                   ),
-                _ => const SizedBox.shrink(child: CupertinoActivityIndicator()),
-              };
-            },
-          ),
+                  itemBuilder: (context, index) => TemplateWidget(
+                    template: state.items[index],
+                    onDelete: (template) {
+                      bloc.add(DeleteItem<Template>(template.id));
+                    },
+                    onEdit: (template) => editTemplateFunc(template),
+                  ),
+                  itemCount: state.items.length,
+                );
+              } else {
+                return ListView.builder(
+                itemCount: state.items.length,
+                itemBuilder: (context, index) => TemplateWidget(
+                  template: state.items[index],
+                  onDelete: (template) {
+                    bloc.add(DeleteItem<Template>(template.id));
+                  },
+                  onEdit: (template) => editTemplateFunc(template),
+                ),
+              );
+              }
+
+            } else {
+              return const SizedBox.shrink(child: CupertinoActivityIndicator());
+            }
+          }),
         ),
       ),
     );

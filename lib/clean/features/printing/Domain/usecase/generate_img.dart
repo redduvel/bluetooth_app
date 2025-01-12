@@ -41,7 +41,7 @@ class ImageService {
       final texts = [product, name];
       double offsetY = 30;
       for (var txt in texts) {
-        double fontSize = 23;
+        double fontSize = calculateInitialFontSize(txt.length);
         TextPainter textPainter;
         
         do {
@@ -49,8 +49,7 @@ class ImageService {
           final textSpan = TextSpan(text: txt, style: textStyle);
           textPainter = TextPainter(
             text: textSpan,
-            maxLines: 1,
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             textDirection: TextDirection.ltr,
           );
           textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
@@ -67,7 +66,7 @@ class ImageService {
       for (var txt in texts) {
         if (txt == null) continue;
         
-        double fontSize = 23;
+        double fontSize = calculateInitialFontSize(txt.length);
         TextPainter textPainter;
         
         do {
@@ -75,8 +74,7 @@ class ImageService {
           final textSpan = TextSpan(text: txt, style: textStyle);
           textPainter = TextPainter(
             text: textSpan,
-            maxLines: 1,
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             textDirection: TextDirection.ltr,
           );
           textPainter.layout(minWidth: 0, maxWidth: widthPx.toDouble());
@@ -192,5 +190,13 @@ class ImageService {
     }
 
     return pdf;
+  }
+
+  double calculateInitialFontSize(int textLength) {
+    if (textLength <= 10) return 23;
+    if (textLength <= 20) return 20;
+    if (textLength <= 30) return 17;
+    if (textLength <= 40) return 14;
+    return 12;
   }
 }

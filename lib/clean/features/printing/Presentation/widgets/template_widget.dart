@@ -32,7 +32,7 @@ class _TemplateWidgetState extends State<TemplateWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.all(8),
       margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
@@ -43,54 +43,63 @@ class _TemplateWidgetState extends State<TemplateWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(widget.template.title, style: AppTextStyles.labelMedium18),
-              Row(
-                children: [
-                  IconButton(
-                      iconSize: 20,
-                      style: const ButtonStyle(
-                          padding: WidgetStatePropertyAll(EdgeInsets.zero)),
-                      onPressed: () {
-                        showBarModalBottomSheet(
-                            context: context,
-                            isDismissible: false,
-                            enableDrag: false,
-                            builder: (context) =>
-                                TemplatePrintSheet(template: widget.template));
-                      },
-                      icon: const Icon(
-                        Icons.print,
-                        color: AppColors.black,
-                      )),
-                  PopupMenuButton(
-                    position: PopupMenuPosition.under,
-                    color: AppColors.white,
-                    itemBuilder: (context) {
-                      return [
-                        PopupMenuItem(
-                          child: const Text(
-                            'Изменить данные',
-                            style: AppTextStyles.bodyMedium16,
-                          ),
-                          onTap: () => _onEdit(),
-                        ),
-                        PopupMenuItem(
+              
+              Flexible(
+                flex: 7,
+                child: Text(widget.template.title, style: AppTextStyles.labelMedium18)),
+              Flexible(
+                flex: 3,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                        iconSize: 20,
+                        style: const ButtonStyle(
+                            padding: WidgetStatePropertyAll(EdgeInsets.zero)),
+                        onPressed: () {
+                          showBarModalBottomSheet(
+                              context: context,
+                              isDismissible: false,
+                              enableDrag: false,
+                              builder: (context) =>
+                                  TemplatePrintSheet(template: widget.template));
+                        },
+                        icon: const Icon(
+                          Icons.print,
+                          color: AppColors.black,
+                        )),
+                    PopupMenuButton(
+                      position: PopupMenuPosition.under,
+                      color: AppColors.white,
+                      itemBuilder: (context) {
+                        return [
+                          PopupMenuItem(
                             child: const Text(
-                              'Удалить',
+                              'Изменить данные',
                               style: AppTextStyles.bodyMedium16,
                             ),
-                            onTap: () => _onDelete()),
-                      ];
-                    },
-                  )
-                ],
+                            onTap: () => _onEdit(),
+                          ),
+                          PopupMenuItem(
+                              child: const Text(
+                                'Удалить',
+                                style: AppTextStyles.bodyMedium16,
+                              ),
+                              onTap: () => _onDelete()),
+                        ];
+                      },
+                    )
+                  ],
+                ),
               )
             ],
           ),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: Wrap(
               spacing: 5,
+              runSpacing: 5,
               children: List.generate(widget.template.listProducts.length,
                   (chipIndex) {
                 Product product =

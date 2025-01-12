@@ -88,6 +88,7 @@ class _TemplatePrintSheetState extends State<TemplatePrintSheet> {
                       setState(() {
                         customDate = false;
                         startDate = DateTime.now();
+                        
                       });
                     },
                   ),
@@ -96,20 +97,25 @@ class _TemplatePrintSheetState extends State<TemplatePrintSheet> {
                 Flexible(
                   flex: 1,
                   child: PrimaryButtonIcon(
-                    text: customDate ? DateFormat('dd.MM.yyyy HH:mm').format(startDate) : 'Выбрать дату',
+                    text: customDate
+                        ? DateFormat('dd.MM.yyyy HH:mm').format(startDate)
+                        : 'Выбрать дату',
                     icon: Icons.calendar_month,
                     width: double.infinity,
                     onPressed: () {
                       setState(() {
-                        customDate = !customDate;
+                        customDate = true;
                       });
                       showDialog(
                           context: context,
-                            builder: (context) => DateTimePickerSheet(initialDateTime: startDate, onDateTimeChanged: (date) {
-                              setState(() {
-                                startDate = date;
-                              });
-                            }));
+                          builder: (context) => DateTimePickerSheet(
+                              initialDateTime: startDate,
+                              onDateTimeChanged: (date) {
+                                setState(() {
+                                  startDate = date;
+                                  
+                                });
+                              }));
                     },
                   ),
                 ),
@@ -119,49 +125,95 @@ class _TemplatePrintSheetState extends State<TemplatePrintSheet> {
           const SliverToBoxAdapter(
             child: Divider(),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final entry = widget.template.listProducts[index];
-                if (entry.characteristic != null) {
-                  endDate = PrintingUsecase.setAdjustmentTime(
-                      startDate, entry.characteristic!);
-                }
+          if (Platform.isMacOS || Platform.isWindows)
+            SliverToBoxAdapter(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: double.infinity,
+                  ),
+                  child: Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    alignment: WrapAlignment.center,
+                    children: widget.template.listProducts
+                        .map((entry) {
+                                            if (entry.characteristic != null) {
+                    endDate = PrintingUsecase.setAdjustmentTime(
+                        startDate, entry.characteristic!);
+                  }
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 8),
-                    LabelTemplateWidget(
-                      product: entry.product,
-                      customDate: customDate,
-                      startDate: startDate,
-                      customEndDate: endDate,
-                      selectedCharacteristic: entry.characteristic,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Количество: ${entry.count}',
-                          style: AppTextStyles.bodyMedium16,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Характеристика: ${entry.characteristic?.name ?? 'НЕТ'}',
-                          style: AppTextStyles.bodyMedium16,
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                  ],
-                );
-              },
-              childCount: widget.template.listProducts.length,
+                          return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                LabelTemplateWidget(
+                                  product: entry.product,
+                                  customDate: customDate,
+                                  startDate: startDate,
+                                  customEndDate: endDate,
+                                  selectedCharacteristic: entry.characteristic,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Количество: ${entry.count}',
+                                  style: AppTextStyles.bodyMedium16,
+                                ),
+                                Text(
+                                  'Характеристика: ${entry.characteristic?.name ?? 'НЕТ'}',
+                                  style: AppTextStyles.bodyMedium16,
+                                ),
+                              ],
+                            );
+                        })
+                        .toList(),
+                  ),
+                ),
+              ),
+            )
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final entry = widget.template.listProducts[index];
+                  if (entry.characteristic != null) {
+                    endDate = PrintingUsecase.setAdjustmentTime(
+                        startDate, entry.characteristic!);
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 8),
+                      LabelTemplateWidget(
+                        product: entry.product,
+                        customDate: customDate,
+                        startDate: startDate,
+                        customEndDate: endDate,
+                        selectedCharacteristic: entry.characteristic,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Количество: ${entry.count}',
+                            style: AppTextStyles.bodyMedium16,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Характеристика: ${entry.characteristic?.name ?? 'НЕТ'}',
+                            style: AppTextStyles.bodyMedium16,
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+                    ],
+                  );
+                },
+                childCount: widget.template.listProducts.length,
+              ),
             ),
-          ),
           SliverToBoxAdapter(
             child: SizedBox(
               width: 300,
@@ -208,7 +260,6 @@ class _TemplatePrintSheetState extends State<TemplatePrintSheet> {
       if (!mounted) return;
 
       if (saveMarking) {
-        final startDate = DateTime.now();
         final endDate = entry.characteristic != null
             ? PrintingUsecase.setAdjustmentTime(
                 startDate, entry.characteristic!)
@@ -231,7 +282,7 @@ class _TemplatePrintSheetState extends State<TemplatePrintSheet> {
       printerBloc.add(PrintLabel(
         product: entry.product,
         employee: user,
-        startDate: DateTime.now(),
+        startDate: startDate,
         characteristicIndex: entry.characteristic != null
             ? entry.product.characteristics.indexOf(entry.characteristic!)
             : 0,

@@ -6,6 +6,7 @@ import 'package:bluetooth_app/clean/features/home/Presentation/pages/employee_pa
 import 'package:bluetooth_app/clean/features/home/Presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_io/io.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -15,37 +16,46 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  final bool _platform = Platform.isMacOS || Platform.isWindows;
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.onSurface,
-      body: 
-      CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverToBoxAdapter(
-              child: Image.asset('assets/images/start.png'),
+              child: Image.asset('assets/images/start.png',
+                  width: _platform ? 600 : null,
+                  height: _platform ? 600 : null),
             ),
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  PrimaryButtonIcon(
-                    onPressed: () => context.read<NavigationBloc>().add(NavigateTo(const LoginScreen())),
+                child: Column(
+              children: [
+                PrimaryButtonIcon(
+                    onPressed: () => context
+                        .read<NavigationBloc>()
+                        .add(NavigateTo(const LoginScreen())),
                     text: 'Я администратор',
                     width: double.infinity,
+                    alignment: _platform ? Alignment.center : Alignment.centerLeft,
                     icon: Icons.admin_panel_settings),
                 PrimaryButtonIcon(
-                    onPressed: () => context.read<NavigationBloc>().add(NavigateTo(const EmployeeScreen())),
+                    onPressed: () => context
+                        .read<NavigationBloc>()
+                        .add(NavigateTo(const EmployeeScreen())),
                     text: 'Я сотрудник',
                     width: double.infinity,
+                    alignment: _platform ? Alignment.center : Alignment.centerLeft,
                     icon: Icons.person_2)
-                ],
-              )
-            ),
+              ],
+            )),
           )
         ],
       ),

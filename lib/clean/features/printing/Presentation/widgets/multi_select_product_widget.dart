@@ -6,6 +6,7 @@ import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dar
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/multi_select_product_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_io/io.dart';
 
 class MultiProductSelectionWidget extends StatefulWidget {
   final MultiProductCubit controller;
@@ -31,7 +32,6 @@ class _MultiProductSelectionWidgetState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Dropdown для добавления продуктов
             CustomDropdown<Product>.search(
                 hintBuilder: (context, hint, enabled) => Text(
                       'Выберете продукты',
@@ -79,13 +79,12 @@ class _MultiProductSelectionWidgetState
                 }),
       
             const SizedBox(height: 16),
-            // list selected products
             if (state.selectedProducts.isNotEmpty)
               GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: (Platform.isMacOS || Platform.isWindows) ? 5 : 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     childAspectRatio: 1 / 1.2),

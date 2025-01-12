@@ -8,7 +8,6 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/clock
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:universal_io/io.dart';
 
 class LabelTemplateWidget extends StatefulWidget {
   final Product product;
@@ -46,9 +45,9 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
       height: 20 * 8,
       width: 300,
       padding: const EdgeInsets.all(5),
-      margin: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width /
-              (Platform.isMacOS || Platform.isMacOS ? 2.5 : 6)),
+      // margin: EdgeInsets.symmetric(
+      //     horizontal: MediaQuery.of(context).size.width /
+      //         (Platform.isMacOS || Platform.isMacOS ? 2.5 : 6)),
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           border: Border.all(color: Colors.black, width: 2),

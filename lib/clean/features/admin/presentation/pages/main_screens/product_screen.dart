@@ -141,8 +141,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         icon: const Icon(Icons.sync));
                   }
                   if (state is ItemsLoading<Product>) {
-                    return const CircularProgressIndicator(
-                        color: AppColors.greenOnSurface);
+                    return const CupertinoActivityIndicator();
                   }
 
                   return const SizedBox.shrink();

@@ -15,7 +15,6 @@ import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/label
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class ScheludePrintDialog extends StatefulWidget {
   final Product product;
@@ -91,15 +90,19 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
           ),
           const SliverToBoxAdapter(child: Divider()),
           SliverToBoxAdapter(
-            child: LabelTemplateWidget(
-                product: widget.product,
-                customDate: true,
-                startDate: adjustmentDateTime,
-                customEndDate: customEndDate,
-                selectedCharacteristic:
-                    widget.product.characteristics.isNotEmpty
-                        ? widget.product.characteristics[selectedCharacteristic]
-                        : null),
+            child: Column(
+              children: [
+                LabelTemplateWidget(
+                    product: widget.product,
+                    customDate: true,
+                    startDate: adjustmentDateTime,
+                    customEndDate: customEndDate,
+                    selectedCharacteristic:
+                        widget.product.characteristics.isNotEmpty
+                            ? widget.product.characteristics[selectedCharacteristic]
+                            : null),
+              ],
+            ),
           ),
           const SliverToBoxAdapter(child: Divider()),
           if (widget.product.characteristics.isNotEmpty) ...[
@@ -136,42 +139,61 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
           ],
           if (widget.product.characteristics.isNotEmpty) ...[
             SliverToBoxAdapter(
-              child: TableCalendar(
-                locale: Localizations.localeOf(context).languageCode,
-                focusedDay: adjustmentDateTime, firstDay: DateTime(2000), lastDay: DateTime(2100),
-                selectedDayPredicate: (day) => isSameDay(day, adjustmentDateTime),
-                availableCalendarFormats: const {
-                  CalendarFormat.month: 'Month'
-                },
-                headerStyle: const HeaderStyle(
-                  leftChevronIcon: Icon(Icons.arrow_back_ios, color: AppColors.black,),
-                  rightChevronIcon: Icon(Icons.arrow_forward_ios, color: AppColors.black,)
-                ),
-                calendarStyle: CalendarStyle(
-                  selectedDecoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primary
-                  ),
-                  todayDecoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.primary
-                    ),
+              child: Column(
+                children: [
+                  SizedBox(
+                height: 300,
+                child: CupertinoDatePicker(
+                  initialDateTime: adjustmentDateTime,
+                  mode: CupertinoDatePickerMode.dateAndTime,
+                  use24hFormat: true,
+                  showDayOfWeek: true,
+                  onDateTimeChanged: (value) {
+                    setState(() {
+                        adjustmentDateTime = value;
                     
-                  ),
-                  todayTextStyle: AppTextStyles.bodyMedium16.copyWith(
-                    color: AppColors.black
-                  )
+                        customEndDate = PrintingUsecase.setAdjustmentTime(
+                            adjustmentDateTime,
+                            widget.product.characteristics[selectedCharacteristic]);
+                      });
+                  },
                 ),
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                  adjustmentDateTime = selectedDay;
-
-                  customEndDate = PrintingUsecase.setAdjustmentTime(
-                      adjustmentDateTime,
-                      widget.product.characteristics[selectedCharacteristic]);
-                });
-                },)
+              ),
+                  // SizedBox(
+                  //   width: (Platform.isMacOS || Platform.isWindows) ? 500 : null,
+                  //   child: TableCalendar(
+                  //     locale: Localizations.localeOf(context).languageCode,
+                  //     focusedDay: adjustmentDateTime, firstDay: DateTime(2000), lastDay: DateTime(2100),
+                  //     selectedDayPredicate: (day) => isSameDay(day, adjustmentDateTime),
+                  //     availableCalendarFormats: const {
+                  //       CalendarFormat.month: 'Month'
+                  //     },
+                  //     headerStyle: const HeaderStyle(
+                  //       leftChevronIcon: Icon(Icons.arrow_back_ios, color: AppColors.black,),
+                  //       rightChevronIcon: Icon(Icons.arrow_forward_ios, color: AppColors.black,)
+                  //     ),
+                  //     calendarStyle: CalendarStyle(
+                  //       selectedDecoration: const BoxDecoration(
+                  //         shape: BoxShape.circle,
+                  //         color: AppColors.primary
+                  //       ),
+                  //       todayDecoration: BoxDecoration(
+                  //         shape: BoxShape.circle,
+                  //         border: Border.all(
+                  //           color: AppColors.primary
+                  //         ),
+                          
+                  //       ),
+                  //       todayTextStyle: AppTextStyles.bodyMedium16.copyWith(
+                  //         color: AppColors.black
+                  //       )
+                  //     ),
+                  //     onDaySelected: (selectedDay, focusedDay) {
+                        
+                  //     },),
+                  // ),
+                ],
+              )
             ),
             
             const SliverToBoxAdapter(child: Divider()),

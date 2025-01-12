@@ -1,7 +1,9 @@
+
 import 'package:bluetooth_app/clean/config/theme/colors.dart';
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_io/io.dart';
 
 class DateTimePickerSheet extends StatefulWidget {
   final DateTime initialDateTime;
@@ -27,6 +29,7 @@ class _DateTimePickerSheetState extends State<DateTimePickerSheet> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
+          width: (Platform.isMacOS || Platform.isWindows) ? 400 : double.infinity,
           margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 50),
           decoration: BoxDecoration(
             color: AppColors.surface,

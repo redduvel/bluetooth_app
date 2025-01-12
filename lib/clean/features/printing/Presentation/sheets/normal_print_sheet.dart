@@ -91,13 +91,17 @@ class _NormalPrintSheetState extends State<NormalPrintSheet> {
             child: Divider(),
           ),
           SliverToBoxAdapter(
-            child: LabelTemplateWidget(
-              product: widget.product,
-              customDate: false,
-              startDate: DateTime.now(),
-              customEndDate: endDate,
-              selectedCharacteristic: widget.product.characteristics.isNotEmpty ?
-                  widget.product.characteristics[selectedCharacteristic] : null,
+            child: Column(
+              children: [
+                LabelTemplateWidget(
+                  product: widget.product,
+                  customDate: false,
+                  startDate: DateTime.now(),
+                  customEndDate: endDate,
+                  selectedCharacteristic: widget.product.characteristics.isNotEmpty ?
+                      widget.product.characteristics[selectedCharacteristic] : null,
+                ),
+              ],
             ),
           ),
           const SliverToBoxAdapter(child: Divider()),
