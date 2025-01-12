@@ -75,6 +75,7 @@ class ImageService {
           final textSpan = TextSpan(text: txt, style: textStyle);
           textPainter = TextPainter(
             text: textSpan,
+            maxLines: 1,
             textAlign: TextAlign.left,
             textDirection: TextDirection.ltr,
           );

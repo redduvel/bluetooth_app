@@ -44,6 +44,7 @@ class _LabelTemplateWidgetState extends State<LabelTemplateWidget> {
   Widget build(BuildContext context) {
     return Container(
       height: 20 * 8,
+      width: 300,
       padding: const EdgeInsets.all(5),
       margin: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width /

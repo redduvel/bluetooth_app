@@ -6,7 +6,8 @@ class AppColors {
     greenSurface,
     redSurface,
     yellowSurface,
-    blueSurface
+    blueSurface,
+
   ];
 
   static const Color white = Color(0xFFFFFFFF);
@@ -40,4 +41,6 @@ class AppColors {
   static const Color redButton = Color(0xFFA65959);
 
   static const Color inputSurface = Color(0xFFFAFAFA);
+
+  
 }

@@ -7,6 +7,7 @@ import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_button.dar
 import 'package:bluetooth_app/clean/core/Presentation/widgets/primary_textfield.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/bloc/multi_select_product_cubit.dart';
 import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/multi_select_product_widget.dart';
+import 'package:bluetooth_app/clean/features/printing/Presentation/widgets/template_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,10 +88,12 @@ class _TemplatePageState extends State<TemplatePage> {
                           ),
                         ),
                         PrimaryButtonIcon(
-                            text: "Добавить",
+                            text: editTemplate != null ? "Сохранить" : "Добавить",
                             selected: true,
                             alignment: Alignment.center,
-                            icon: Icons.add,
+                            icon: editTemplate != null
+                                ? Icons.save
+                                : Icons.add,
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             onPressed: () => createTemplate())
@@ -110,105 +113,12 @@ class _TemplatePageState extends State<TemplatePage> {
               return switch (templateState) {
                 ItemsLoaded<Template>() => ListView.builder(
                     itemCount: templateState.items.length,
-                    itemBuilder: (context, index) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: AppColors.secondaryButton),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(templateState.items[index].title,
-                                  style: AppTextStyles.labelMedium18),
-                              Row(
-                                children: [
-                                  IconButton(
-                                      iconSize: 20,
-                                      style: const ButtonStyle(
-                                          padding: WidgetStatePropertyAll(
-                                              EdgeInsets.zero)),
-                                      onPressed: () {},
-                                      icon: const Icon(
-                                        Icons.print,
-                                        color: AppColors.black,
-                                      )),
-                                  PopupMenuButton(
-                                    position: PopupMenuPosition.under,
-                                    color: AppColors.white,
-                                    itemBuilder: (context) {
-                                      return [
-                                        PopupMenuItem(
-                                          child: const Text(
-                                            'Изменить данные',
-                                            style: AppTextStyles.bodyMedium16,
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              _showTools = !_showTools;
-
-                                              editTemplate =
-                                                  templateState.items[index];
-
-                                              _nameController.text =
-                                                  templateState
-                                                      .items[index].title;
-                                              _productsController
-                                                  .fromTemplateEntries(
-                                                      templateState.items[index]
-                                                          .listProducts);
-                                            });
-                                          },
-                                        ),
-                                        PopupMenuItem(
-                                            child: const Text(
-                                              'Удалить',
-                                              style: AppTextStyles.bodyMedium16,
-                                            ),
-                                            onTap: () => bloc.add(
-                                                DeleteItem<Template>(
-                                                    templateState
-                                                        .items[index].id))),
-                                      ];
-                                    },
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Wrap(
-                              spacing: 5,
-                              children: List.generate(
-                                  templateState.items[index].listProducts
-                                      .length, (chipIndex) {
-                                Product product = templateState.items[index]
-                                    .listProducts[chipIndex].product;
-
-                                return Chip(
-                                    backgroundColor: Color(
-                                        product.backgroundColor ??
-                                            AppColors.surface.value),
-                                    padding: const EdgeInsets.all(2.5),
-                                    labelPadding: const EdgeInsets.all(0),
-                                    label: Text(
-                                      templateState
-                                          .items[index]
-                                          .listProducts[chipIndex]
-                                          .product
-                                          .title,
-                                      style: AppTextStyles.bodyMedium16
-                                          .copyWith(fontSize: 12),
-                                    ));
-                              }),
-                            ),
-                          )
-                        ],
-                      ),
+                    itemBuilder: (context, index) => TemplateWidget(
+                      template: templateState.items[index],
+                      onDelete: (template) {
+                        bloc.add(DeleteItem<Template>(template.id));
+                      },
+                      onEdit: (template) => editTemplateFunc(template),
                     ),
                   ),
                 _ => const SizedBox.shrink(child: CupertinoActivityIndicator()),
@@ -218,6 +128,17 @@ class _TemplatePageState extends State<TemplatePage> {
         ),
       ),
     );
+  }
+
+  void editTemplateFunc(Template template) {
+    setState(() {
+      _showTools = !_showTools;
+
+      editTemplate = template;
+
+      _nameController.text = template.title;
+      _productsController.fromTemplateEntries(template.listProducts);
+    });
   }
 
   void createTemplate() {

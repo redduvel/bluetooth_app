@@ -88,8 +88,10 @@ class MyApp extends StatelessWidget {
         child: MaterialApp.router(
           localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
       ],
-      supportedLocales: [const Locale('ru', 'RU')],
+      supportedLocales: const [Locale('ru', 'RU')],
           locale: Locale('ru', ''),
           routerConfig: AppRouter().config(),
           debugShowCheckedModeBanner: false,

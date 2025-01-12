@@ -114,6 +114,7 @@ class _ProductWidgetState extends State<ProductWidget> {
                 PopupMenuButton(
                   position: PopupMenuPosition.under,
                   color: AppColors.white,
+                  iconColor: AppColors.text,
                   itemBuilder: (context) {
                     return [
                       PopupMenuItem(
