@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class BluetoothScreen extends StatefulWidget {
+  const BluetoothScreen({super.key});
+
   @override
   _BluetoothScreenState createState() => _BluetoothScreenState();
 }

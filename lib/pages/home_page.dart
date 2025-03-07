@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: SizedBox(
+      body: const SizedBox(
         
       ),
       floatingActionButton: ElevatedButton(

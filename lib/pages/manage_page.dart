@@ -40,8 +40,8 @@ class _ManagePageState extends State<ManagePage> {
         title: const Text('Настройки'),
         actions: [
           IconButton(onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => AdminTab()));
-          }, icon: Icon(Icons.settings))
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminTab()));
+          }, icon: const Icon(Icons.settings))
         ],
       ),
       body: _children[_currentIndex],

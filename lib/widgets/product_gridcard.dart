@@ -138,7 +138,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
             }
             
 
-            return Center(
+            return const Center(
               child: Text('sdv'),
             );
               

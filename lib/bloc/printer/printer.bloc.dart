@@ -16,7 +16,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
   BluetoothDevice? connectedDevice;
   BluetoothCharacteristic? characteristic;
   final translit = Translit();
-  img.Image? image = null;
+  img.Image? image;
 
   PrinterBloc() : super(PrinterInitial()) {
     on<InitializePrinter>(_onInitializePrinter);

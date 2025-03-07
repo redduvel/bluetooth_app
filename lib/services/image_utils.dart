@@ -18,7 +18,7 @@ class ImageUtils {
     final canvas = Canvas(
         recorder,
         Rect.fromPoints(
-            Offset(0, 0), Offset(widthPx.toDouble(), heightPx.toDouble())));
+            const Offset(0, 0), Offset(widthPx.toDouble(), heightPx.toDouble())));
 
     // Заливка фона белым цветом
     final paint = Paint()..color = Colors.white;
