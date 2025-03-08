@@ -43,10 +43,10 @@ class _TemplateWidgetState extends State<TemplateWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              
               Flexible(
-                flex: 7,
-                child: Text(widget.template.title, style: AppTextStyles.labelMedium18)),
+                  flex: 7,
+                  child: Text(widget.template.title,
+                      style: AppTextStyles.labelMedium18)),
               Flexible(
                 flex: 3,
                 child: Row(
@@ -61,8 +61,8 @@ class _TemplateWidgetState extends State<TemplateWidget> {
                               context: context,
                               isDismissible: false,
                               enableDrag: false,
-                              builder: (context) =>
-                                  TemplatePrintSheet(template: widget.template));
+                              builder: (context) => TemplatePrintSheet(
+                                  template: widget.template));
                         },
                         icon: const Icon(
                           Icons.print,

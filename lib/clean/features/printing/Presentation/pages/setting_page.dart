@@ -119,13 +119,16 @@ class _PrintingSettingPageState extends State<PrintingSettingPage> {
               ),
             if (state is PrinterLoading)
               const SliverFillRemaining(
-                child: Center(
-                    child: CupertinoActivityIndicator()),
+                child: Center(child: CupertinoActivityIndicator()),
               ),
             if (state is DevicesLoaded) _buildDeviceList(state.devices),
             if (state is PrinterDisconnected)
               const SliverFillRemaining(
-                  child: Center(child: Text('Нет доступных принтеров.', style: AppTextStyles.labelMedium18,))),
+                  child: Center(
+                      child: Text(
+                'Нет доступных принтеров.',
+                style: AppTextStyles.labelMedium18,
+              ))),
             if (state is PrinterConnected) _buildDeviceList(printerBloc.devices)
           ],
         );

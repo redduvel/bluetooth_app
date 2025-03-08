@@ -28,16 +28,15 @@ import 'clean/config/routes/app_router.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
   LocalDB.createDB();
 
   final blocs = await initializeBlocs();
 
   await SyncService.initialize(
-    categoryBloc: blocs.categoryBloc,
-    productBloc: blocs.productBloc,
-    userBloc: blocs.userBloc
-  ).then((value) {
+          categoryBloc: blocs.categoryBloc,
+          productBloc: blocs.productBloc,
+          userBloc: blocs.userBloc)
+      .then((value) {
     value.sync();
   });
 
@@ -60,7 +59,6 @@ void main() async {
   //   });
   // }
 
-
   runApp(MyApp(blocs: blocs));
 }
 
@@ -80,18 +78,25 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<UserCubit>(create: (_) => UserCubit()),
-          BlocProvider(create: (_) => DBBloc<Template>(TemplateRepository(repositoryName: 'templates'))..add(LoadItems<Template>())),
-          BlocProvider(create: (_) => DBBloc(MarkingRepositore(repositoryName: 'markings'))..add(LoadItems<Marking>())),
-          BlocProvider(create: (_) => NavigationBloc(InitialState(const StartPage()))),
+          BlocProvider(
+              create: (_) => DBBloc<Template>(
+                  TemplateRepository(repositoryName: 'templates'))
+                ..add(LoadItems<Template>())),
+          BlocProvider(
+              create: (_) =>
+                  DBBloc(MarkingRepositore(repositoryName: 'markings'))
+                    ..add(LoadItems<Marking>())),
+          BlocProvider(
+              create: (_) => NavigationBloc(InitialState(const StartPage()))),
           BlocProvider(create: (_) => PrinterBloc()..add(CheckConnection())),
         ],
         child: MaterialApp.router(
           localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate
-      ],
-      supportedLocales: const [Locale('ru', 'RU')],
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate
+          ],
+          supportedLocales: const [Locale('ru', 'RU')],
           locale: const Locale('ru', ''),
           routerConfig: AppRouter().config(),
           debugShowCheckedModeBanner: false,
@@ -115,7 +120,6 @@ class Blocs {
 }
 
 Future<Blocs> initializeBlocs() async {
-
   final userBloc = DBBloc<User>(UserRepository(repositoryName: 'users'));
 
   final productBloc =

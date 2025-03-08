@@ -20,7 +20,11 @@ class ProductWidget extends StatefulWidget {
   final Function(Product)? delete;
 
   const ProductWidget(
-      {super.key, required this.product, required this.bloc, this.edit, this.delete});
+      {super.key,
+      required this.product,
+      required this.bloc,
+      this.edit,
+      this.delete});
 
   @override
   State<ProductWidget> createState() => _ProductWidgetState();
@@ -61,7 +65,6 @@ class _ProductWidgetState extends State<ProductWidget> {
       padding: const EdgeInsets.all(0),
       minSize: 1,
       child: Container(
-        
         width: (Platform.isMacOS || Platform.isWindows)
             ? 200
             : (MediaQuery.of(context).size.width - 20 - 16) / 2,
@@ -149,10 +152,9 @@ class _ProductWidgetState extends State<ProductWidget> {
                           },
                         ),
                         PopupMenuItem(
-                          child: const Text('Удалить',
-                              style: AppTextStyles.bodyMedium16),
-                          onTap: () => _onDelete()
-                        ),
+                            child: const Text('Удалить',
+                                style: AppTextStyles.bodyMedium16),
+                            onTap: () => _onDelete()),
                       ]
                     ];
                   },
@@ -170,26 +172,26 @@ class _ProductWidgetState extends State<ProductWidget> {
                   );
                 }).toList()),
             if (UserCubit.current == CurrentUser.employee)
-            Row(
-              children: [
-                CupertinoButton(
-                    minSize: 30,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child:
-                        const Icon(CupertinoIcons.printer, color: AppColors.text),
-                    onPressed: () => _showPrintBottomSheet(context)),
-                const Spacer(),
-                if (widget.product.allowFreeTime)
+              Row(
+                children: [
                   CupertinoButton(
                       minSize: 30,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: const Icon(
-                        CupertinoIcons.clock,
-                        color: AppColors.text,
-                      ),
-                      onPressed: () => _showScheduleBottomSheet(context))
-              ],
-            )
+                      child: const Icon(CupertinoIcons.printer,
+                          color: AppColors.text),
+                      onPressed: () => _showPrintBottomSheet(context)),
+                  const Spacer(),
+                  if (widget.product.allowFreeTime)
+                    CupertinoButton(
+                        minSize: 30,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: const Icon(
+                          CupertinoIcons.clock,
+                          color: AppColors.text,
+                        ),
+                        onPressed: () => _showScheduleBottomSheet(context))
+                ],
+              )
           ],
         ),
       ),

@@ -49,62 +49,90 @@ class _DashboardPageState extends State<DashboardPage> {
           child: BlocBuilder<DBBloc<Marking>, DBState<Marking>>(
             builder: (context, state) {
               if (state is ItemsLoaded<Marking>) {
-                                      final List<Marking> filteredMarking = state.items.where((m) => m.status == MarkingStatus.expired).toList();
+                final List<Marking> filteredMarking = state.items
+                    .where((m) => m.status == MarkingStatus.expired)
+                    .toList();
 
                 return CustomScrollView(
                   slivers: [
                     const SliverToBoxAdapter(
-                      child: Text('Просроченные продукты:', style: AppTextStyles.labelMedium18,),
+                      child: Text(
+                        'Просроченные продукты:',
+                        style: AppTextStyles.labelMedium18,
+                      ),
                     ),
-                    SliverList.builder(itemBuilder: (context, index) {
-                      final Marking marking = filteredMarking[index];
-                      return Container(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    SliverList.builder(
+                        itemBuilder: (context, index) {
+                          final Marking marking = filteredMarking[index];
+                          return Container(
+                            child: Column(
                               children: [
-                                Text(marking.product.title, style: AppTextStyles.bodyMedium16,),
-                                PrimaryButtonIcon(text: "Печатать", icon: Icons.print)
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      marking.product.title,
+                                      style: AppTextStyles.bodyMedium16,
+                                    ),
+                                    PrimaryButtonIcon(
+                                        text: "Печатать", icon: Icons.print)
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
-                      );
-                    }, itemCount: filteredMarking.length),
+                          );
+                        },
+                        itemCount: filteredMarking.length),
                     const SliverToBoxAdapter(
                       child: Divider(),
                     ),
                     const SliverToBoxAdapter(
-                      child: Text('Журнал текущих продуктов:', style: AppTextStyles.labelMedium18,),
+                      child: Text(
+                        'Журнал текущих продуктов:',
+                        style: AppTextStyles.labelMedium18,
+                      ),
                     ),
                     SliverToBoxAdapter(
                       child: SizedBox(
                         height: MediaQuery.of(context).size.height,
                         child: DataTable2(
-                          empty: const Text('Здесь будут отображаться маркировки', style: AppTextStyles.bodyMedium16,),
+                          empty: const Text(
+                            'Здесь будут отображаться маркировки',
+                            style: AppTextStyles.bodyMedium16,
+                          ),
                           sortColumnIndex: _sortColumnIndex,
                           sortAscending: _sortAscending,
                           minWidth: MediaQuery.of(context).size.width * 1.75,
-                          
                           columnSpacing: 0,
-                          
                           decoration: BoxDecoration(
-                            
                               borderRadius: BorderRadius.circular(50)),
-                          
                           columns: [
                             DataColumn(
-                              
-                                label: const Text('Название', style: AppTextStyles.bodyMedium16,),
+                                label: const Text(
+                                  'Название',
+                                  style: AppTextStyles.bodyMedium16,
+                                ),
                                 onSort: (columnIndex, ascending) => _sort(
                                     state.items,
                                     (m) => m.product.title,
                                     columnIndex,
                                     ascending)),
-                            const DataColumn(label: Text('Статус', style: AppTextStyles.bodyMedium16,)),
-                            const DataColumn(label: Text('Осталось времени', style: AppTextStyles.bodyMedium16,)),
-                            const DataColumn(label: Text('Распечатано', style: AppTextStyles.bodyMedium16,)),
+                            const DataColumn(
+                                label: Text(
+                              'Статус',
+                              style: AppTextStyles.bodyMedium16,
+                            )),
+                            const DataColumn(
+                                label: Text(
+                              'Осталось времени',
+                              style: AppTextStyles.bodyMedium16,
+                            )),
+                            const DataColumn(
+                                label: Text(
+                              'Распечатано',
+                              style: AppTextStyles.bodyMedium16,
+                            )),
                           ],
                           rows:
                               state.items.map((m) => createDataRow(m)).toList(),
@@ -116,7 +144,9 @@ class _DashboardPageState extends State<DashboardPage> {
               }
 
               return const Center(
-                child: CupertinoActivityIndicator(color: AppColors.primary,),
+                child: CupertinoActivityIndicator(
+                  color: AppColors.primary,
+                ),
               );
             },
           ),

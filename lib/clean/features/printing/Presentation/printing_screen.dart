@@ -57,11 +57,10 @@ class _PrintingScreenState extends State<PrintingScreen> {
                 builder: (context, state) {
                   if (state is PrinterLoading) {
                     return const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: CupertinoActivityIndicator()
-                    );
+                        padding: EdgeInsets.all(8.0),
+                        child: CupertinoActivityIndicator());
                   }
-      
+
                   return IconButton(
                     onPressed: () => context
                         .read<NavigationBloc>()

@@ -8,14 +8,12 @@ import 'package:logger/logger.dart';
 
 class SyncService {
   static final SyncService _instance = SyncService._internal();
-  
+
   static SyncService get instance => _instance;
-  
+
   factory SyncService() => _instance;
 
   SyncService._internal();
-
-  
 
   Timer? _timer;
   late Logger logger;

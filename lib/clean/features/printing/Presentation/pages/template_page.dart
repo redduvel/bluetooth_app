@@ -130,17 +130,16 @@ class _TemplatePageState extends State<TemplatePage> {
                 );
               } else {
                 return ListView.builder(
-                itemCount: state.items.length,
-                itemBuilder: (context, index) => TemplateWidget(
-                  template: state.items[index],
-                  onDelete: (template) {
-                    bloc.add(DeleteItem<Template>(template.id));
-                  },
-                  onEdit: (template) => editTemplateFunc(template),
-                ),
-              );
+                  itemCount: state.items.length,
+                  itemBuilder: (context, index) => TemplateWidget(
+                    template: state.items[index],
+                    onDelete: (template) {
+                      bloc.add(DeleteItem<Template>(template.id));
+                    },
+                    onEdit: (template) => editTemplateFunc(template),
+                  ),
+                );
               }
-
             } else {
               return const SizedBox.shrink(child: CupertinoActivityIndicator());
             }

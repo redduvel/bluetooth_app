@@ -22,8 +22,6 @@ class MultiProductSelectionWidget extends StatefulWidget {
 
 class _MultiProductSelectionWidgetState
     extends State<MultiProductSelectionWidget> {
-
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MultiProductCubit, MultiProductState>(
@@ -62,7 +60,8 @@ class _MultiProductSelectionWidgetState
                                 BorderSide(color: AppColors.secondaryText)),
                         fillColor: AppColors.surface)),
                 items: widget.products
-                    .where((product) => !state.selectedProducts.contains(product))
+                    .where(
+                        (product) => !state.selectedProducts.contains(product))
                     .toList(),
                 searchHintText: 'Поиск продуктов...',
                 noResultFoundText: 'Нет доступных продуктов.',
@@ -77,14 +76,14 @@ class _MultiProductSelectionWidgetState
                     widget.controller.addProduct(value);
                   }
                 }),
-      
             const SizedBox(height: 16),
             if (state.selectedProducts.isNotEmpty)
               GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: (Platform.isMacOS || Platform.isWindows) ? 5 : 2,
+                    crossAxisCount:
+                        (Platform.isMacOS || Platform.isWindows) ? 5 : 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     childAspectRatio: 1 / 1.2),
@@ -111,15 +110,19 @@ class _MultiProductSelectionWidgetState
                             CustomDropdown(
                               hintText: 'Выберете характеристику',
                               items: product.characteristics,
-                              initialItem: state.selectedCharacteristics.isNotEmpty ? state.selectedCharacteristics[product] : null,
+                              initialItem:
+                                  state.selectedCharacteristics.isNotEmpty
+                                      ? state.selectedCharacteristics[product]
+                                      : null,
                               closedHeaderPadding: const EdgeInsets.all(8),
                               onChanged: (value) {
-                                widget.controller.updateCharacteristic(product, value);
-                                                              },
+                                widget.controller
+                                    .updateCharacteristic(product, value);
+                              },
                               decoration: CustomDropdownDecoration(
                                 hintStyle: AppTextStyles.bodyMedium16,
-                                closedBorder:
-                                    Border.all(color: AppColors.secondaryButton),
+                                closedBorder: Border.all(
+                                    color: AppColors.secondaryButton),
                                 closedBorderRadius: BorderRadius.circular(4),
                                 expandedBorder:
                                     Border.all(color: AppColors.secondaryText),
@@ -129,38 +132,34 @@ class _MultiProductSelectionWidgetState
                               ),
                             ),
                             TextFormField(
-                                initialValue: state.productQuantities[product]?.toString() ?? '1',
-                                keyboardType: TextInputType.number,
-                                
-                                decoration: const InputDecoration(
-                                  hintText: 'Количество',
-                                  fillColor: AppColors.surface,
-                                  enabledBorder: OutlineInputBorder(
+                              initialValue: state.productQuantities[product]
+                                      ?.toString() ??
+                                  '1',
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintText: 'Количество',
+                                fillColor: AppColors.surface,
+                                enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: AppColors.secondaryButton
-                                    )
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
+                                        color: AppColors.secondaryButton)),
+                                focusedBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: AppColors.secondaryText
-                                    )
-                                  ),
-                                  isDense: true,
-                                ),
-                                onChanged: (value) {
-                                  final int? quantity = int.tryParse(value);
-                                  if (quantity != null && quantity > 0) {
-                                    widget.controller.updateQuantity(product, quantity);
-                                    
-                                  }
-                                },
+                                        color: AppColors.secondaryText)),
+                                isDense: true,
                               ),
+                              onChanged: (value) {
+                                final int? quantity = int.tryParse(value);
+                                if (quantity != null && quantity > 0) {
+                                  widget.controller
+                                      .updateQuantity(product, quantity);
+                                }
+                              },
+                            ),
                           ],
                         ),
                         PrimaryButtonIcon(
                             onPressed: () {
                               widget.controller.removeProduct(product);
-                              
                             },
                             width: double.infinity,
                             type: ButtonType.delete,

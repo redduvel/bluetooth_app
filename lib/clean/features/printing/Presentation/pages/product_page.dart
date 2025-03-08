@@ -110,7 +110,9 @@ class _PrintingPageState extends State<PrintingPage> {
               child: BlocBuilder<DBBloc<Category>, DBState<Category>>(
                   builder: (context, state) {
                 if (state is ItemsLoaded<Category>) {
-                  final filteredCategories = state.items.where((element) => element.name != "Архив").toList();
+                  final filteredCategories = state.items
+                      .where((element) => element.name != "Архив")
+                      .toList();
                   return Wrap(
                     //runSpacing: 5,
                     spacing: 10,
