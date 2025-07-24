@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 
-class AppColors {
+class AppColors {   
   static const List<Color> backgroundColors = [
     onSurface,
     greenSurface,
     redSurface,
     yellowSurface,
     blueSurface,
-
   ];
 
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF4C4C4C);
-  
+
   static const Color primary = Color(0xFFB4CD93);
 
   static const Color surface = Color(0xFFF2F2F2);
@@ -22,11 +21,11 @@ class AppColors {
   static const Color secondaryText = Color(0xFF808080);
 
   static const Color greenSurface = Color(0xFFDEEDE5);
-  static const Color greenOnSurface = Color(0xFF427A5B);  
-  
+  static const Color greenOnSurface = Color(0xFF427A5B);
+
   static const Color blueSurface = Color(0xFFDEE3ED);
-  static const Color blueOnSurface = Color(0xFF42567A); 
-  
+  static const Color blueOnSurface = Color(0xFF42567A);
+
   //static const Color greenSurface = Color(0xFFDEEDE5);
   //static const Color greenOnSurface = Color(0xFF427A5B);
 
@@ -41,6 +40,4 @@ class AppColors {
   static const Color redButton = Color(0xFFA65959);
 
   static const Color inputSurface = Color(0xFFFAFAFA);
-
-  
 }

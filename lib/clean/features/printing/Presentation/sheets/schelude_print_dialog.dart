@@ -75,7 +75,6 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
                   flex: 3,
                   child: CupertinoButton(
                       color: AppColors.primary,
-                      minSize: 1,
                       padding:
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Text(
@@ -83,7 +82,7 @@ class _ScheludePrintDialogState extends State<ScheludePrintDialog> {
                         style: AppTextStyles.bodyMedium16
                             .copyWith(color: AppColors.text),
                       ),
-                      onPressed: () => context.router.popForced()),
+                      onPressed: () => context.router.popForced(), minimumSize: Size(1, 1)),
                 )
               ],
             ),

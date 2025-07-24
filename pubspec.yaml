@@ -17,7 +17,7 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_datetime_picker_plus: ^2.2.0
   uuid: ^4.4.2
-  intl: ^0.19.0
+  intl: ^0.20.2
   flutter_blue_plus: ^1.32.12
   path_provider: ^2.1.4
   flutter_spinkit: ^5.2.1

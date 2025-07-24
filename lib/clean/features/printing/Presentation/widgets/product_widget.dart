@@ -22,7 +22,7 @@ class ProductWidget extends StatefulWidget {
   const ProductWidget(
       {super.key,
       required this.product,
-      required this.bloc,
+      required this.bloc, 
       this.edit,
       this.delete});
 
@@ -63,7 +63,6 @@ class _ProductWidgetState extends State<ProductWidget> {
     return CupertinoButton(
       onPressed: () => _showPrintBottomSheet(context),
       padding: const EdgeInsets.all(0),
-      minSize: 1,
       child: Container(
         width: (Platform.isMacOS || Platform.isWindows)
             ? 200
@@ -175,26 +174,24 @@ class _ProductWidgetState extends State<ProductWidget> {
               Row(
                 children: [
                   CupertinoButton(
-                      minSize: 30,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: const Icon(CupertinoIcons.printer,
                           color: AppColors.text),
-                      onPressed: () => _showPrintBottomSheet(context)),
+                      onPressed: () => _showPrintBottomSheet(context), minimumSize: Size(30, 30)),
                   const Spacer(),
                   if (widget.product.allowFreeTime)
                     CupertinoButton(
-                        minSize: 30,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: const Icon(
                           CupertinoIcons.clock,
                           color: AppColors.text,
                         ),
-                        onPressed: () => _showScheduleBottomSheet(context))
+                        onPressed: () => _showScheduleBottomSheet(context), minimumSize: Size(30, 30))
                 ],
               )
           ],
         ),
-      ),
+      ), minimumSize: Size(1, 1),
     );
   }
 

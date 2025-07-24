@@ -11,9 +11,9 @@ class RemoteDB {
 
   static Future<void> createDB() async {
     await Supabase.initialize(
-      url: 'https://uywhgtbxtxbrqmlawdzi.supabase.co',
+      url: '<supabase-url>',
       anonKey:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5d2hndGJ4dHhicnFtbGF3ZHppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkxODI4NzcsImV4cCI6MjA0NDc1ODg3N30.HyXLbheeZwFSJccZLvYf1ws5wmFckMj4m9BfA3_Z1jE',
+          '<supabase-anon-key>',
     );
     database = Supabase.instance.client;
 
